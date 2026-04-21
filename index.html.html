@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>임팩트7 교감지수 평가 시스템</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  .header h1 { font-size: 1.3rem; font-weight: 700; }
+  .header p { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+  .header-stats { text-align: right; font-size: 0.8rem; opacity: 0.9; }
+
+  .tabs {
+    background: white; padding: 0 24px;
+    display: flex; gap: 4px;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .tab {
+    padding: 14px 18px; cursor: pointer; font-size: 0.85rem;
+    border-bottom: 3px solid transparent; color: #666;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .tab:hover { color: #667eea; }
+  .tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: 600; }
+
+  .content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .card {
+    background: white; border-radius: 12px; padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 0.95rem; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px; color: #444;
+  }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card {
+    background: white; border-radius: 12px; padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .stat-value { font-size: 2rem; font-weight: 800; color: #333; }
+  .stat-label { font-size: 0.8rem; color: #888; margin-top: 4px; }
+  .stat-icon { font-size: 2rem; opacity: 0.3; }
+
+  .ranking-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .rank-card {
+    border-radius: 10px; padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid #eee;
+  }
+  .rank-badge {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9rem; color: white; flex-shrink: 0;
+  }
+  .rank-1 { background: #FFD700; }
+  .rank-2 { background: #C0C0C0; }
+  .rank-3 { background: #CD7F32; }
+  .rank-other { background: #a0aec0; }
+  .rank-name { font-weight: 700; font-size: 0.95rem; }
+  .rank-score { font-size: 1.2rem; font-weight: 800; color: #667eea; margin-left: auto; }
+  .rank-stars { font-size: 0.7rem; color: #f6ad55; }
+
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+  .matrix-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .matrix-table th {
+    background: #f8f9fa; padding: 10px 8px; text-align: center;
+    font-weight: 600; color: #555; border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
+  }
+  .matrix-table td { padding: 8px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+  .matrix-table tr:last-child td { font-weight: 700; background: #f8f9fa; }
+  .score-badge {
+    display: inline-block; padding: 3px 8px; border-radius: 12px;
+    font-weight: 700; font-size: 0.8rem; color: white;
+  }
+  .score-high { background: #48bb78; }
+  .score-mid { background: #ed8936; }
+  .score-low { background: #fc8181; }
+
+  .teacher-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .teacher-btn {
+    padding: 8px 16px; border-radius: 20px; border: 2px solid #667eea;
+    background: white; color: #667eea; cursor: pointer; font-weight: 600;
+    font-size: 0.85rem; transition: all 0.2s;
+  }
+  .teacher-btn.active, .teacher-btn:hover { background: #667eea; color: white; }
+
+  .teacher-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 1px solid #eee;
+  }
+  .teacher-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: white;
+  }
+  .teacher-name { font-size: 1.3rem; font-weight: 800; }
+
+  .item-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .item-bar { display: flex; align-items: center; gap: 10px; }
+  .item-label { font-size: 0.8rem; color: #666; width: 90px; flex-shrink: 0; }
+  .bar-track { flex: 1; background: #f0f0f0; border-radius: 4px; height: 8px; }
+  .bar-fill { height: 8px; border-radius: 4px; transition: width 0.5s; }
+  .item-score { font-size: 0.85rem; font-weight: 700; width: 30px; text-align: right; }
+
+  .survey-list { display: flex; flex-direction: column; gap: 12px; }
+  .survey-item { border: 1px solid #eee; border-radius: 10px; padding: 14px; background: white; }
+  .survey-item-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .survey-class { font-weight: 700; color: #667eea; }
+  .survey-scores { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+  .upload-area {
+    border: 3px dashed #c3d4f7; border-radius: 12px; padding: 40px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: #f8f9ff;
+  }
+  .upload-area:hover, .upload-area.dragover { border-color: #667eea; background: #f0f4ff; }
+  .upload-icon { font-size: 3rem; margin-bottom: 12px; }
+  .upload-text { font-size: 1rem; color: #667eea; font-weight: 600; }
+  .upload-sub { font-size: 0.8rem; color: #999; margin-top: 6px; }
+
+  .teacher-reg-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .teacher-input-row { display: flex; gap: 8px; align-items: center; }
+  .teacher-input {
+    flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 0.9rem; transition: border 0.2s;
+  }
+  .teacher-input:focus { outline: none; border-color: #667eea; }
+  .btn-del {
+    padding: 8px 12px; background: #fee2e2; color: #e53e3e; border: none;
+    border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 700;
+    transition: background 0.2s;
+  }
+  .btn-del:hover { background: #fca5a5; }
+  .btn-add-teacher {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px; background: #f0f4ff; color: #667eea;
+    border: 2px dashed #667eea; border-radius: 8px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; width: 100%; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-add-teacher:hover { background: #e0e8ff; }
+
+  .btn {
+    padding: 10px 20px; border-radius: 8px; border: none;
+    cursor: pointer; font-weight: 600; font-size: 0.9rem;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: #667eea; color: white; }
+  .btn-primary:hover { background: #5a6fd6; }
+  .btn-success { background: #48bb78; color: white; }
+  .btn-success:hover { background: #38a169; }
+  .btn-warning { background: #ed8936; color: white; }
+  .btn-warning:hover { background: #dd6b20; }
+  .btn-outline { background: white; color: #667eea; border: 2px solid #667eea; }
+  .btn-outline:hover { background: #667eea; color: white; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .progress-area { margin-top: 20px; }
+  .progress-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem;
+  }
+  .status-icon { font-size: 1rem; width: 20px; text-align: center; }
+  .status-processing { color: #667eea; display: inline-block; animation: spin 1s linear infinite; }
+  .status-done { color: #48bb78; }
+  .status-error { color: #fc8181; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+  .preview-item { position: relative; }
+  .preview-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #eee; }
+  .preview-status {
+    position: absolute; bottom: 4px; right: 4px;
+    background: rgba(0,0,0,0.6); color: white;
+    font-size: 0.65rem; padding: 2px 6px; border-radius: 10px;
+  }
+
+  .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .io-card { border: 2px solid #eee; border-radius: 12px; padding: 24px; text-align: center; }
+  .io-icon { font-size: 3rem; margin-bottom: 12px; }
+  .io-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+  .io-desc { font-size: 0.82rem; color: #888; margin-bottom: 16px; line-height: 1.5; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #333; color: white; padding: 12px 20px;
+    border-radius: 8px; font-size: 0.85rem; z-index: 9999;
+    animation: slideIn 0.3s ease; display: none;
+  }
+  @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+  .tag {
+    padding: 3px 10px; border-radius: 12px; font-size: 0.75rem;
+    background: #e8efff; color: #667eea; font-weight: 600;
+  }
+  .individual-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 12px; }
+  .individual-table th {
+    background: #f8f9fa; padding: 8px; text-align: center;
+    font-weight: 600; color: #555; border-bottom: 2px solid #e0e0e0;
+  }
+  .individual-table td { padding: 8px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+  .reason-box {
+    background: #f8f9ff; border-left: 3px solid #667eea; padding: 10px 14px;
+    border-radius: 0 8px 8px 0; font-size: 0.85rem; color: #555;
+    margin-top: 8px; font-style: italic;
+  }
+  .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .teacher-count-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #667eea; color: white; border-radius: 12px;
+    font-size: 0.75rem; font-weight: 700; padding: 2px 8px; margin-left: 8px;
+  }
+
+  /* API 키 저장 영역 */
+  .api-key-save-row {
+    margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .key-saved-badge {
+    font-size: 0.75rem; background: #f0fff4; color: #276749;
+    padding: 2px 8px; border-radius: 10px; font-weight: 600;
+  }
+  .key-delete-btn {
+    font-size: 0.75rem; background: #fee2e2; color: #e53e3e;
+    border: none; border-radius: 6px; padding: 3px 8px;
+    cursor: pointer; font-weight: 600;
+  }
+  .key-delete-btn:hover { background: #fca5a5; }
+
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .ranking-grid { grid-template-columns: 1fr 1fr; }
+    .chart-grid { grid-template-columns: 1fr; }
+    .io-grid { grid-template-columns: 1fr; }
+    .item-bars { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>⭐ 임팩트7 교감지수 평가 시스템</h1>
+    <p>Impact7 Teacher Evaluation System</p>
+  </div>
+  <div class="header-stats" id="headerStats">총 설문: 0건<br>평가 강사: 0명</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPage('dashboard', this)">📊 대시보드</div>
+  <div class="tab" onclick="showPage('teacher', this)">👨‍🏫 강사별 분석</div>
+  <div class="tab" onclick="showPage('surveys', this)">📋 설문 목록</div>
+  <div class="tab" onclick="showPage('upload', this)">📤 설문 업로드</div>
+  <div class="tab" onclick="showPage('manage', this)">💾 저장/불러오기</div>
+</div>
+
+<div class="content">
+
+  <!-- 대시보드 -->
+  <div id="page-dashboard" class="page active">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div><div class="stat-value" id="totalSurveys">0</div><div class="stat-label">총 설문 수</div></div>
+        <div class="stat-icon">📋</div>
+      </div>
+      <div class="stat-card">
+        <div><div class="stat-value" id="totalTeachers">0</div><div class="stat-label">평가 강사 수</div></div>
+        <div class="stat-icon">👨‍🏫</div>
+      </div>
+      <div class="stat-card">
+        <div><div class="stat-value" id="avgScore">-</div><div class="stat-label">전체 평균 점수</div></div>
+        <div class="stat-icon">⭐</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏆 강사 종합 순위</div>
+      <div class="ranking-grid" id="rankingGrid">
+        <div class="empty-state" style="grid-column:1/-1;padding:30px">
+          <div class="empty-icon">📊</div>
+          <div>설문 데이터를 업로드하면 순위가 표시됩니다</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <div class="card-title">📡 강사별 종합 비교</div>
+        <canvas id="radarChart" height="280"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 항목별 평균 점수</div>
+        <canvas id="barChart" height="280"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 점수 매트릭스</div>
+      <div style="overflow-x:auto">
+        <table class="matrix-table" id="matrixTable">
+          <thead><tr><th>항목</th></tr></thead>
+          <tbody><tr><td colspan="99" style="text-align:center;color:#aaa;padding:30px">데이터 없음</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 강사별 분석 -->
+  <div id="page-teacher" class="page">
+    <div class="card">
+      <div class="card-title">강사 선택</div>
+      <div class="teacher-tabs" id="teacherTabBtns"></div>
+    </div>
+    <div id="teacherDetail">
+      <div class="empty-state"><div class="empty-icon">👨‍🏫</div><div>강사를 선택하거나 설문 데이터를 업로드해주세요</div></div>
+    </div>
+  </div>
+
+  <!-- 설문 목록 -->
+  <div id="page-surveys" class="page">
+    <div class="card">
+      <div class="card-title">📋 전체 설문 목록</div>
+      <div id="surveyList">
+        <div class="empty-state"><div class="empty-icon">📋</div><div>설문 데이터가 없습니다</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 설문 업로드 -->
+  <div id="page-upload" class="page">
+
+    <!-- 강사 등록 -->
+    <div class="card">
+      <div class="card-title">
+        👨‍🏫 강사 등록
+        <span class="teacher-count-badge" id="teacherCountBadge">0명</span>
+        <span style="font-size:0.75rem;color:#888;font-weight:400;margin-left:4px">— 설문 분석 전 먼저 등록해주세요</span>
+      </div>
+      <div class="teacher-reg-list" id="teacherRegList"></div>
+      <button class="btn-add-teacher" onclick="addTeacherInput()">＋ 강사 추가</button>
+      <div style="margin-top:14px">
+        <button class="btn btn-primary" onclick="saveTeachers()">💾 강사 목록 저장</button>
+      </div>
+    </div>
+
+    <!-- API 키 (저장 기능 포함) -->
+    <div class="card">
+      <div class="card-title">🔑 Gemini API 키</div>
+      <div class="flex-row">
+        <input type="password" id="apiKeyInput" placeholder="AIza..."
+          style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:0.9rem"
+          oninput="onApiKeyInput()">
+        <button class="btn btn-outline" onclick="toggleApiKeyVisible()">👁️ 보기</button>
+        <button class="btn btn-outline" onclick="testApiKey()">🧪 키 테스트</button>
+      </div>
+      <div class="api-key-save-row">
+        <input type="checkbox" id="saveKeyCheck" onchange="handleSaveKeyCheck()"
+          style="width:15px;height:15px;cursor:pointer">
+        <label for="saveKeyCheck" style="font-size:0.8rem;color:#555;cursor:pointer">이 기기에 API 키 저장</label>
+        <span id="keySavedBadge" class="key-saved-badge" style="display:none">✅ 저장됨</span>
+        <button id="keyDeleteBtn" class="key-delete-btn" onclick="deleteApiKey()" style="display:none">🗑️ 삭제</button>
+      </div>
+      <p style="font-size:0.75rem;color:#e53e3e;margin-top:8px">⚠️ 키는 이 기기의 브라우저에만 저장되며 외부로 전송되지 않습니다</p>
+    </div>
+
+    <!-- 이미지 업로드 -->
+    <div class="card">
+      <div class="card-title">📤 설문지 이미지 업로드</div>
+      <div class="upload-area" id="uploadArea"
+        ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)"
+        onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-text">PNG 이미지를 여기에 드래그하거나 클릭하여 선택</div>
+        <div class="upload-sub">여러 장 동시 업로드 가능 · PNG, JPG 지원</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)">
+
+      <div id="previewGrid" class="preview-grid"></div>
+
+      <div style="margin-top:16px" class="flex-row">
+        <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeAll()" disabled>🔍 전체 분석 시작</button>
+        <button class="btn btn-outline" onclick="clearFiles()">🗑️ 초기화</button>
+        <span id="fileCount" style="font-size:0.85rem;color:#888"></span>
+      </div>
+
+      <div id="progressArea" class="progress-area"></div>
+    </div>
+  </div>
+
+  <!-- 저장/불러오기 -->
+  <div id="page-manage" class="page">
+    <div class="io-grid">
+      <div class="io-card">
+        <div class="io-icon">📥</div>
+        <div class="io-title">분석 결과 내보내기</div>
+        <div class="io-desc">현재 분석된 결과를 JSON 파일로 저장합니다.<br>나중에 불러와서 다시 볼 수 있습니다.</div>
+        <button class="btn btn-success" onclick="exportData()">💾 JSON으로 내보내기</button>
+      </div>
+      <div class="io-card">
+        <div class="io-icon">📤</div>
+        <div class="io-title">저장된 결과 불러오기</div>
+        <div class="io-desc">이전에 저장한 JSON 파일을 불러옵니다.<br>대시보드에서 결과를 다시 확인할 수 있습니다.</div>
+        <button class="btn btn-warning" onclick="document.getElementById('importInput').click()">📂 JSON 불러오기</button>
+        <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(this)">
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">⚠️ 데이터 초기화</div>
+      <p style="font-size:0.85rem;color:#888;margin-bottom:12px">현재 분석된 모든 데이터를 삭제합니다. 먼저 내보내기를 해두세요.</p>
+      <button class="btn" style="background:#fc8181;color:white" onclick="clearAllData()">🗑️ 전체 데이터 초기화</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 상태 ====================
+let appState = {
+  teachers: ['NAMI', 'AARON', 'EASTER', 'JESICCA', 'EDWARD', 'WILLAN'],
+  surveys: [],
+  files: [],
+  currentTeacher: null
+};
+
+const ITEMS = ['분위기','관심','이해도','정확도','과제확인','열정','다성함/엄한관리','성실','만족도','실력향상'];
+const COLORS = ['#667eea','#48bb78','#ed8936','#fc8181','#9f7aea','#38b2ac','#f6ad55','#68d391'];
+
+// ==================== 초기화 ====================
+window.onload = () => {
+  loadFromStorage();
+  renderTeacherInputs();
+  updateDashboard();
+};
+
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem('impact7_state');
+    if (saved) appState = { ...appState, ...JSON.parse(saved) };
+  } catch(e) {}
+
+  // API 키 자동 불러오기
+  const savedKey = localStorage.getItem('impact7_apikey');
+  if (savedKey) {
+    const input = document.getElementById('apiKeyInput');
+    if (input) input.value = savedKey;
+    const check = document.getElementById('saveKeyCheck');
+    if (check) check.checked = true;
+    const badge = document.getElementById('keySavedBadge');
+    if (badge) badge.style.display = 'inline';
+    const delBtn = document.getElementById('keyDeleteBtn');
+    if (delBtn) delBtn.style.display = 'inline';
+  }
+}
+
+function saveToStorage() {
+  localStorage.setItem('impact7_state', JSON.stringify({
+    teachers: appState.teachers,
+    surveys: appState.surveys
+  }));
+}
+
+// ==================== 탭 ====================
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'teacher') renderTeacherPage();
+  if (name === 'surveys') renderSurveyList();
+  if (name === 'upload') renderTeacherInputs();
+}
+
+// ==================== 강사 등록 ====================
+function renderTeacherInputs() {
+  const list = document.getElementById('teacherRegList');
+  if (!list) return;
+  list.innerHTML = '';
+  appState.teachers.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 'teacher-input-row';
+    row.innerHTML = `
+      <span style="font-size:0.85rem;color:#aaa;width:24px;text-align:right;flex-shrink:0">${i + 1}</span>
+      <input class="teacher-input" value="${name}" placeholder="강사 이름 입력"
+        oninput="appState.teachers[${i}] = this.value.trim(); updateTeacherBadge()">
+      <button class="btn-del" onclick="removeTeacher(${i})">✕</button>`;
+    list.appendChild(row);
+  });
+  updateTeacherBadge();
+}
+
+function updateTeacherBadge() {
+  const badge = document.getElementById('teacherCountBadge');
+  if (badge) badge.textContent = appState.teachers.filter(t => t).length + '명';
+}
+
+function addTeacherInput() {
+  appState.teachers.push('');
+  renderTeacherInputs();
+  const inputs = document.querySelectorAll('#teacherRegList .teacher-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function removeTeacher(idx) {
+  appState.teachers.splice(idx, 1);
+  renderTeacherInputs();
+}
+
+function saveTeachers() {
+  const inputs = document.querySelectorAll('#teacherRegList .teacher-input');
+  appState.teachers = Array.from(inputs).map(i => i.value.trim()).filter(v => v);
+  saveToStorage();
+  renderTeacherInputs();
+  showToast('✅ 강사 목록이 저장되었습니다! (' + appState.teachers.length + '명)');
+}
+
+function getAllTeachers() {
+  return appState.teachers.filter(t => t);
+}
+
+// ==================== API 키 ====================
+function getApiKey() {
+  return document.getElementById('apiKeyInput').value.trim();
+}
+
+function onApiKeyInput() {
+  // 저장 체크 상태면 입력할 때마다 자동 갱신
+  if (document.getElementById('saveKeyCheck').checked) {
+    const key = getApiKey();
+    if (key) localStorage.setItem('impact7_apikey', key);
+  }
+}
+
+function toggleApiKeyVisible() {
+  const input = document.getElementById('apiKeyInput');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function handleSaveKeyCheck() {
+  const checked = document.getElementById('saveKeyCheck').checked;
+  if (checked) {
+    const key = getApiKey();
+    if (!key) {
+      showToast('❌ 먼저 API 키를 입력해주세요');
+      document.getElementById('saveKeyCheck').checked = false;
+      return;
+    }
+    localStorage.setItem('impact7_apikey', key);
+    document.getElementById('keySavedBadge').style.display = 'inline';
+    document.getElementById('keyDeleteBtn').style.display = 'inline';
+    showToast('✅ API 키가 저장되었습니다');
+  } else {
+    localStorage.removeItem('impact7_apikey');
+    document.getElementById('keySavedBadge').style.display = 'none';
+    document.getElementById('keyDeleteBtn').style.display = 'none';
+    showToast('🗑️ API 키 저장이 해제되었습니다');
+  }
+}
+
+function deleteApiKey() {
+  if (!confirm('저장된 API 키를 삭제하시겠습니까?')) return;
+  localStorage.removeItem('impact7_apikey');
+  document.getElementById('apiKeyInput').value = '';
+  document.getElementById('saveKeyCheck').checked = false;
+  document.getElementById('keySavedBadge').style.display = 'none';
+  document.getElementById('keyDeleteBtn').style.display = 'none';
+  showToast('🗑️ API 키가 삭제되었습니다');
+}
+
+async function testApiKey() {
+  const key = getApiKey();
+  if (!key) { showToast('❌ API 키를 입력해주세요'); return; }
+  showToast('🔄 테스트 중...');
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    showToast(res.ok ? '✅ API 키 정상입니다!' : '❌ API 키가 올바르지 않습니다');
+  } catch(e) { showToast('❌ 연결 실패: ' + e.message); }
+}
+
+// ==================== 파일 업로드 ====================
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('dragover'); }
+function handleDragLeave() { document.getElementById('uploadArea').classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+}
+
+function handleFiles(files) {
+  const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+  appState.files = [...appState.files, ...newFiles];
+  renderPreviews();
+  document.getElementById('analyzeBtn').disabled = appState.files.length === 0;
+  document.getElementById('fileCount').textContent = `${appState.files.length}장 선택됨`;
+}
+
+function renderPreviews() {
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = '';
+  appState.files.forEach((file, i) => {
+    const url = URL.createObjectURL(file);
+    const item = document.createElement('div');
+    item.className = 'preview-item';
+    item.id = `preview-${i}`;
+    item.innerHTML = `<img src="${url}" alt="설문지 ${i+1}">
+      <div class="preview-status" id="status-${i}">대기중</div>`;
+    grid.appendChild(item);
+  });
+}
+
+function clearFiles() {
+  appState.files = [];
+  document.getElementById('previewGrid').innerHTML = '';
+  document.getElementById('progressArea').innerHTML = '';
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('fileCount').textContent = '';
+  document.getElementById('fileInput').value = '';
+}
+
+// ==================== Gemini 분석 ====================
+async function analyzeAll() {
+  const key = getApiKey();
+  if (!key) { showToast('❌ API 키를 입력해주세요'); return; }
+  if (appState.files.length === 0) { showToast('❌ 이미지를 먼저 업로드해주세요'); return; }
+  const teachers = getAllTeachers();
+  if (teachers.length === 0) { showToast('❌ 강사 이름을 먼저 등록해주세요'); return; }
+
+  document.getElementById('analyzeBtn').disabled = true;
+  const progressArea = document.getElementById('progressArea');
+  progressArea.innerHTML = '<div style="font-weight:700;margin-bottom:10px;color:#444">📊 분석 진행 상황</div>';
+
+  let successCount = 0;
+
+  for (let i = 0; i < appState.files.length; i++) {
+    const file = appState.files[i];
+    const statusEl = document.getElementById(`status-${i}`);
+
+    const progressItem = document.createElement('div');
+    progressItem.className = 'progress-item';
+    progressItem.id = `progress-${i}`;
+    progressItem.innerHTML = `
+      <span class="status-icon status-processing" id="picon-${i}">⟳</span>
+      <span id="pmsg-${i}">${file.name} 분석 중...</span>`;
+    progressArea.appendChild(progressItem);
+    if (statusEl) statusEl.textContent = '분석중';
+
+    try {
+      const result = await analyzeImage(file, key, teachers);
+      if (result && result.length > 0) {
+        appState.surveys.push(...result);
+        successCount += result.length;
+        document.getElementById(`picon-${i}`).textContent = '✅';
+        document.getElementById(`picon-${i}`).className = 'status-icon status-done';
+        document.getElementById(`pmsg-${i}`).textContent = `${file.name} — ${result.length}건 인식 완료`;
+        if (statusEl) statusEl.textContent = `${result.length}건`;
+      } else { throw new Error('인식된 데이터 없음'); }
+    } catch(e) {
+      document.getElementById(`picon-${i}`).textContent = '❌';
+      document.getElementById(`picon-${i}`).className = 'status-icon status-error';
+      document.getElementById(`pmsg-${i}`).textContent = `${file.name} — 오류: ${e.message}`;
+      if (statusEl) statusEl.textContent = '오류';
+    }
+
+    await new Promise(r => setTimeout(r, 62000)); // 62초 간격
+
+  }
+
+  saveToStorage();
+  updateDashboard();
+  document.getElementById('analyzeBtn').disabled = false;
+
+  const doneEl = document.createElement('div');
+  doneEl.style = 'margin-top:12px;padding:12px;background:#f0fff4;border-radius:8px;color:#276749;font-weight:600';
+  doneEl.textContent = `✅ 분석 완료! 총 ${successCount}건의 설문이 처리되었습니다.`;
+  progressArea.appendChild(doneEl);
+  showToast(`✅ ${successCount}건 분석 완료!`);
+}
+
+async function analyzeImage(file, apiKey, teachers) {
+  const base64 = await fileToBase64(file);
+  const teacherList = teachers.join(', ');
+
+  const prompt = `이것은 영어학원 강사 평가 설문지입니다.
+
+등록된 강사 목록: ${teacherList}
+
+설문지에서 다음 정보를 추출하세요:
+1. 반명
+2. 평가된 각 강사 이름 (위 목록 중 가장 유사한 이름으로 매칭)
+3. 각 강사별 10개 항목 점수 (2, 4, 6, 8, 10 중 하나):
+   1)분위기 2)관심 3)이해도 4)정확도 5)과제확인 6)열정 7)다성함/엄한관리 8)성실 9)만족도 10)실력향상
+4. 수업 받고 싶은 선생님과 이유
+5. 수업 받고 싶지 않은 선생님과 이유
+6. 각 강사별 건의사항
+
+반드시 아래 JSON 형식으로만 응답 (다른 텍스트 없이):
+{
+  "surveys": [
+    {
+      "class": "반명",
+      "scores": {
+        "강사명": [분위기, 관심, 이해도, 정확도, 과제확인, 열정, 다성함, 성실, 만족도, 실력향상],
+        "강사명2": [점수배열]
+      },
+      "preferred_teacher": "선호강사",
+      "preferred_reason": "이유",
+      "disliked_teacher": "비선호강사",
+      "disliked_reason": "이유",
+      "suggestions": {"강사명": "건의사항"}
+    }
+  ]
+}`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { text: prompt },
+          { inline_data: { mime_type: file.type, data: base64 } }
+        ]}],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2000 }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || '분석 실패');
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('응답 파싱 실패');
+  const parsed = JSON.parse(jsonMatch[0]);
+  return parsed.surveys || [];
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ==================== 대시보드 ====================
+function updateDashboard() {
+  const stats = computeTeacherStats();
+  const teachers = Object.keys(stats);
+
+  document.getElementById('totalSurveys').textContent = appState.surveys.length;
+  document.getElementById('totalTeachers').textContent = teachers.length;
+  document.getElementById('headerStats').innerHTML =
+    `총 설문: ${appState.surveys.length}건<br>평가 강사: ${teachers.length}명`;
+
+  if (teachers.length === 0) {
+    document.getElementById('avgScore').textContent = '-';
+    return;
+  }
+
+  const overallAvg = teachers.reduce((s, t) => s + stats[t].avg, 0) / teachers.length;
+  document.getElementById('avgScore').textContent = overallAvg.toFixed(1) + '점';
+
+  renderRanking(stats);
+  renderRadarChart(stats);
+  renderBarChart(stats);
+  renderMatrix(stats);
+}
+
+function computeTeacherStats() {
+  const stats = {};
+  appState.surveys.forEach(survey => {
+    if (!survey.scores) return;
+    Object.entries(survey.scores).forEach(([teacher, scores]) => {
+      if (!teacher || !Array.isArray(scores) || scores.length !== 10) return;
+      if (!stats[teacher]) {
+        stats[teacher] = { scores: [], responses: [], preferred: 0, disliked: 0, reasons: [], suggestions: [] };
+      }
+      stats[teacher].scores.push(scores);
+      stats[teacher].responses.push({ class: survey.class, scores });
+      if (survey.preferred_teacher === teacher) {
+        stats[teacher].preferred++;
+        if (survey.preferred_reason) stats[teacher].reasons.push(survey.preferred_reason);
+      }
+      if (survey.disliked_teacher === teacher) stats[teacher].disliked++;
+      if (survey.suggestions?.[teacher]) stats[teacher].suggestions.push(survey.suggestions[teacher]);
+    });
+  });
+
+  Object.keys(stats).forEach(t => {
+    const s = stats[t];
+    s.itemAvg = ITEMS.map((_, i) => {
+      const vals = s.scores.map(r => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+    });
+    s.avg = s.itemAvg.reduce((a, b) => a + b, 0) / s.itemAvg.length;
+    s.count = s.scores.length;
+  });
+
+  return stats;
+}
+
+function renderRanking(stats) {
+  const sorted = Object.entries(stats).sort((a, b) => b[1].avg - a[1].avg);
+  const grid = document.getElementById('rankingGrid');
+  grid.innerHTML = '';
+  sorted.forEach(([name, data], i) => {
+    const rank = i + 1;
+    const badgeClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
+    const starCount = Math.round(data.avg / 2);
+    const stars = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+    const card = document.createElement('div');
+    card.className = 'rank-card';
+    card.innerHTML = `
+      <div class="rank-badge ${badgeClass}">${rank}</div>
+      <div>
+        <div class="rank-name">${name}</div>
+        <div class="rank-stars">${stars} ${data.count}명 응답</div>
+        <div style="font-size:0.75rem;color:#888">선호 ${data.preferred}명</div>
+      </div>
+      <div class="rank-score">${data.avg.toFixed(1)}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+let radarInst = null, barInst = null;
+
+function renderRadarChart(stats) {
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  if (radarInst) radarInst.destroy();
+  const teachers = Object.keys(stats);
+  radarInst = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ITEMS,
+      datasets: teachers.map((t, i) => ({
+        label: t, data: stats[t].itemAvg,
+        borderColor: COLORS[i % COLORS.length],
+        backgroundColor: COLORS[i % COLORS.length] + '20',
+        borderWidth: 2, pointRadius: 3
+      }))
+    },
+    options: {
+      responsive: true,
+      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 10 } }, pointLabels: { font: { size: 10 } } } },
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } }
+    }
+  });
+}
+
+function renderBarChart(stats) {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  if (barInst) barInst.destroy();
+  const teachers = Object.keys(stats);
+  barInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ITEMS,
+      datasets: teachers.map((t, i) => ({
+        label: t,
+        data: stats[t].itemAvg.map(v => parseFloat(v.toFixed(1))),
+        backgroundColor: COLORS[i % COLORS.length] + 'cc',
+        borderRadius: 4
+      }))
+    },
+    options: {
+      responsive: true,
+      scales: { y: { min: 0, max: 10, ticks: { stepSize: 2 } }, x: { ticks: { font: { size: 10 } } } },
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } }
+    }
+  });
+}
+
+function renderMatrix(stats) {
+  const teachers = Object.keys(stats);
+  let html = '<thead><tr><th>항목</th>';
+  teachers.forEach(t => { html += `<th>${t}</th>`; });
+  html += '</tr></thead><tbody>';
+  ITEMS.forEach((item, i) => {
+    html += `<tr><td style="text-align:left;font-weight:600;color:#555;padding-left:12px">${i+1}. ${item}</td>`;
+    teachers.forEach(t => {
+      const val = stats[t].itemAvg[i];
+      const cls = val >= 9 ? 'score-high' : val >= 7 ? 'score-mid' : 'score-low';
+      html += `<td><span class="score-badge ${cls}">${val.toFixed(1)}</span></td>`;
+    });
+    html += '</tr>';
+  });
+  html += '<tr><td style="text-align:left;font-weight:700;padding-left:12px">📊 평균</td>';
+  teachers.forEach(t => {
+    const val = stats[t].avg;
+    const cls = val >= 9 ? 'score-high' : val >= 7 ? 'score-mid' : 'score-low';
+    html += `<td><span class="score-badge ${cls}">${val.toFixed(1)}</span></td>`;
+  });
+  html += '</tr></tbody>';
+  document.getElementById('matrixTable').innerHTML = html;
+}
+
+// ==================== 강사별 분석 ====================
+function renderTeacherPage() {
+  const stats = computeTeacherStats();
+  const teachers = Object.keys(stats);
+  const btnContainer = document.getElementById('teacherTabBtns');
+  btnContainer.innerHTML = '';
+
+  if (teachers.length === 0) {
+    document.getElementById('teacherDetail').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">👨‍🏫</div><div>설문 데이터를 업로드해주세요</div></div>';
+    return;
+  }
+
+  teachers.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'teacher-btn' + (t === appState.currentTeacher ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => showTeacherDetail(t, stats);
+    btnContainer.appendChild(btn);
+  });
+
+  const target = appState.currentTeacher && stats[appState.currentTeacher]
+    ? appState.currentTeacher : teachers[0];
+  showTeacherDetail(target, stats);
+}
+
+function showTeacherDetail(name, stats) {
+  appState.currentTeacher = name;
+  document.querySelectorAll('.teacher-btn').forEach(b => b.classList.toggle('active', b.textContent === name));
+
+  const data = stats[name];
+  const starCount = Math.round(data.avg / 2);
+  const stars = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+
+  const barsHtml = ITEMS.map((item, i) => {
+    const val = data.itemAvg[i];
+    const color = val >= 9 ? '#48bb78' : val >= 7 ? '#ed8936' : '#fc8181';
+    return `<div class="item-bar">
+      <div class="item-label">${i+1}. ${item}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${val*10}%;background:${color}"></div></div>
+      <div class="item-score">${val.toFixed(1)}</div>
+    </div>`;
+  }).join('');
+
+  let tableHtml = `<table class="individual-table"><thead><tr><th>응답#</th>`;
+  ITEMS.forEach(item => { tableHtml += `<th>${item}</th>`; });
+  tableHtml += '<th>합계</th></tr></thead><tbody>';
+  data.responses.forEach((resp, i) => {
+    const total = resp.scores.reduce((a, b) => a + Number(b), 0);
+    tableHtml += `<tr><td style="font-weight:600">#${i+1}${resp.class ? '<br><small style="color:#888">'+resp.class+'</small>' : ''}</td>`;
+    resp.scores.forEach(s => {
+      const sv = Number(s);
+      const cls = sv >= 9 ? 'score-high' : sv >= 7 ? 'score-mid' : 'score-low';
+      tableHtml += `<td><span class="score-badge ${cls}">${sv}</span></td>`;
+    });
+    tableHtml += `<td style="font-weight:700;color:#667eea">${total}</td></tr>`;
+  });
+  tableHtml += '</tbody></table>';
+
+  const reasonsHtml = data.reasons.length > 0
+    ? data.reasons.map(r => `<div class="reason-box">"${r}"</div>`).join('')
+    : '<div style="color:#aaa;font-size:0.85rem">선호 이유 없음</div>';
+
+  document.getElementById('teacherDetail').innerHTML = `
+    <div class="card">
+      <div class="teacher-header">
+        <div class="teacher-avatar">👨‍🏫</div>
+        <div>
+          <div class="teacher-name">${name}</div>
+          <div style="font-size:0.85rem;color:#888">${data.count}명 응답</div>
+          <div style="color:#f6ad55;font-size:0.9rem">${stars}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:1.5rem;font-weight:800;color:#667eea">${data.avg.toFixed(1)}점</div>
+          <div style="font-size:0.8rem;color:#48bb78">👍 선호 ${data.preferred}명</div>
+          <div style="font-size:0.8rem;color:#fc8181">👎 비선호 ${data.disliked}명</div>
+        </div>
+      </div>
+      <div class="item-bars">${barsHtml}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 개별 응답 점수</div>
+      <div style="overflow-x:auto">${tableHtml}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">💬 선호 이유</div>
+      ${reasonsHtml}
+    </div>`;
+}
+
+// ==================== 설문 목록 ====================
+function renderSurveyList() {
+  const container = document.getElementById('surveyList');
+  if (appState.surveys.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div>설문 데이터가 없습니다</div></div>';
+    return;
+  }
+  container.innerHTML = '<div class="survey-list">' +
+    appState.surveys.map((s, i) => `
+      <div class="survey-item">
+        <div class="survey-item-header">
+          <span class="survey-class">📋 설문 #${i+1}${s.class ? ' | ' + s.class + '반' : ''}</span>
+        </div>
+        <div class="survey-scores">
+          ${Object.entries(s.scores || {}).map(([t, sc]) =>
+            `<span class="tag">${t}: ${(sc.reduce((a,b)=>a+Number(b),0)/sc.length).toFixed(1)}</span>`
+          ).join('')}
+        </div>
+        ${s.preferred_teacher ? `<div style="margin-top:6px;font-size:0.8rem;color:#48bb78">👍 선호: ${s.preferred_teacher}</div>` : ''}
+        ${s.disliked_teacher ? `<div style="font-size:0.8rem;color:#fc8181">👎 비선호: ${s.disliked_teacher}</div>` : ''}
+      </div>`).join('') + '</div>';
+}
+
+// ==================== 내보내기 / 불러오기 ====================
+function exportData() {
+  if (appState.surveys.length === 0) { showToast('❌ 내보낼 데이터가 없습니다'); return; }
+  const blob = new Blob([JSON.stringify({
+    version: '1.0',
+    exportDate: new Date().toISOString(),
+    teachers: appState.teachers,
+    surveys: appState.surveys
+  }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `임팩트7_평가결과_${new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','')}.json`;
+  a.click();
+  showToast('✅ 내보내기 완료!');
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.surveys) { showToast('❌ 올바른 파일이 아닙니다'); return; }
+      appState.surveys = data.surveys;
+      if (data.teachers) appState.teachers = data.teachers;
+      saveToStorage();
+      updateDashboard();
+      renderTeacherInputs();
+      showToast(`✅ ${data.surveys.length}건 불러오기 완료!`);
+      showPage('dashboard', document.querySelector('.tab'));
+    } catch(e) { showToast('❌ 파일 읽기 실패'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function clearAllData() {
+  if (!confirm('정말 모든 데이터를 삭제하시겠습니까?\n먼저 내보내기를 해두세요.')) return;
+  appState.surveys = [];
+  saveToStorage();
+  updateDashboard();
+  showToast('🗑️ 데이터가 초기화되었습니다');
+}
+
+// ==================== 토스트 ====================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>
