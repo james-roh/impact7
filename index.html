@@ -2,10 +2,1351 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>임팩트7 평가 시스템</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>임팩트7영어학원 강사 평가 시스템</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white; padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left .title { font-size: 22px; font-weight: 700; }
+    .header-left .subtitle { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+    .header-stats { display: flex; gap: 24px; }
+    .header-stat { text-align: center; }
+    .header-stat .num { font-size: 24px; font-weight: 700; color: #ffd700; }
+    .header-stat .label { font-size: 11px; opacity: 0.8; }
+
+    /* Nav */
+    .nav {
+      background: #1a1a2e; display: flex; align-items: center;
+      padding: 0 24px; border-bottom: 1px solid #333;
+    }
+    .nav-tab {
+      padding: 14px 20px; color: #aaa; cursor: pointer;
+      border-bottom: 3px solid transparent; font-size: 14px;
+      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .nav-tab:hover { color: white; }
+    .nav-tab.active { color: #ffd700; border-bottom-color: #ffd700; }
+    .nav-right { margin-left: auto; }
+    .btn-admin {
+      background: #333; color: white; border: 1px solid #555;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; transition: all 0.2s;
+    }
+    .btn-admin:hover { background: #444; }
+
+    /* Pages */
+    .page { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: white; border-radius: 12px; padding: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .stat-card .info .label { font-size: 13px; color: #888; margin-bottom: 6px; }
+    .stat-card .info .value { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+    .stat-card .icon { font-size: 32px; opacity: 0.6; }
+
+    /* Empty state */
+    .empty-state {
+      background: white; border-radius: 12px; padding: 60px;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { color: #888; font-size: 15px; }
+
+    /* Teacher list */
+    .teachers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .teacher-card {
+      background: white; border-radius: 12px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer;
+      transition: all 0.2s; border: 2px solid transparent;
+    }
+    .teacher-card:hover { border-color: #ffd700; transform: translateY(-2px); }
+    .teacher-card .name { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .teacher-card .score {
+      font-size: 28px; font-weight: 700; color: #0f3460; margin-bottom: 4px;
+    }
+    .teacher-card .count { font-size: 12px; color: #888; }
+    .score-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+    .score-fill { height: 100%; background: linear-gradient(90deg, #ffd700, #ff8c00); border-radius: 3px; transition: width 0.5s; }
+
+    /* Teacher detail */
+    .back-btn {
+      background: #f0f2f5; border: none; padding: 8px 16px;
+      border-radius: 6px; cursor: pointer; font-size: 14px;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 6px;
+    }
+    .back-btn:hover { background: #e0e2e5; }
+    .detail-header {
+      background: white; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .detail-header .teacher-name { font-size: 24px; font-weight: 700; }
+    .detail-header .big-score { font-size: 48px; font-weight: 700; color: #0f3460; }
+    .detail-header .score-label { font-size: 13px; color: #888; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .detail-card {
+      background: white; border-radius: 12px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .detail-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #1a1a2e; }
+
+    .score-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .score-item .item-label { font-size: 13px; color: #555; flex: 1; }
+    .score-item .item-score { font-weight: 700; color: #0f3460; margin-left: 8px; }
+    .mini-bar { flex: 2; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin: 0 8px; }
+    .mini-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; }
+
+    /* Opinions */
+    .opinions-section {
+      background: white; border-radius: 12px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;
+    }
+    .opinions-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #1a1a2e; }
+    .opinions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .opinion-section { border-radius: 10px; padding: 16px; }
+    .opinion-section.positive { background: #f0fff4; border-left: 4px solid #38a169; }
+    .opinion-section.negative { background: #fff5f5; border-left: 4px solid #e53e3e; }
+    .opinion-section-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .opinion-section-header .opinion-title { font-size: 14px; font-weight: 600; }
+    .opinion-section.positive .opinion-title { color: #276749; }
+    .opinion-section.negative .opinion-title { color: #9b2c2c; }
+    .opinion-count {
+      font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+    }
+    .opinion-section.positive .opinion-count { background: #c6f6d5; color: #276749; }
+    .opinion-section.negative .opinion-count { background: #fed7d7; color: #9b2c2c; }
+    .opinion-item {
+      font-size: 13px; padding: 8px 10px; margin-bottom: 6px;
+      border-radius: 6px; line-height: 1.5;
+    }
+    .opinion-section.positive .opinion-item { background: #e6ffed; color: #2d4a36; }
+    .opinion-section.negative .opinion-item { background: #ffe0e0; color: #4a2d2d; }
+    .opinion-empty { font-size: 13px; color: #aaa; text-align: center; padding: 16px; }
+
+    /* Survey list */
+    .survey-table {
+      background: white; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+    }
+    .survey-table table { width: 100%; border-collapse: collapse; }
+    .survey-table th {
+      background: #f8f9fa; padding: 12px 16px;
+      text-align: left; font-size: 13px; color: #666;
+      border-bottom: 1px solid #eee;
+    }
+    .survey-table td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+    .survey-table tr:last-child td { border-bottom: none; }
+    .survey-table tr:hover td { background: #fafafa; }
+
+    /* Admin Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white; border-radius: 16px; width: 640px;
+      max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      padding: 20px 24px; border-bottom: 1px solid #eee;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-header h2 { font-size: 18px; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+    .modal-body { padding: 24px; }
+
+    /* Admin tabs */
+    .admin-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+    .admin-tab {
+      padding: 10px 20px; cursor: pointer; font-size: 14px;
+      color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .admin-tab.active { color: #0f3460; border-bottom-color: #0f3460; font-weight: 600; }
+
+    /* Upload */
+    .upload-method-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .upload-tab-btn {
+      padding: 8px 16px; border-radius: 6px; border: 2px solid #ddd;
+      cursor: pointer; font-size: 13px; background: white; transition: all 0.2s;
+    }
+    .upload-tab-btn.active { border-color: #0f3460; color: #0f3460; background: #e8f0fe; font-weight: 600; }
+    .upload-panel { display: none; }
+    .upload-panel.active { display: block; }
+
+    .drop-zone {
+      border: 2px dashed #ddd; border-radius: 10px; padding: 32px;
+      text-align: center; cursor: pointer; transition: all 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: #0f3460; background: #f0f4ff; }
+    .drop-zone .dz-icon { font-size: 36px; margin-bottom: 8px; }
+    .drop-zone p { color: #888; font-size: 14px; }
+    .drop-zone strong { color: #0f3460; }
+
+    .gdrive-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .gdrive-input-row input {
+      flex: 1; padding: 10px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 14px;
+    }
+    .gdrive-list { margin-top: 8px; }
+    .gdrive-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: #f8f9fa; border-radius: 6px; margin-bottom: 6px;
+    }
+    .gdrive-item .file-name { font-size: 13px; flex: 1; }
+    .gdrive-item .status-badge {
+      font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 8px;
+    }
+    .status-ready { background: #e2e8f0; color: #4a5568; }
+    .status-processing { background: #fef3c7; color: #92400e; }
+    .status-success { background: #c6f6d5; color: #276749; }
+    .status-error { background: #fed7d7; color: #9b2c2c; }
+    .gdrive-remove { background: none; border: none; cursor: pointer; color: #e53e3e; font-size: 16px; }
+
+    /* Google Login */
+    .gdrive-login-section { margin-bottom: 16px; }
+    .btn-google-login {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px;
+      background: white; cursor: pointer; font-size: 14px; transition: all 0.2s;
+    }
+    .btn-google-login:hover { border-color: #4285f4; background: #f0f4ff; }
+    .btn-google-login.connected { border-color: #38a169; background: #f0fff4; color: #276749; }
+    .gdrive-config { background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .gdrive-config label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
+    .gdrive-config input {
+      width: 100%; padding: 8px 10px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 13px; margin-bottom: 8px;
+    }
+
+    .file-list { margin-top: 12px; }
+    .file-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: #f8f9fa; border-radius: 6px; margin-bottom: 6px;
+    }
+    .file-item .file-name { font-size: 13px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-item .file-size { font-size: 11px; color: #888; margin-left: 8px; }
+    .file-remove { background: none; border: none; cursor: pointer; color: #e53e3e; font-size: 16px; }
+
+    /* Progress */
+    .progress-list { margin-top: 12px; }
+    .progress-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; background: #f8f9fa; border-radius: 6px; margin-bottom: 6px;
+    }
+    .progress-item .pi-name { font-size: 13px; flex: 1; }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid #ddd;
+      border-top-color: #0f3460; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px; border-radius: 8px; border: none;
+      cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-primary { background: #0f3460; color: white; }
+    .btn-primary:hover { background: #1a4a7a; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-success { background: #38a169; color: white; }
+    .btn-success:hover { background: #2f8a5a; }
+    .btn-danger { background: #e53e3e; color: white; }
+    .btn-danger:hover { background: #c53030; }
+    .btn-secondary { background: #718096; color: white; }
+    .btn-secondary:hover { background: #5a6678; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* Teacher management */
+    .teacher-manage-list { margin-bottom: 16px; }
+    .teacher-manage-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px; background: #f8f9fa; border-radius: 6px; margin-bottom: 6px;
+    }
+    .teacher-manage-item .t-name { font-size: 14px; font-weight: 600; }
+    .add-teacher-row { display: flex; gap: 8px; }
+    .add-teacher-row input {
+      flex: 1; padding: 10px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 14px;
+    }
+
+    /* Gemini API */
+    .api-key-section { margin-bottom: 20px; }
+    .api-key-section label { font-size: 13px; color: #555; display: block; margin-bottom: 6px; }
+    .api-key-row { display: flex; gap: 8px; }
+    .api-key-row input {
+      flex: 1; padding: 10px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 14px; font-family: monospace;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1a1a2e; color: white; padding: 12px 20px;
+      border-radius: 8px; font-size: 14px; z-index: 9999;
+      transform: translateY(100px); opacity: 0; transition: all 0.3s;
+      max-width: 300px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* Section title */
+    .section-title {
+      font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #1a1a2e;
+    }
+    .section-divider { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+
+    /* Ranking */
+    .ranking-list { }
+    .ranking-item {
+      display: flex; align-items: center; gap: 16px;
+      background: white; border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .rank-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+    }
+    .rank-1 { background: #ffd700; color: #333; }
+    .rank-2 { background: #c0c0c0; color: #333; }
+    .rank-3 { background: #cd7f32; color: white; }
+    .rank-other { background: #eee; color: #555; }
+    .ranking-item .r-name { font-size: 15px; font-weight: 600; flex: 1; }
+    .ranking-item .r-score { font-size: 20px; font-weight: 700; color: #0f3460; }
+
+    /* Import/Export */
+    .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .io-card {
+      background: #f8f9fa; border-radius: 10px; padding: 16px;
+      text-align: center;
+    }
+    .io-card p { font-size: 13px; color: #666; margin-bottom: 12px; }
+
+    /* Login */
+    .login-form label { font-size: 13px; color: #555; display: block; margin-bottom: 6px; }
+    .login-form input {
+      width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 14px; margin-bottom: 12px;
+    }
+
+    /* Notice */
+    .notice {
+      background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px;
+      padding: 10px 14px; font-size: 12px; color: #856404; margin-top: 10px;
+    }
+
+    /* Chart container */
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .opinions-grid { grid-template-columns: 1fr; }
+      .io-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <h1>✅ 임팩트7 평가 시스템 - 정상 작동 중</h1>
-  <p>배포가 성공적으로 완료되었습니다.</p>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="title">⭐ 임팩트7영어학원 강사 평가 시스템</div>
+    <div class="subtitle">Impact7 Teacher Evaluation System</div>
+  </div>
+  <div class="header-stats">
+    <div class="header-stat">
+      <div class="num" id="headerTotal">0</div>
+      <div class="label">총 설문 수</div>
+    </div>
+    <div class="header-stat">
+      <div class="num" id="headerTeachers">0</div>
+      <div class="label">평가 강사</div>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+  <div class="nav-tab active" onclick="showPage('dashboard')" id="tab-dashboard">🏠 대시보드</div>
+  <div class="nav-tab" onclick="showPage('teachers')" id="tab-teachers">👨‍🏫 강사별 분석</div>
+  <div class="nav-tab" onclick="showPage('surveys')" id="tab-surveys">📋 설문 목록</div>
+  <div class="nav-tab" onclick="showPage('import')" id="tab-import">📂 불러오기</div>
+  <div class="nav-right">
+    <button class="btn-admin" onclick="openAdmin()">⚙️ 관리자</button>
+  </div>
+</div>
+
+<!-- Pages -->
+<div class="page active" id="page-dashboard">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="info">
+        <div class="label">총 설문 수</div>
+        <div class="value" id="dashTotal">0</div>
+      </div>
+      <div class="icon">📋</div>
+    </div>
+    <div class="stat-card">
+      <div class="info">
+        <div class="label">평가 강사 수</div>
+        <div class="value" id="dashTeachers">0</div>
+      </div>
+      <div class="icon">👨‍🏫</div>
+    </div>
+    <div class="stat-card">
+      <div class="info">
+        <div class="label">전체 평균 점수</div>
+        <div class="value" id="dashAvg">-점</div>
+      </div>
+      <div class="icon">⭐</div>
+    </div>
+  </div>
+  <div id="dashContent">
+    <div class="empty-state">
+      <div class="icon">📁</div>
+      <p>아직 분석된 데이터가 없습니다<br>관리자 메뉴에서 PDF를 업로드해주세요</p>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-teachers">
+  <div id="teachersContent"></div>
+</div>
+
+<div class="page" id="page-surveys">
+  <div id="surveysContent"></div>
+</div>
+
+<div class="page" id="page-import">
+  <div class="section-title">📂 데이터 불러오기 / 내보내기</div>
+  <div class="io-grid">
+    <div class="io-card">
+      <h3 style="margin-bottom:8px;">📤 내보내기</h3>
+      <p>현재 분석 데이터를 JSON 파일로 저장합니다</p>
+      <button class="btn btn-primary" onclick="exportData()">데이터 내보내기</button>
+    </div>
+    <div class="io-card">
+      <h3 style="margin-bottom:8px;">📥 가져오기</h3>
+      <p>저장된 JSON 파일을 불러옵니다</p>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-success" onclick="document.getElementById('importFile').click()">데이터 가져오기</button>
+    </div>
+  </div>
+  <hr class="section-divider">
+  <div style="text-align:center;">
+    <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑️ 전체 데이터 초기화</button>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div class="modal-overlay" id="adminOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>⚙️ 관리자 메뉴</h2>
+      <button class="modal-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Login -->
+      <div id="adminLoginSection">
+        <div class="login-form">
+          <label>관리자 비밀번호</label>
+          <input type="password" id="adminPwInput" placeholder="비밀번호를 입력하세요" onkeydown="if(event.key==='Enter')checkAdminPw()">
+          <button class="btn btn-primary" onclick="checkAdminPw()">로그인</button>
+        </div>
+      </div>
+
+      <!-- Admin content -->
+      <div id="adminContent" style="display:none;">
+        <div class="admin-tabs">
+          <div class="admin-tab active" onclick="switchAdminTab('upload')" id="adminTab-upload">📄 설문지 업로드</div>
+          <div class="admin-tab" onclick="switchAdminTab('teachers')" id="adminTab-teachers">👨‍🏫 강사 관리</div>
+          <div class="admin-tab" onclick="switchAdminTab('api')" id="adminTab-api">🔑 API 설정</div>
+        </div>
+
+        <!-- Upload tab -->
+        <div id="adminPanel-upload">
+          <div class="api-key-section">
+            <label>Gemini API Key</label>
+            <div class="api-key-row">
+              <input type="password" id="geminiKeyInput" placeholder="AIza...">
+              <button class="btn btn-secondary btn-sm" onclick="saveGeminiKey()">저장</button>
+            </div>
+          </div>
+
+          <div class="upload-method-tabs">
+            <button class="upload-tab-btn active" onclick="switchUploadTab('local')" id="uploadTab-local">💻 로컬 파일</button>
+            <button class="upload-tab-btn" onclick="switchUploadTab('gdrive')" id="uploadTab-gdrive">☁️ Google Drive</button>
+          </div>
+
+          <!-- Local upload -->
+          <div class="upload-panel active" id="uploadPanel-local">
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
+              ondragover="event.preventDefault();this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleDrop(event)">
+              <div class="dz-icon">📄</div>
+              <p><strong>클릭하거나 PDF를 드래그</strong>하세요<br>최대 50MB, 최대 1000페이지</p>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf" multiple style="display:none" onchange="handleLocalFiles(event)">
+            <div class="file-list" id="localFileList"></div>
+          </div>
+
+          <!-- Google Drive upload -->
+          <div class="upload-panel" id="uploadPanel-gdrive">
+            <div class="gdrive-config">
+              <label>Google OAuth Client ID</label>
+              <input type="text" id="gClientId" placeholder="123456789-abc.apps.googleusercontent.com">
+              <label>Google API Key</label>
+              <input type="text" id="gApiKey" placeholder="AIzaSy...">
+              <button class="btn btn-secondary btn-sm" onclick="saveGoogleConfig()">설정 저장</button>
+            </div>
+            <div class="gdrive-login-section">
+              <button class="btn-google-login" id="gLoginBtn" onclick="googleLogin()">
+                <span>🔵</span> Google 계정으로 로그인
+              </button>
+            </div>
+            <button class="btn btn-primary btn-sm" id="gPickerBtn" disabled onclick="openGooglePicker()">
+              📂 Google Drive에서 PDF 선택
+            </button>
+            <div class="gdrive-list" id="gdriveList"></div>
+            <div class="notice">
+              ⚠️ Google Cloud Console에서 Drive API, Picker API를 활성화하고 OAuth Client ID와 API Key를 등록해주세요.
+            </div>
+          </div>
+
+          <div style="margin-top:16px; display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn btn-primary" id="startAnalysisBtn" onclick="startAnalysis()" disabled>
+              🔍 분석 시작
+            </button>
+          </div>
+          <div class="progress-list" id="progressList"></div>
+        </div>
+
+        <!-- Teachers tab -->
+        <div id="adminPanel-teachers" style="display:none;">
+          <div class="teacher-manage-list" id="teacherManageList"></div>
+          <div class="add-teacher-row">
+            <input type="text" id="newTeacherInput" placeholder="강사 이름 입력" onkeydown="if(event.key==='Enter')addTeacher()">
+            <button class="btn btn-success btn-sm" onclick="addTeacher()">+ 추가</button>
+          </div>
+        </div>
+
+        <!-- API tab -->
+        <div id="adminPanel-api" style="display:none;">
+          <div style="margin-bottom:16px;">
+            <label style="font-size:13px;color:#555;display:block;margin-bottom:6px;">관리자 비밀번호 변경</label>
+            <div style="display:flex;gap:8px;">
+              <input type="password" id="newPwInput" placeholder="새 비밀번호" style="flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+              <button class="btn btn-secondary btn-sm" onclick="changeAdminPw()">변경</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== STATE ====================
+let appData = {
+  surveys: [],
+  teachers: ['김민준', '이서연', '박지호', '최수아', '정도윤', '한예린'],
+  adminPw: '1234'
+};
+let currentTeacherIndex = null;
+let selectedLocalFiles = [];
+let gdriveFiles = [];
+let gAccessToken = null;
+let gapiLoaded = false;
+let gisLoaded = false;
+let tokenClient = null;
+
+// ==================== INIT ====================
+function init() {
+  const saved = localStorage.getItem('impact7Data');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      appData = { ...appData, ...parsed };
+    } catch(e) {}
+  }
+  const gKey = localStorage.getItem('geminiKey');
+  if (gKey) document.getElementById('geminiKeyInput').value = gKey;
+  const gClientId = localStorage.getItem('gClientId');
+  if (gClientId) document.getElementById('gClientId').value = gClientId;
+  const gApiKeyVal = localStorage.getItem('gApiKey');
+  if (gApiKeyVal) document.getElementById('gApiKey').value = gApiKeyVal;
+  updateAll();
+  loadGoogleAPIs();
+}
+
+function saveData() {
+  localStorage.setItem('impact7Data', JSON.stringify(appData));
+}
+
+function updateAll() {
+  updateHeader();
+  updateDashboard();
+  updateTeachersPage();
+  updateSurveysPage();
+}
+
+// ==================== HEADER ====================
+function updateHeader() {
+  document.getElementById('headerTotal').textContent = appData.surveys.length;
+  document.getElementById('headerTeachers').textContent = appData.teachers.length;
+}
+
+// ==================== NAVIGATION ====================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('tab-' + page).classList.add('active');
+  if (page === 'teachers') renderTeacherList();
+}
+
+// ==================== DASHBOARD ====================
+function updateDashboard() {
+  const total = appData.surveys.length;
+  document.getElementById('dashTotal').textContent = total;
+  document.getElementById('dashTeachers').textContent = appData.teachers.length;
+
+  if (total === 0) {
+    document.getElementById('dashAvg').textContent = '-점';
+    document.getElementById('dashContent').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📁</div>
+        <p>아직 분석된 데이터가 없습니다<br>관리자 메뉴에서 PDF를 업로드해주세요</p>
+      </div>`;
+    return;
+  }
+
+  // Average score
+  const scores = appData.surveys.map(s => s.totalScore).filter(s => s > 0);
+  const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
+  document.getElementById('dashAvg').textContent = avg + '점';
+
+  // Build ranking
+  const teacherScores = {};
+  const teacherCounts = {};
+  appData.teachers.forEach(t => { teacherScores[t] = 0; teacherCounts[t] = 0; });
+  appData.surveys.forEach(s => {
+    if (teacherScores[s.teacher] !== undefined) {
+      teacherScores[s.teacher] += s.totalScore;
+      teacherCounts[s.teacher]++;
+    }
+  });
+
+  const ranking = appData.teachers
+    .filter(t => teacherCounts[t] > 0)
+    .map(t => ({ name: t, avg: (teacherScores[t]/teacherCounts[t]).toFixed(1), count: teacherCounts[t] }))
+    .sort((a,b) => b.avg - a.avg);
+
+  let rankHtml = '<div class="section-title">🏆 강사 랭킹</div><div class="ranking-list">';
+  ranking.forEach((t, i) => {
+    const cls = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+    rankHtml += `
+      <div class="ranking-item">
+        <div class="rank-num ${cls}">${i+1}</div>
+        <div class="r-name">${t.name}</div>
+        <div style="font-size:12px;color:#888;">${t.count}건</div>
+        <div class="r-score">${t.avg}점</div>
+      </div>`;
+  });
+  rankHtml += '</div>';
+  document.getElementById('dashContent').innerHTML = rankHtml;
+}
+
+// ==================== TEACHERS PAGE ====================
+function renderTeacherList() {
+  if (currentTeacherIndex !== null) {
+    renderTeacherDetail(currentTeacherIndex);
+    return;
+  }
+
+  const surveys = appData.surveys;
+  const teacherScores = {};
+  const teacherCounts = {};
+  appData.teachers.forEach(t => { teacherScores[t] = 0; teacherCounts[t] = 0; });
+  surveys.forEach(s => {
+    if (teacherScores[s.teacher] !== undefined) {
+      teacherScores[s.teacher] += s.totalScore;
+      teacherCounts[s.teacher]++;
+    }
+  });
+
+  let html = '<div class="section-title">👨‍🏫 강사별 분석</div><div class="teachers-grid">';
+  appData.teachers.forEach((t, i) => {
+    const avg = teacherCounts[t] > 0 ? (teacherScores[t]/teacherCounts[t]).toFixed(1) : '-';
+    const fill = avg !== '-' ? (avg/5*100) : 0;
+    html += `
+      <div class="teacher-card" onclick="openTeacher(${i})">
+        <div class="name">${t}</div>
+        <div class="score">${avg !== '-' ? avg+'점' : '데이터 없음'}</div>
+        <div class="count">${teacherCounts[t]}건의 설문</div>
+        <div class="score-bar"><div class="score-fill" style="width:${fill}%"></div></div>
+      </div>`;
+  });
+  html += '</div>';
+  document.getElementById('teachersContent').innerHTML = html;
+}
+
+function openTeacher(idx) {
+  currentTeacherIndex = idx;
+  renderTeacherDetail(idx);
+}
+
+function renderTeacherDetail(idx) {
+  const teacher = appData.teachers[idx];
+  const surveys = appData.surveys.filter(s => s.teacher === teacher);
+
+  if (surveys.length === 0) {
+    document.getElementById('teachersContent').innerHTML = `
+      <button class="back-btn" onclick="backToTeachers()">← 목록으로</button>
+      <div class="empty-state"><div class="icon">📭</div><p>${teacher} 강사의 설문 데이터가 없습니다</p></div>`;
+    return;
+  }
+
+  const avgTotal = (surveys.reduce((a,b)=>a+b.totalScore,0)/surveys.length).toFixed(1);
+
+  // Category averages
+  const cats = ['수업 전달력','학생 참여도','교재 활용','피드백 품질','수업 준비도'];
+  const catKeys = ['delivery','engagement','material','feedback','preparation'];
+  const catAvgs = catKeys.map(k => {
+    const vals = surveys.map(s => s[k]).filter(v => v > 0);
+    return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : 0;
+  });
+
+  // Opinions
+  const positiveOpinions = surveys
+    .filter(s => s.preferredTeacher === teacher && s.preferredReason && s.preferredReason.trim())
+    .map(s => s.preferredReason);
+  const negativeOpinions = surveys
+    .filter(s => s.dislikedTeacher === teacher && s.dislikedReason && s.dislikedReason.trim())
+    .map(s => s.dislikedReason);
+
+  let opHtml = '';
+  if (positiveOpinions.length > 0 || negativeOpinions.length > 0) {
+    opHtml = `
+    <div class="opinions-section">
+      <h3>💬 학생 의견</h3>
+      <div class="opinions-grid">
+        <div class="opinion-section positive">
+          <div class="opinion-section-header">
+            <span>👍</span>
+            <span class="opinion-title">긍정 의견</span>
+            <span class="opinion-count">${positiveOpinions.length}건</span>
+          </div>
+          ${positiveOpinions.length > 0
+            ? positiveOpinions.map(o => `<div class="opinion-item">${o}</div>`).join('')
+            : '<div class="opinion-empty">긍정 의견이 없습니다</div>'}
+        </div>
+        <div class="opinion-section negative">
+          <div class="opinion-section-header">
+            <span>👎</span>
+            <span class="opinion-title">부정 의견</span>
+            <span class="opinion-count">${negativeOpinions.length}건</span>
+          </div>
+          ${negativeOpinions.length > 0
+            ? negativeOpinions.map(o => `<div class="opinion-item">${o}</div>`).join('')
+            : '<div class="opinion-empty">부정 의견이 없습니다</div>'}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('teachersContent').innerHTML = `
+    <button class="back-btn" onclick="backToTeachers()">← 강사 목록</button>
+    <div class="detail-header">
+      <div>
+        <div class="teacher-name">${teacher} 강사</div>
+        <div style="color:#888;font-size:13px;margin-top:4px;">${surveys.length}건의 설문 분석</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="big-score">${avgTotal}</div>
+        <div class="score-label">/ 5.0점</div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-card">
+        <h3>📊 항목별 평균 점수</h3>
+        ${cats.map((c,i)=>`
+          <div class="score-item">
+            <div class="item-label">${c}</div>
+            <div class="mini-bar"><div class="mini-fill" style="width:${catAvgs[i]/5*100}%"></div></div>
+            <div class="item-score">${catAvgs[i]}점</div>
+          </div>`).join('')}
+      </div>
+      <div class="detail-card">
+        <h3>📈 점수 분포</h3>
+        <div class="chart-wrap">
+          <canvas id="teacherChart"></canvas>
+        </div>
+      </div>
+    </div>
+    ${opHtml}
+  `;
+
+  // Render chart
+  setTimeout(() => {
+    const ctx = document.getElementById('teacherChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: cats,
+          datasets: [{
+            label: teacher,
+            data: catAvgs,
+            backgroundColor: 'rgba(15,52,96,0.2)',
+            borderColor: '#0f3460',
+            pointBackgroundColor: '#0f3460'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { r: { min: 0, max: 5, ticks: { stepSize: 1 } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+  }, 100);
+}
+
+function backToTeachers() {
+  currentTeacherIndex = null;
+  renderTeacherList();
+}
+
+function updateTeachersPage() {
+  if (document.getElementById('page-teachers').classList.contains('active')) {
+    renderTeacherList();
+  }
+}
+
+// ==================== SURVEYS PAGE ====================
+function updateSurveysPage() {
+  const surveys = appData.surveys;
+  if (surveys.length === 0) {
+    document.getElementById('surveysContent').innerHTML = `
+      <div class="empty-state"><div class="icon">📋</div><p>설문 데이터가 없습니다</p></div>`;
+    return;
+  }
+  let html = `
+    <div class="section-title">📋 설문 목록 (${surveys.length}건)</div>
+    <div class="survey-table">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>강사</th><th>총점</th><th>전달력</th><th>참여도</th>
+            <th>교재</th><th>피드백</th><th>준비도</th><th>분석일</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${surveys.map((s,i)=>`
+            <tr>
+              <td>${i+1}</td>
+              <td>${s.teacher}</td>
+              <td><strong>${s.totalScore.toFixed(1)}</strong></td>
+              <td>${s.delivery||'-'}</td>
+              <td>${s.engagement||'-'}</td>
+              <td>${s.material||'-'}</td>
+              <td>${s.feedback||'-'}</td>
+              <td>${s.preparation||'-'}</td>
+              <td>${s.date||'-'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  document.getElementById('surveysContent').innerHTML = html;
+}
+
+// ==================== ADMIN ====================
+let adminLoggedIn = false;
+
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('show');
+  if (adminLoggedIn) {
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    renderTeacherManageList();
+  } else {
+    document.getElementById('adminLoginSection').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'none';
+  }
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('show');
+}
+
+function checkAdminPw() {
+  const pw = document.getElementById('adminPwInput').value;
+  if (pw === appData.adminPw) {
+    adminLoggedIn = true;
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    renderTeacherManageList();
+    showToast('✅ 관리자로 로그인되었습니다');
+  } else {
+    showToast('❌ 비밀번호가 올바르지 않습니다');
+  }
+}
+
+function changeAdminPw() {
+  const newPw = document.getElementById('newPwInput').value;
+  if (!newPw) { showToast('새 비밀번호를 입력하세요'); return; }
+  appData.adminPw = newPw;
+  saveData();
+  showToast('✅ 비밀번호가 변경되었습니다');
+  document.getElementById('newPwInput').value = '';
+}
+
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('adminTab-' + tab).classList.add('active');
+  ['upload','teachers','api'].forEach(t => {
+    document.getElementById('adminPanel-' + t).style.display = t===tab ? 'block' : 'none';
+  });
+  if (tab === 'teachers') renderTeacherManageList();
+}
+
+// ==================== TEACHER MANAGEMENT ====================
+function renderTeacherManageList() {
+  let html = '';
+  appData.teachers.forEach((t, i) => {
+    html += `
+      <div class="teacher-manage-item">
+        <div class="t-name">${t}</div>
+        <button class="btn btn-danger btn-sm" onclick="removeTeacher(${i})">삭제</button>
+      </div>`;
+  });
+  document.getElementById('teacherManageList').innerHTML = html;
+}
+
+function addTeacher() {
+  const name = document.getElementById('newTeacherInput').value.trim();
+  if (!name) { showToast('강사 이름을 입력하세요'); return; }
+  if (appData.teachers.includes(name)) { showToast('이미 존재하는 강사입니다'); return; }
+  appData.teachers.push(name);
+  saveData();
+  renderTeacherManageList();
+  updateHeader();
+  document.getElementById('newTeacherInput').value = '';
+  showToast('✅ 강사가 추가되었습니다');
+}
+
+function removeTeacher(idx) {
+  if (!confirm(`"${appData.teachers[idx]}" 강사를 삭제하시겠습니까?`)) return;
+  appData.teachers.splice(idx, 1);
+  saveData();
+  renderTeacherManageList();
+  updateHeader();
+  showToast('✅ 강사가 삭제되었습니다');
+}
+
+// ==================== UPLOAD TABS ====================
+function switchUploadTab(tab) {
+  document.querySelectorAll('.upload-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('uploadTab-' + tab).classList.add('active');
+  document.querySelectorAll('.upload-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('uploadPanel-' + tab).classList.add('active');
+  updateStartBtn();
+}
+
+// ==================== LOCAL FILES ====================
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf');
+  addLocalFiles(files);
+}
+
+function handleLocalFiles(e) {
+  addLocalFiles(Array.from(e.target.files));
+  e.target.value = '';
+}
+
+function addLocalFiles(files) {
+  files.forEach(f => {
+    if (!selectedLocalFiles.find(x => x.name === f.name && x.size === f.size)) {
+      selectedLocalFiles.push(f);
+    }
+  });
+  renderLocalFileList();
+  updateStartBtn();
+}
+
+function removeLocalFile(idx) {
+  selectedLocalFiles.splice(idx, 1);
+  renderLocalFileList();
+  updateStartBtn();
+}
+
+function renderLocalFileList() {
+  let html = '';
+  selectedLocalFiles.forEach((f, i) => {
+    const size = (f.size/1024/1024).toFixed(1);
+    html += `
+      <div class="file-item">
+        <div class="file-name">📄 ${f.name}</div>
+        <div class="file-size">${size}MB</div>
+        <button class="file-remove" onclick="removeLocalFile(${i})">✕</button>
+      </div>`;
+  });
+  document.getElementById('localFileList').innerHTML = html;
+}
+
+function updateStartBtn() {
+  const tab = document.getElementById('uploadTab-local').classList.contains('active') ? 'local' : 'gdrive';
+  const hasFiles = tab === 'local' ? selectedLocalFiles.length > 0 : gdriveFiles.length > 0;
+  document.getElementById('startAnalysisBtn').disabled = !hasFiles;
+}
+
+// ==================== GEMINI KEY ====================
+function saveGeminiKey() {
+  const key = document.getElementById('geminiKeyInput').value.trim();
+  if (!key) { showToast('API Key를 입력하세요'); return; }
+  localStorage.setItem('geminiKey', key);
+  showToast('✅ API Key가 저장되었습니다');
+}
+
+// ==================== GOOGLE DRIVE ====================
+function saveGoogleConfig() {
+  const clientId = document.getElementById('gClientId').value.trim();
+  const apiKey = document.getElementById('gApiKey').value.trim();
+  if (clientId) localStorage.setItem('gClientId', clientId);
+  if (apiKey) localStorage.setItem('gApiKey', apiKey);
+  showToast('✅ Google 설정이 저장되었습니다');
+}
+
+function loadGoogleAPIs() {
+  // Load GAPI
+  if (typeof gapi !== 'undefined') {
+    gapi.load('picker', () => { gapiLoaded = true; });
+  }
+}
+
+function googleLogin() {
+  const clientId = document.getElementById('gClientId').value.trim() || localStorage.getItem('gClientId');
+  if (!clientId) { showToast('❌ Client ID를 먼저 입력해주세요'); return; }
+
+  if (typeof google === 'undefined' || !google.accounts) {
+    showToast('❌ Google API가 로드되지 않았습니다. 잠시 후 다시 시도해주세요'); return;
+  }
+
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: clientId,
+    scope: 'https://www.googleapis.com/auth/drive.readonly',
+    callback: (resp) => {
+      if (resp.error) { showToast('❌ 로그인 실패: ' + resp.error); return; }
+      gAccessToken = resp.access_token;
+      const btn = document.getElementById('gLoginBtn');
+      btn.classList.add('connected');
+      btn.innerHTML = '✅ Google 연결됨';
+      document.getElementById('gPickerBtn').disabled = false;
+      showToast('✅ Google 계정이 연결되었습니다');
+
+      // Load gapi picker
+      if (typeof gapi !== 'undefined') {
+        gapi.load('picker', () => { gapiLoaded = true; });
+      }
+    }
+  });
+  tokenClient.requestAccessToken();
+}
+
+function openGooglePicker() {
+  const apiKey = document.getElementById('gApiKey').value.trim() || localStorage.getItem('gApiKey');
+  if (!gAccessToken) { showToast('❌ Google 로그인이 필요합니다'); return; }
+  if (!apiKey) { showToast('❌ API Key를 먼저 입력해주세요'); return; }
+  if (!gapiLoaded) {
+    gapi.load('picker', () => {
+      gapiLoaded = true;
+      buildPicker(apiKey);
+    });
+    return;
+  }
+  buildPicker(apiKey);
+}
+
+function buildPicker(apiKey) {
+  const picker = new google.picker.PickerBuilder()
+    .addView(new google.picker.DocsView()
+      .setIncludeFolders(true)
+      .setMimeTypes('application/pdf'))
+    .setOAuthToken(gAccessToken)
+    .setDeveloperKey(apiKey)
+    .setCallback(pickerCallback)
+    .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+    .build();
+  picker.setVisible(true);
+}
+
+function pickerCallback(data) {
+  if (data.action === google.picker.Action.PICKED) {
+    data.docs.forEach(doc => {
+      if (!gdriveFiles.find(f => f.id === doc.id)) {
+        gdriveFiles.push({ id: doc.id, name: doc.name, status: 'ready' });
+      }
+    });
+    renderGdriveList();
+    updateStartBtn();
+    showToast(`✅ ${data.docs.length}개 파일이 추가되었습니다`);
+  }
+}
+
+function renderGdriveList() {
+  let html = '';
+  gdriveFiles.forEach((f, i) => {
+    const statusText = { ready:'준비', processing:'분석중', success:'완료', error:'오류' }[f.status] || f.status;
+    html += `
+      <div class="gdrive-item">
+        <div class="file-name">☁️ ${f.name}</div>
+        <span class="status-badge status-${f.status}">${statusText}</span>
+        ${f.status==='ready'?`<button class="gdrive-remove" onclick="removeGdriveFile(${i})">✕</button>`:''}
+      </div>`;
+  });
+  document.getElementById('gdriveList').innerHTML = html;
+}
+
+function removeGdriveFile(idx) {
+  gdriveFiles.splice(idx, 1);
+  renderGdriveList();
+  updateStartBtn();
+}
+
+async function fetchGdriveFileById(fileId) {
+  const resp = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+    headers: { Authorization: 'Bearer ' + gAccessToken }
+  });
+  if (!resp.ok) throw new Error('Drive 파일 다운로드 실패');
+  return await resp.blob();
+}
+
+// ==================== ANALYSIS ====================
+async function startAnalysis() {
+  const geminiKey = localStorage.getItem('geminiKey') || document.getElementById('geminiKeyInput').value.trim();
+  if (!geminiKey) { showToast('❌ Gemini API Key를 먼저 입력해주세요'); return; }
+
+  const isLocal = document.getElementById('uploadTab-local').classList.contains('active');
+  const files = isLocal ? selectedLocalFiles : gdriveFiles.filter(f => f.status === 'ready');
+
+  if (files.length === 0) { showToast('❌ 업로드할 파일이 없습니다'); return; }
+
+  document.getElementById('startAnalysisBtn').disabled = true;
+  document.getElementById('progressList').innerHTML = files.map((f,i)=>`
+    <div class="progress-item" id="pi-${i}">
+      <div class="spinner"></div>
+      <div class="pi-name">${isLocal ? f.name : f.name}</div>
+      <span class="status-badge status-processing">분석 중...</span>
+    </div>`).join('');
+
+  let successCount = 0;
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    try {
+      let base64;
+      if (isLocal) {
+        base64 = await fileToBase64(f);
+      } else {
+        const blob = await fetchGdriveFileById(f.id);
+        base64 = await blobToBase64(blob);
+        gdriveFiles[gdriveFiles.findIndex(x=>x.id===f.id)].status = 'processing';
+        renderGdriveList();
+      }
+
+      const result = await analyzePDF(base64, geminiKey);
+      appData.surveys.push(result);
+      successCount++;
+
+      updateProgressItem(i, 'success', '✅ 완료');
+      if (!isLocal) {
+        gdriveFiles[gdriveFiles.findIndex(x=>x.id===f.id)].status = 'success';
+        renderGdriveList();
+      }
+    } catch(e) {
+      updateProgressItem(i, 'error', '❌ 오류: ' + e.message);
+      if (!isLocal && f.id) {
+        const idx = gdriveFiles.findIndex(x=>x.id===f.id);
+        if(idx>=0) gdriveFiles[idx].status = 'error';
+        renderGdriveList();
+      }
+    }
+  }
+
+  saveData();
+  updateAll();
+  if (isLocal) selectedLocalFiles = [];
+  renderLocalFileList();
+  document.getElementById('startAnalysisBtn').disabled = false;
+  showToast(`✅ ${successCount}/${files.length}개 분석 완료`);
+}
+
+function updateProgressItem(i, status, text) {
+  const el = document.getElementById('pi-' + i);
+  if (!el) return;
+  el.innerHTML = el.innerHTML
+    .replace(/<div class="spinner"><\/div>/, status==='success'?'✅':'❌')
+    .replace(/<span class="status-badge[^"]*">[^<]*<\/span>/, `<span class="status-badge status-${status}">${text}</span>`);
+}
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result.split(',')[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result.split(',')[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function analyzePDF(base64, apiKey) {
+  const teacherList = appData.teachers.join(', ');
+  const prompt = `
+당신은 학원 강사 평가 전문가입니다. 아래 설문지 PDF를 분석해주세요.
+
+강사 목록: ${teacherList}
+
+다음 JSON 형식으로만 응답하세요 (다른 텍스트 없이):
+{
+  "teacher": "강사명 (위 목록에서 선택)",
+  "totalScore": 4.5,
+  "delivery": 4.5,
+  "engagement": 4.0,
+  "material": 4.5,
+  "feedback": 4.0,
+  "preparation": 5.0,
+  "preferredTeacher": "수업 받고 싶은 선생님 이름",
+  "preferredReason": "그 이유",
+  "dislikedTeacher": "수업 받고 싶지 않은 선생님 이름",
+  "dislikedReason": "그 이유",
+  "date": "YYYY-MM-DD"
+}
+
+각 점수는 1.0~5.0 사이 값입니다.
+teacher 필드는 반드시 위 강사 목록에서 하나를 선택하세요.
+`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: 'application/pdf', data: base64 } }
+          ]
+        }]
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'API 호출 실패');
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('JSON 파싱 실패');
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  parsed.date = parsed.date || new Date().toISOString().split('T')[0];
+  return parsed;
+}
+
+// ==================== IMPORT / EXPORT ====================
+function exportData() {
+  const json = JSON.stringify(appData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `impact7_data_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 데이터가 내보내졌습니다');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (parsed.surveys && parsed.teachers) {
+        appData = { ...appData, ...parsed };
+        saveData();
+        updateAll();
+        showToast(`✅ 데이터 가져오기 완료 (설문 ${appData.surveys.length}건)`);
+      } else {
+        showToast('❌ 올바른 데이터 형식이 아닙니다');
+      }
+    } catch(e) {
+      showToast('❌ 파일 파싱 오류');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ 모든 설문 데이터가 삭제됩니다. 계속하시겠습니까?')) return;
+  appData.surveys = [];
+  saveData();
+  updateAll();
+  showToast('🗑️ 데이터가 초기화되었습니다');
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ==================== START ====================
+init();
+</script>
 </body>
 </html>
