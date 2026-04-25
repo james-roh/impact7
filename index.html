@@ -832,11 +832,10 @@ function switchAdminTab(name,btn) {
   document.getElementById('admin-tab-'+name).classList.add('active');
   if(name==='stats')    renderInsincereList();
   if(name==='teachers') renderTeacherManage();
-  if(name==='github')   getGithubToken();
-}
-
+    if(name==='github')   getGithubToken();
 }
 function updateUploadDisplay() {
+
   const m=document.getElementById('upload-model-display');
   const s=document.getElementById('upload-scale-display');
   if(m) m.textContent=DB.settings.model||'gemini-2.5-flash-lite';
