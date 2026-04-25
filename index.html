@@ -350,6 +350,8 @@
     <button class="admin-tab-btn" onclick="switchAdminTab('stats',this)">🚨 불성실응답</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('reset',this)">🗑️ 초기화</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('datamanage',this)">🗄️ 데이터</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('github',this)">🐙 GitHub</button>
+
 
         <button class="admin-tab-btn" onclick="switchAdminTab('security',this)">🔒 보안</button>
       </div>
@@ -407,6 +409,26 @@
   </div>
   <div id="insincere-list"></div>
 </div>
+<div class="admin-tab-content" id="admin-tab-github">
+  <div class="form-group">
+    <label class="form-label">🔑 GitHub Personal Access Token</label>
+    <input type="password" class="form-control" id="github-token-input" placeholder="ghp_..."/>
+    <div class="form-hint">repo 권한이 있는 토큰을 입력하세요</div>
+  </div>
+  <button class="btn btn-primary btn-full" onclick="saveGithubToken()" style="margin-bottom:16px">💾 토큰 저장</button>
+  <hr style="border-color:var(--border);margin:16px 0"/>
+  <div class="form-group">
+    <label class="form-label">📄 설문지 이름</label>
+    <input type="text" class="form-control" id="github-file-name" placeholder="예: 2604 봄2학기"/>
+  </div>
+  <div class="form-group">
+    <label class="form-label">📝 설명</label>
+    <input type="text" class="form-control" id="github-file-desc" placeholder="예: 강사 평가 설문"/>
+  </div>
+  <button class="btn btn-primary btn-full" onclick="registerToGithub()">📤 현재 데이터 설문지로 등록</button>
+  <div style="margin-top:12px" id="github-status"></div>
+</div>
+
       <div class="admin-tab-content" id="admin-tab-datamanage">
         <div class="form-group">
           <label class="form-label">📤 JSON 내보내기</label>
@@ -810,6 +832,9 @@ function switchAdminTab(name,btn) {
   document.getElementById('admin-tab-'+name).classList.add('active');
   if(name==='stats')    renderInsincereList();
   if(name==='teachers') renderTeacherManage();
+  if(name==='github')   getGithubToken();
+}
+
 }
 function updateUploadDisplay() {
   const m=document.getElementById('upload-model-display');
@@ -1273,6 +1298,86 @@ function loadJSONFile(input) {
 }
 var MANIFEST_URL = 'https://raw.githubusercontent.com/james-roh/impact7/main/data/manifest.json';
 var DATA_BASE_URL = 'https://raw.githubusercontent.com/james-roh/impact7/main/data/';
+
+var GITHUB_OWNER = 'james-roh';
+var GITHUB_REPO = 'impact7';
+var GITHUB_BRANCH = 'main';
+
+function saveGithubToken() {
+  var token = document.getElementById('github-token-input').value.trim();
+  if (!token) { showToast('토큰을 입력해주세요', 'error'); return; }
+  localStorage.setItem('github_token', token);
+  showToast('토큰이 저장되었습니다', 'success');
+}
+
+function getGithubToken() {
+  var saved = localStorage.getItem('github_token');
+  if (saved) document.getElementById('github-token-input').value = saved;
+  return saved;
+}
+
+function registerToGithub() {
+  var token = getGithubToken();
+  if (!token) { showToast('토큰을 먼저 저장해주세요', 'error'); return; }
+  var name = document.getElementById('github-file-name').value.trim();
+  var desc = document.getElementById('github-file-desc').value.trim();
+  if (!name) { showToast('설문지 이름을 입력해주세요', 'error'); return; }
+  var statusEl = document.getElementById('github-status');
+  statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">📤 업로드 중...</div>';
+  var date = new Date().toISOString().slice(0,10);
+  var filename = 'impact7_' + date.replace(/-/g,'') + '_' + name.replace(/\s+/g,'_') + '.json';
+  var jsonContent = JSON.stringify(DB, null, 2);
+  var encoded = btoa(unescape(encodeURIComponent(jsonContent)));
+  var apiBase = 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/data/';
+  var headers = {
+    'Authorization': 'token ' + token,
+    'Content-Type': 'application/json'
+  };
+  // 1. JSON 파일 업로드
+  fetch(apiBase + encodeURIComponent(filename), {
+    method: 'PUT',
+    headers: headers,
+    body: JSON.stringify({
+      message: 'Add survey: ' + name,
+      content: encoded,
+      branch: GITHUB_BRANCH
+    })
+  })
+  .then(function(r){ if(!r.ok) throw new Error('파일 업로드 실패: ' + r.status); return r.json(); })
+  .then(function(){
+    statusEl.innerHTML = '<div style="color:var(--success);font-size:0.82rem">✅ 파일 업로드 완료! manifest 업데이트 중...</div>';
+    // 2. manifest.json 읽기
+    return fetch(apiBase + 'manifest.json', { headers: headers });
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(manifestFile){
+    var currentContent = JSON.parse(decodeURIComponent(escape(atob(manifestFile.content.replace(/\n/g,'')))));
+    currentContent.files = currentContent.files || [];
+    currentContent.files.push({ name: name, desc: desc, date: date, file: filename });
+    var newEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(currentContent, null, 2))));
+    return fetch(apiBase + 'manifest.json', {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify({
+        message: 'Update manifest: ' + name,
+        content: newEncoded,
+        sha: manifestFile.sha,
+        branch: GITHUB_BRANCH
+      })
+    });
+  })
+  .then(function(r){ if(!r.ok) throw new Error('manifest 업데이트 실패: ' + r.status); return r.json(); })
+  .then(function(){
+    statusEl.innerHTML = '<div style="color:var(--success);font-size:0.82rem">✅ 등록 완료! 설문지 선택 탭에서 확인하세요</div>';
+    showToast(name + ' 등록 완료!', 'success');
+    document.getElementById('github-file-name').value = '';
+    document.getElementById('github-file-desc').value = '';
+  })
+  .catch(function(e){
+    statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 오류: ' + e.message + '</div>';
+    showToast('등록 실패: ' + e.message, 'error');
+  });
+}
 
 function loadManifest() {
   var el = document.getElementById('remote-file-list');
