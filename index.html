@@ -1300,7 +1300,7 @@ function loadManifest() {
 }
 
 function loadRemoteJSON(filename, label) {
-  fetch(DATA_BASE_URL + filename + '?t=' + Date.now())
+  fetch(DATA_BASE_URL + encodeURIComponent(filename) + '?t=' + Date.now())
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (data.surveys || data.teachers) {
