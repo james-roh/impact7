@@ -217,6 +217,9 @@
   .empty-state{text-align:center;padding:40px 20px;color:var(--text-sub)}
   .empty-state .icon{font-size:2.8rem;margin-bottom:10px} .empty-state p{font-size:0.88rem}
 </style>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
 </head>
 <body>
 
@@ -400,10 +403,18 @@
     <label class="form-label">📊 시트 목록</label>
     <div id="sheets-list" style="font-size:0.82rem;color:var(--text-light)">설정 저장 후 불러오기를 눌러주세요</div>
   </div>
-  <button class="btn btn-outline btn-full" onclick="loadSheetsList()" style="margin-top:8px">🔄 시트 목록 불러오기</button>
   <hr style="border-color:var(--border);margin:16px 0"/>
-  <button class="btn btn-primary btn-full" onclick="importFromSheets()">📥 구글 시트 데이터 가져오기</button>
+
+  <hr style="border-color:var(--border);margin:16px 0"/>
+  <div class="form-group">
+    <label class="form-label">📥 데이터 가져오기</label>
+    <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="document.getElementById('sheets-file-input').click()">💻 설문지 파일 선택</button>
+<input type="file" id="sheets-file-input" accept=".xlsx,.xls,.csv,.ods" style="display:none" onchange="importFromLocalFile(this)"/>
+
+
+  </div>
   <div id="sheets-status" style="margin-top:12px"></div>
+
 </div>
 
       <div class="admin-tab-content" id="admin-tab-teachers">
@@ -1462,6 +1473,156 @@ function loadSheetsList() {
     })
     .catch(e => { el.innerHTML = '<div style="color:var(--danger)">오류: ' + e.message + '</div>'; });
 }
+function importFromLocalFile(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var statusEl = document.getElementById('sheets-status');
+  statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">📂 파일 읽는 중...</div>';
+  var teacherName = file.name.replace(/\.[^.]+$/, '').toUpperCase();
+  var today = new Date().toISOString().slice(0,10);
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var workbook = XLSX.read(data, {type: 'array'});
+      var totalAdded = 0;
+      // 각 시트를 강사명으로 처리
+      workbook.SheetNames.forEach(function(sheetName) {
+        if (['시트1','선호도','NAME','Sheet1','Sheet2'].indexOf(sheetName) > -1) return;
+        var worksheet = workbook.Sheets[sheetName];
+        var rows = XLSX.utils.sheet_to_json(worksheet, {header:1, defval:''});
+        if (!rows || rows.length < 2) return;
+        var tName = sheetName.toUpperCase();
+        // 행=항목, 열=학생 구조 처리
+        var dataRows = rows.filter(function(r){ return r[0] && !isNaN(r[0]); });
+        if (!dataRows.length) return;
+        var numStudents = 0;
+        dataRows.forEach(function(r){ if (r.length - 2 > numStudents) numStudents = r.length - 2; });
+        for (var stu = 0; stu < numStudents; stu++) {
+          var scores = {};
+          for (var ki = 0; ki < SCORE_KEYS.length; ki++) {
+            var row = dataRows[ki];
+            var val = row ? parseFloat(row[stu + 2]) : NaN;
+            if (isNaN(val)) val = 2;
+            val = Math.min(10, Math.round(val / 2) * 2);
+            scores[SCORE_KEYS[ki]] = val;
+          }
+          var vals = SCORE_KEYS.map(function(k){ return scores[k]; });
+          if (vals.every(function(v){ return v === vals[0]; })) continue;
+          var avgVal = parseFloat((vals.reduce(function(a,b){ return a+b; },0) / vals.length).toFixed(1));
+          var entry = {
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+            teacherName: tName,
+            recognizedName: tName,
+            subject: '',
+            date: today,
+            avg: avgVal,
+            pageNum: stu + 1,
+            totalPages: numStudents
+          };
+          for (var ki = 0; ki < SCORE_KEYS.length; ki++) entry[SCORE_KEYS[ki]] = scores[SCORE_KEYS[ki]];
+          DB.surveys.push(entry);
+          if (!DB.recentHistory) DB.recentHistory = [];
+          DB.recentHistory.unshift({teacherName: tName, subject: '', avg: avgVal, date: today});
+          if (DB.recentHistory.length > 30) DB.recentHistory.pop();
+          totalAdded++;
+        }
+      });
+      saveDB(); renderAll(); renderSurveys();
+      statusEl.innerHTML = '<div style="color:var(--success);font-size:0.82rem">✅ 완료! ' + totalAdded + '건 추가되었습니다</div>';
+      showToast(file.name + ' 가져오기 완료 (' + totalAdded + '건)', 'success');
+    } catch(err) {
+      statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 오류: ' + err.message + '</div>';
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  input.value = '';
+}
+
+function processLocalRows(rows, teacherName, today, statusEl, fileName) {
+  try {
+    if (rows.length < 2) { showToast('데이터가 없습니다', 'error'); return; }
+    var totalAdded = 0;
+    for (var ri = 1; ri < rows.length; ri++) {
+      var row = rows[ri];
+      if (!row || row.every(function(c){ return !c; })) continue;
+      var scores = {};
+      for (var ki = 0; ki < SCORE_KEYS.length; ki++) {
+        var val = parseFloat(row[ki + 1]);
+        if (isNaN(val)) val = 2;
+        val = Math.min(10, Math.round(val / 2) * 2);
+        scores[SCORE_KEYS[ki]] = val;
+      }
+      var vals = SCORE_KEYS.map(function(k){ return scores[k]; });
+      if (vals.every(function(v){ return v === vals[0]; })) continue;
+      var avgVal = parseFloat((vals.reduce(function(a,b){ return a+b; },0) / vals.length).toFixed(1));
+      var entry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+        teacherName: teacherName,
+        recognizedName: teacherName,
+        subject: '',
+        date: today,
+        avg: avgVal,
+        pageNum: ri,
+        totalPages: rows.length - 1
+      };
+      for (var ki = 0; ki < SCORE_KEYS.length; ki++) entry[SCORE_KEYS[ki]] = scores[SCORE_KEYS[ki]];
+      DB.surveys.push(entry);
+      if (!DB.recentHistory) DB.recentHistory = [];
+      DB.recentHistory.unshift({ teacherName: teacherName, subject: '', avg: avgVal, date: today });
+      if (DB.recentHistory.length > 30) DB.recentHistory.pop();
+      totalAdded++;
+    }
+    saveDB(); renderAll(); renderSurveys();
+    statusEl.innerHTML = '<div style="color:var(--success);font-size:0.82rem">✅ 완료! ' + totalAdded + '건 추가되었습니다</div>';
+    showToast(fileName + ' 가져오기 완료 (' + totalAdded + '건)', 'success');
+  } catch(err) {
+    statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 오류: ' + err.message + '</div>';
+  }
+}
+
+function openGooglePicker() {
+  if (!pickerApiLoaded) {
+    showToast('Picker API 로딩 중... 잠시 후 다시 시도해주세요', 'warning');
+    return;
+  }
+  gapi.auth2.getAuthInstance() ? showPicker() :
+  gapi.auth.authorize({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/drive.readonly',
+    immediate: false
+  }, function(authResult) {
+    if (authResult && !authResult.error) {
+      oauthToken = authResult.access_token;
+      showPicker();
+    } else {
+      showToast('Google 로그인 실패', 'error');
+    }
+  });
+}
+
+function showPicker() {
+  var picker = new google.picker.PickerBuilder()
+    .addView(new google.picker.DocsView()
+      .setIncludeFolders(false)
+      .setMimeTypes('application/vnd.google-apps.spreadsheet'))
+    .setOAuthToken(oauthToken)
+    .setDeveloperKey(DB.settings.sheetsApiKey)
+    .setCallback(function(data) {
+      if (data.action === google.picker.Action.PICKED) {
+        var doc = data.docs[0];
+        var sheetId = doc.id;
+        DB.settings.sheetsId = sheetId;
+        saveDB();
+        document.getElementById('sheets-id-input').value = sheetId;
+        showToast(doc.name + ' 선택됨', 'success');
+        importFromSheets();
+      }
+    })
+    .build();
+  picker.setVisible(true);
+}
 
 function importFromSheets() {
   var key = DB.settings.sheetsApiKey;
@@ -1557,7 +1718,8 @@ function importFromSheets() {
             teacherCols.forEach(function(tName, ci) {
               if (!tName) return;
               var val = row[ci + 1] ? row[ci + 1].trim() : '';
-              if (val) { if (!posTexts[tName]) posTexts[tName] = []; posTexts[tName].push(val); }
+           if (val && val !== '\uad6c\ubd84') { if (!posTexts[tName]) posTexts[tName] = []; posTexts[tName].push(val); }
+
             });
           }
           for (var ri = negHeaderIdx + 1; ri < negEnd && ri < prefRows.length; ri++) {
@@ -1566,7 +1728,7 @@ function importFromSheets() {
             teacherCols.forEach(function(tName, ci) {
               if (!tName) return;
               var val = row[ci + 1] ? row[ci + 1].trim() : '';
-              if (val) { if (!negTexts[tName]) negTexts[tName] = []; negTexts[tName].push(val); }
+              if (val && val !== '\uad6c\ubd84') { if (!negTexts[tName]) negTexts[tName] = []; negTexts[tName].push(val); }
             });
           }
           for (var ri = etcHeaderIdx + 1; ri < totalEnd && ri < prefRows.length; ri++) {
@@ -1575,7 +1737,7 @@ function importFromSheets() {
             teacherCols.forEach(function(tName, ci) {
               if (!tName) return;
               var val = row[ci + 1] ? row[ci + 1].trim() : '';
-              if (val) { if (!etcTexts[tName]) etcTexts[tName] = []; etcTexts[tName].push(val); }
+             if (val && val !== '\uad6c\ubd84') { if (!etcTexts[tName]) etcTexts[tName] = []; etcTexts[tName].push(val); }
             });
           }
 
@@ -1603,12 +1765,16 @@ function importFromSheets() {
             });
           });
         }
-      } catch(prefErr) {
+         } catch(prefErr) {
         console.warn('\uc120\ud638\ub3c4 \uc2dc\ud2b8 \ud30c\uc2f1 \uc624\ub958:', prefErr);
       }
 
+      saveDB(); renderAll(); renderSurveys();
+      statusEl.innerHTML = '<div style="color:var(--success);font-size:0.82rem">✅ 완료! 총 ' + totalAdded + '건 추가되었습니다</div>';
+      showToast('\uad6c\uae00 \uc2dc\ud2b8 \ub370\uc774\ud130 \uac00\uc838\uc624\uae30 \uc644\ub8cc (' + totalAdded + '\uac74)', 'success');
 
     })
+
     .catch(e => {
       statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 오류: ' + e.message + '</div>';
     });
