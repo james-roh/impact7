@@ -151,7 +151,7 @@
   .btn-sm{padding:7px 13px;font-size:0.78rem} .btn-full{width:100%;justify-content:center}
   .admin-overlay{position:fixed;inset:0;background:rgba(30,20,70,0.5);backdrop-filter:blur(4px);z-index:3000;display:none;align-items:flex-start;justify-content:flex-end;padding:16px}
   .admin-overlay.open{display:flex}
-  .admin-panel{width:560px;max-height:calc(100vh - 32px);background:var(--card-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow-y:auto;animation:slideIn 0.28s ease}
+.admin-panel{width:640px;max-height:calc(100vh - 32px);background:var(--card-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow-y:auto;animation:slideIn 0.28s ease}
   @keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
   .admin-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card-bg);z-index:1}
   .admin-header h3{font-size:0.98rem;font-weight:700}
@@ -347,17 +347,15 @@
       </div>
     </div>
     <div id="admin-body" style="display:none">
-<div class="admin-tabs" style="display:flex;flex-wrap:wrap;gap:4px;">
-        <button class="admin-tab-btn active" onclick="switchAdminTab('api',this)">🔑 API</button>
-        <button class="admin-tab-btn" onclick="switchAdminTab('upload',this)">📄 업로드</button>
+<div class="admin-tabs" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+<button class="admin-tab-btn active" onclick="switchAdminTab('api',this)">🔑 API</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('sheets',this)">📊 구글 시트</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('teachers',this)">👨‍🏫 강사</button>
-    <button class="admin-tab-btn" onclick="switchAdminTab('stats',this)">🚨 불성실응답</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('reset',this)">🗑️ 초기화</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('datamanage',this)">🗄️ 데이터</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('github',this)">🐙 GitHub</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('security',this)">🔒 보안</button>
 
-
-        <button class="admin-tab-btn" onclick="switchAdminTab('security',this)">🔒 보안</button>
       </div>
       <div class="admin-tab-content active" id="admin-tab-api">
         <div class="form-group"><label class="form-label">Gemini API 키</label><input type="password" class="form-control" id="api-key-input" placeholder="AIza..."/></div>
@@ -385,20 +383,29 @@
         </div>
         <button class="btn btn-primary btn-full" onclick="saveApiSettings()">💾 저장</button>
       </div>
-      <div class="admin-tab-content" id="admin-tab-upload">
-        <div class="upload-zone" id="admin-drop-zone"
-             ondragover="event.preventDefault();this.classList.add('dragover')"
-             ondragleave="this.classList.remove('dragover')"
-             ondrop="event.preventDefault();this.classList.remove('dragover');handleFiles(event.dataTransfer.files)">
-          <input type="file" accept=".pdf" multiple onchange="handleFiles(this.files);this.value=''"/>
-          <div class="upload-icon">📄</div>
-          <p><strong>PDF 파일을 드래그하거나 클릭</strong></p>
-          <p>페이지당 강사 3명 · 10개 항목 자동 인식</p>
-        </div>
-        <div class="form-hint" style="margin-top:10px;text-align:center">
-          모델: <strong id="upload-model-display">-</strong> &nbsp;|&nbsp; 스케일: <strong id="upload-scale-display">-</strong>
-        </div>
-      </div>
+   <div class="admin-tab-content" id="admin-tab-sheets">
+  <div class="form-group">
+    <label class="form-label">🔑 Google Sheets API 키</label>
+    <input type="password" class="form-control" id="sheets-api-key-input" placeholder="AIzaSy..."/>
+    <div class="form-hint">Google Cloud Console에서 발급한 Sheets API 키</div>
+  </div>
+  <div class="form-group" style="margin-top:12px">
+    <label class="form-label">📋 구글 시트 ID</label>
+    <input type="text" class="form-control" id="sheets-id-input" placeholder="스프레드시트 URL의 /d/ 뒤 ID"/>
+    <div class="form-hint">예: 1G0AfQrsgZGANJlwCo4eUabf0kF1YT1RIASbnnHaAXL8</div>
+  </div>
+  <button class="btn btn-primary btn-full" onclick="saveSheetsSettings()" style="margin-top:12px">💾 설정 저장</button>
+  <hr style="border-color:var(--border);margin:16px 0"/>
+  <div class="form-group">
+    <label class="form-label">📊 시트 목록</label>
+    <div id="sheets-list" style="font-size:0.82rem;color:var(--text-light)">설정 저장 후 불러오기를 눌러주세요</div>
+  </div>
+  <button class="btn btn-outline btn-full" onclick="loadSheetsList()" style="margin-top:8px">🔄 시트 목록 불러오기</button>
+  <hr style="border-color:var(--border);margin:16px 0"/>
+  <button class="btn btn-primary btn-full" onclick="importFromSheets()">📥 구글 시트 데이터 가져오기</button>
+  <div id="sheets-status" style="margin-top:12px"></div>
+</div>
+
       <div class="admin-tab-content" id="admin-tab-teachers">
         <div class="teacher-add-row">
           <input type="text" class="form-control" id="new-teacher-input" placeholder="강사명 (여러 명은 쉼표로 구분)" onkeydown="if(event.key==='Enter')addTeacher()"/>
@@ -407,12 +414,7 @@
         <div class="form-hint" style="margin-top:4px">💡 예: 홍길동, 김철수, 이영희</div>
         <div class="teacher-manage-list" id="teacher-manage-list"></div>
       </div>
- <div class="admin-tab-content" id="admin-tab-stats">
-  <div style="font-size:0.82rem;color:var(--text-light);margin-bottom:10px">
-    🚨 10개 항목이 모두 동일한 점수인 불성실 응답 목록입니다.
-  </div>
-  <div id="insincere-list"></div>
-</div>
+ 
 <div class="admin-tab-content" id="admin-tab-github">
   <div class="form-group">
     <label class="form-label">🔑 GitHub Personal Access Token</label>
@@ -846,10 +848,11 @@ function switchAdminTab(name,btn) {
   document.querySelectorAll('.admin-tab-content').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('admin-tab-'+name).classList.add('active');
-  if(name==='stats')    renderInsincereList();
   if(name==='teachers') renderTeacherManage();
-    if(name==='github')   getGithubToken();
+  if(name==='github')   getGithubToken();
+  if(name==='sheets')   loadSheetsSettings();
 }
+
 function updateUploadDisplay() {
 
   const m=document.getElementById('upload-model-display');
@@ -1417,6 +1420,187 @@ function loadManifest() {
       }).join('');
     })
     .catch(function(){ el.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">목록을 불러올 수 없습니다</div>'; });
+}
+// ===== Google Sheets =====
+var EXCLUDED_SHEETS = ['시트1', '선호도', 'NAME', 'Sheet1', 'Sheet2'];
+
+function saveSheetsSettings() {
+  var key = document.getElementById('sheets-api-key-input').value.trim();
+  var id  = document.getElementById('sheets-id-input').value.trim();
+  if (!key || !id) { showToast('API 키와 시트 ID를 모두 입력해주세요', 'error'); return; }
+  DB.settings.sheetsApiKey = key;
+  DB.settings.sheetsId     = id;
+  saveDB();
+  showToast('설정이 저장되었습니다', 'success');
+  loadSheetsList();
+}
+
+function loadSheetsSettings() {
+  if (DB.settings.sheetsApiKey) document.getElementById('sheets-api-key-input').value = DB.settings.sheetsApiKey;
+  if (DB.settings.sheetsId)     document.getElementById('sheets-id-input').value     = DB.settings.sheetsId;
+}
+
+function loadSheetsList() {
+  var key = DB.settings.sheetsApiKey;
+  var id  = DB.settings.sheetsId;
+  if (!key || !id) { showToast('먼저 설정을 저장해주세요', 'error'); return; }
+  var el = document.getElementById('sheets-list');
+  el.innerHTML = '불러오는 중...';
+  fetch('https://sheets.googleapis.com/v4/spreadsheets/' + id + '?key=' + key)
+    .then(r => r.json())
+    .then(d => {
+      var sheets = (d.sheets || [])
+        .map(s => s.properties.title)
+        .filter(t => !EXCLUDED_SHEETS.includes(t));
+      if (!sheets.length) {
+        el.innerHTML = '<div style="color:var(--danger)">강사 시트가 없습니다</div>';
+        return;
+      }
+      el.innerHTML = sheets.map(s =>
+        '<div style="padding:6px 10px;margin-bottom:4px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:0.82rem">👨‍🏫 ' + esc(s) + '</div>'
+      ).join('');
+    })
+    .catch(e => { el.innerHTML = '<div style="color:var(--danger)">오류: ' + e.message + '</div>'; });
+}
+
+function importFromSheets() {
+  var key = DB.settings.sheetsApiKey;
+  var id  = DB.settings.sheetsId;
+  if (!key || !id) { showToast('먼저 설정을 저장해주세요', 'error'); return; }
+  var statusEl = document.getElementById('sheets-status');
+  statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">📊 시트 목록 불러오는 중...</div>';
+  fetch('https://sheets.googleapis.com/v4/spreadsheets/' + id + '?key=' + key)
+    .then(r => r.json())
+    .then(async d => {
+      var sheets = (d.sheets || [])
+        .map(s => s.properties.title)
+        .filter(t => !EXCLUDED_SHEETS.includes(t));
+      if (!sheets.length) { showToast('강사 시트가 없습니다', 'error'); return; }
+      var totalAdded = 0;
+      for (var si = 0; si < sheets.length; si++) {
+        var sheetName = sheets[si];
+        statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">📊 ' + sheetName + ' 처리 중... (' + (si+1) + '/' + sheets.length + ')</div>';
+        try {
+          var res = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + id + '/values/' + encodeURIComponent(sheetName) + '?key=' + key);
+          var data = await res.json();
+          var rows = data.values || [];
+          // 행=항목(10개), 열=학생
+          // 1행은 헤더("항목"), 2행부터 10개 항목
+          // C열(index 2)부터 학생 점수
+          var dataRows = rows.filter(r => r[0] && !isNaN(r[0])); // 번호가 있는 행만
+          if (!dataRows.length) continue;
+          var numStudents = 0;
+          dataRows.forEach(r => { if (r.length - 2 > numStudents) numStudents = r.length - 2; });
+          var today = new Date().toISOString().slice(0, 10);
+          for (var stu = 0; stu < numStudents; stu++) {
+            var scores = {};
+            for (var ki = 0; ki < SCORE_KEYS.length; ki++) {
+              var row = dataRows[ki];
+              var val = row ? parseFloat(row[stu + 2]) : NaN;
+              if (isNaN(val) || val === undefined) val = 2;
+              val = Math.min(10, Math.round(val / 2) * 2);
+              scores[SCORE_KEYS[ki]] = val;
+            }
+            // 불성실 응답 체크
+            var vals = SCORE_KEYS.map(k => scores[k]);
+            if (vals.every(v => v === vals[0])) continue;
+            var avgVal = parseFloat((vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1));
+            var entry = {
+              id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+              teacherName: sheetName,
+              recognizedName: sheetName,
+              subject: '',
+              date: today,
+              avg: avgVal,
+              pageNum: stu + 1,
+              totalPages: numStudents
+            };
+            for (var ki = 0; ki < SCORE_KEYS.length; ki++) entry[SCORE_KEYS[ki]] = scores[SCORE_KEYS[ki]];
+            DB.surveys.push(entry);
+            if (!DB.recentHistory) DB.recentHistory = [];
+            DB.recentHistory.unshift({ teacherName: sheetName, subject: '', avg: avgVal, date: today });
+            if (DB.recentHistory.length > 30) DB.recentHistory.pop();
+            totalAdded++;
+          }
+        } catch(e) {
+          showToast(sheetName + ' 오류: ' + e.message, 'error');
+        }
+      }
+        // ── 선호도 시트 처리 ──
+
+      try {
+        var prefRes = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + id + '/values/' + encodeURIComponent('\uc120\ud638\ub3c4') + '?key=' + key);
+        var prefData = await prefRes.json();
+        var prefRows = prefData.values || [];
+        if (prefRows.length > 1) {
+          // 각 섹션 헤더 행 인덱스 찾기
+          var posHeaderIdx = -1, negHeaderIdx = -1, etcHeaderIdx = -1;
+          prefRows.forEach(function(r, i){
+            if (r[0] && r[0].indexOf('\ubc1b\uace0 \uc2f6\uc740') > -1 && r[0].indexOf('\uc2f6\uc9c0 \uc54a') === -1) posHeaderIdx = i;
+            if (r[0] && r[0].indexOf('\uc2f6\uc9c0 \uc54a') > -1) negHeaderIdx = i;
+            if (r[0] && r[0].indexOf('\uae30\ud0c0') > -1) etcHeaderIdx = i;
+          });
+
+          // 강사명은 posHeader 행의 1열부터
+          var teacherCols = posHeaderIdx > -1 ? prefRows[posHeaderIdx].slice(1) : [];
+
+          // 각 섹션의 다음 섹션 시작 전까지 의견 수집
+          function collectTexts(startIdx, endIdx) {
+            var result = {};
+            for (var ri = startIdx + 1; ri < endIdx && ri < prefRows.length; ri++) {
+              var row = prefRows[ri];
+              if (!row || !row.some(function(c){ return c && c.trim(); })) continue;
+              teacherCols.forEach(function(tName, ci) {
+                if (!tName) return;
+                var val = row[ci + 1] ? row[ci + 1].trim() : '';
+                if (val) {
+                  if (!result[tName]) result[tName] = [];
+                  result[tName].push(val);
+                }
+              });
+            }
+            return result;
+          }
+
+          var totalEnd = prefRows.length;
+          var posEnd = negHeaderIdx > -1 ? negHeaderIdx : etcHeaderIdx > -1 ? etcHeaderIdx : totalEnd;
+          var negEnd = etcHeaderIdx > -1 ? etcHeaderIdx : totalEnd;
+
+          var posTexts = posHeaderIdx > -1 ? collectTexts(posHeaderIdx, posEnd) : {};
+          var negTexts = negHeaderIdx > -1 ? collectTexts(negHeaderIdx, negEnd) : {};
+          var etcTexts = etcHeaderIdx > -1 ? collectTexts(etcHeaderIdx, totalEnd) : {};
+
+          teacherCols.forEach(function(tName) {
+            if (!tName) return;
+            var teacher = (DB.teachers || []).find(function(t) {
+              return t.name.toUpperCase() === tName.toUpperCase();
+            });
+            if (!teacher) {
+              teacher = { name: tName.toUpperCase(), memos: [] };
+              if (!DB.teachers) DB.teachers = [];
+              DB.teachers.push(teacher);
+            }
+            if (!teacher.memos) teacher.memos = [];
+            (posTexts[tName] || []).forEach(function(line) {
+              if (line.trim()) teacher.memos.push({ type: 'pos', text: line.trim() });
+            });
+            (negTexts[tName] || []).forEach(function(line) {
+              if (line.trim()) teacher.memos.push({ type: 'neg', text: line.trim() });
+            });
+            (etcTexts[tName] || []).forEach(function(line) {
+              if (line.trim()) teacher.memos.push({ type: 'etc', text: line.trim() });
+            });
+          });
+        }
+      } catch(prefErr) {
+        console.warn('\uc120\ud638\ub3c4 \uc2dc\ud2b8 \ud30c\uc2f1 \uc624\ub958:', prefErr);
+      }
+
+
+    })
+    .catch(e => {
+      statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 오류: ' + e.message + '</div>';
+    });
 }
 
 function loadRemoteJSON(filename, label) {
