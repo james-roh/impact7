@@ -118,6 +118,9 @@
   .filter-bar select,.filter-bar input{padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--card-bg);font-size:0.86rem;color:var(--text);font-family:inherit;outline:none;transition:var(--transition)}
   .filter-bar select:focus,.filter-bar input:focus{border-color:var(--primary)}
   .table-wrap{overflow-x:auto;border-radius:var(--radius-md);box-shadow:var(--shadow-sm)}
+.table-wrap table{table-layout:auto;width:100%}
+.table-wrap th,.table-wrap td{white-space:nowrap;padding:8px 10px;text-align:center}
+
   table{width:100%;border-collapse:collapse;background:var(--card-bg)}
   thead th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:12px 13px;text-align:left;font-size:0.78rem;font-weight:600;white-space:nowrap}
   tbody tr{border-bottom:1px solid var(--border);transition:var(--transition)}
@@ -291,7 +294,8 @@
           <th>날짜</th><th>강사명</th><th>인식원본</th><th>과목</th>
           <th>분위기</th><th>관심</th><th>이해도</th><th>정확도</th><th>과제확인</th>
           <th>열정</th><th>다정함/엄한관리</th><th>성실</th><th>만족도</th><th>실력향상</th>
-          <th>평균</th><th>삭제</th>
+       + '<th>삭제</th><th>평균</th>'
+
         </tr></thead>
         <tbody id="survey-tbody"></tbody>
       </table>
@@ -704,7 +708,7 @@ function showTeacherDetail(name) {
 
         + '</td>'
       : '')
-    + '<td>' + (name==='미인식강사' ? '미인식 '+(sv.pageNum||'-')+'/'+(sv.totalPages||'-') : esc(sv.date||'')) + '</td>'
+  
 
     + '<td><span class="tag">' + esc(sv.subject||'') + '</span></td>'
     + SCORE_KEYS.map(k => '<td>' + (sv[k]!==undefined?sv[k]:'-') + '</td>').join('')
@@ -741,8 +745,10 @@ function showTeacherDetail(name) {
     + '<div class="section-header"><div class="section-title">최근 설문 이력</div></div>'
     + '<div class="table-wrap"><table>'
        + '<thead><tr>'
-    + (name==='미인식강사' ? '<th>매칭</th>' : '')
-    + '<th>날짜</th><th>과목</th>'
+       + (name==='미인식강사' ? '<th>매칭</th>' : '')
+    + '<th>과목</th>'
+
+
     + SCORE_KEYS.map(k=>'<th>'+k+'</th>').join('')
     + '<th>평균</th></tr></thead>'
     + '<tbody>' + (rows||'<tr><td colspan="'+colSpan+'" style="text-align:center;padding:20px;color:var(--text-light)">데이터 없음</td></tr>') + '</tbody>'
@@ -752,6 +758,16 @@ function showTeacherDetail(name) {
 function backToList() {
   document.getElementById('analysis-list-view').style.display  = 'block';
   document.getElementById('analysis-detail-view').style.display = 'none';
+}
+function remapSurvey(surveyId, newTeacherName) {
+  if (!newTeacherName) return;
+  var sv = (DB.surveys||[]).find(function(s){ return s.id === surveyId; });
+  if (!sv) return;
+  var oldName = sv.teacherName;
+  sv.teacherName = newTeacherName;
+  saveDB();
+  showToast(oldName + ' → ' + newTeacherName + ' 변경 완료', 'success');
+  showTeacherDetail(newTeacherName);
 }
 
 function renderSurveys() {
