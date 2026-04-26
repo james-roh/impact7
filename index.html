@@ -1478,6 +1478,44 @@ function importFromLocalFile(input) {
   if (!file) return;
   var statusEl = document.getElementById('sheets-status');
   statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">📂 파일 읽는 중...</div>';
+  input.value = '';
+
+  // .gsheet 파일 처리
+  if (file.name.endsWith('.gsheet')) {
+    var textReader = new FileReader();
+    textReader.onerror = function() {
+      statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 파일 읽기 실패</div>';
+    };
+    textReader.onload = function(e) {
+      try {
+        var json = JSON.parse(e.target.result);
+        // doc_id 또는 url에서 Sheet ID 추출
+        var sheetId = json.doc_id || json.resource_id || '';
+        if (!sheetId && json.url) {
+          var match = json.url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+          if (match) sheetId = match[1];
+        }
+        if (!sheetId) {
+          statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ Sheet ID를 찾을 수 없습니다</div>';
+          return;
+        }
+        // Sheet ID 저장 후 가져오기
+        DB.settings.sheetsId = sheetId;
+        saveDB();
+        var idInput = document.getElementById('sheets-id-input');
+        if (idInput) idInput.value = sheetId;
+        statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">🔄 Sheet ID: ' + sheetId.slice(0,12) + '... 가져오는 중...</div>';
+        importFromSheets();
+      } catch(err) {
+        statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 파싱 오류: ' + err.message + '</div>';
+        console.error(err);
+      }
+    };
+    textReader.readAsText(file, 'UTF-8');
+    return;
+  }
+
+  // .xlsx / .csv 파일 처리
   if (typeof XLSX === 'undefined') {
     statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ XLSX 라이브러리 로드 실패</div>';
     return;
@@ -1529,7 +1567,6 @@ function importFromLocalFile(input) {
     }
   };
   reader.readAsArrayBuffer(file);
-  input.value = '';
 }
 
 function processLocalRows(rows, teacherName, today, statusEl, fileName) {
