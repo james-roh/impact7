@@ -1478,22 +1478,24 @@ function importFromLocalFile(input) {
   if (!file) return;
   var statusEl = document.getElementById('sheets-status');
   statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">📂 파일 읽는 중...</div>';
-  var teacherName = file.name.replace(/\.[^.]+$/, '').toUpperCase();
+  if (typeof XLSX === 'undefined') {
+    statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ XLSX 라이브러리 로드 실패</div>';
+    return;
+  }
   var today = new Date().toISOString().slice(0,10);
   var reader = new FileReader();
+  reader.onerror = function() {
+    statusEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">❌ 파일 읽기 실패</div>';
+  };
   reader.onload = function(e) {
     try {
-      var data = new Uint8Array(e.target.result);
-      var workbook = XLSX.read(data, {type: 'array'});
+      var workbook = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
       var totalAdded = 0;
-      // 각 시트를 강사명으로 처리
       workbook.SheetNames.forEach(function(sheetName) {
         if (['시트1','선호도','NAME','Sheet1','Sheet2'].indexOf(sheetName) > -1) return;
-        var worksheet = workbook.Sheets[sheetName];
-        var rows = XLSX.utils.sheet_to_json(worksheet, {header:1, defval:''});
+        var rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header:1, defval:''});
         if (!rows || rows.length < 2) return;
         var tName = sheetName.toUpperCase();
-        // 행=항목, 열=학생 구조 처리
         var dataRows = rows.filter(function(r){ return r[0] && !isNaN(r[0]); });
         if (!dataRows.length) return;
         var numStudents = 0;
@@ -1504,22 +1506,12 @@ function importFromLocalFile(input) {
             var row = dataRows[ki];
             var val = row ? parseFloat(row[stu + 2]) : NaN;
             if (isNaN(val)) val = 2;
-            val = Math.min(10, Math.round(val / 2) * 2);
-            scores[SCORE_KEYS[ki]] = val;
+            scores[SCORE_KEYS[ki]] = Math.min(10, Math.round(val / 2) * 2);
           }
           var vals = SCORE_KEYS.map(function(k){ return scores[k]; });
           if (vals.every(function(v){ return v === vals[0]; })) continue;
           var avgVal = parseFloat((vals.reduce(function(a,b){ return a+b; },0) / vals.length).toFixed(1));
-          var entry = {
-            id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-            teacherName: tName,
-            recognizedName: tName,
-            subject: '',
-            date: today,
-            avg: avgVal,
-            pageNum: stu + 1,
-            totalPages: numStudents
-          };
+          var entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2), teacherName: tName, recognizedName: tName, subject: '', date: today, avg: avgVal, pageNum: stu+1, totalPages: numStudents };
           for (var ki = 0; ki < SCORE_KEYS.length; ki++) entry[SCORE_KEYS[ki]] = scores[SCORE_KEYS[ki]];
           DB.surveys.push(entry);
           if (!DB.recentHistory) DB.recentHistory = [];
