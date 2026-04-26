@@ -1545,30 +1545,41 @@ function importFromSheets() {
           var teacherCols = posHeaderIdx > -1 ? prefRows[posHeaderIdx].slice(1) : [];
 
           // 각 섹션의 다음 섹션 시작 전까지 의견 수집
-          function collectTexts(startIdx, endIdx) {
-            var result = {};
-            for (var ri = startIdx + 1; ri < endIdx && ri < prefRows.length; ri++) {
-              var row = prefRows[ri];
-              if (!row || !row.some(function(c){ return c && c.trim(); })) continue;
-              teacherCols.forEach(function(tName, ci) {
-                if (!tName) return;
-                var val = row[ci + 1] ? row[ci + 1].trim() : '';
-                if (val) {
-                  if (!result[tName]) result[tName] = [];
-                  result[tName].push(val);
-                }
-              });
-            }
-            return result;
-          }
-
-          var totalEnd = prefRows.length;
+                  var totalEnd = prefRows.length;
           var posEnd = negHeaderIdx > -1 ? negHeaderIdx : etcHeaderIdx > -1 ? etcHeaderIdx : totalEnd;
           var negEnd = etcHeaderIdx > -1 ? etcHeaderIdx : totalEnd;
 
-          var posTexts = posHeaderIdx > -1 ? collectTexts(posHeaderIdx, posEnd) : {};
-          var negTexts = negHeaderIdx > -1 ? collectTexts(negHeaderIdx, negEnd) : {};
-          var etcTexts = etcHeaderIdx > -1 ? collectTexts(etcHeaderIdx, totalEnd) : {};
+          var posTexts = {}, negTexts = {}, etcTexts = {};
+
+          for (var ri = posHeaderIdx + 1; ri < posEnd && ri < prefRows.length; ri++) {
+            var row = prefRows[ri];
+            if (!row || !row.some(function(c){ return c && c.trim(); })) continue;
+            teacherCols.forEach(function(tName, ci) {
+              if (!tName) return;
+              var val = row[ci + 1] ? row[ci + 1].trim() : '';
+              if (val) { if (!posTexts[tName]) posTexts[tName] = []; posTexts[tName].push(val); }
+            });
+          }
+          for (var ri = negHeaderIdx + 1; ri < negEnd && ri < prefRows.length; ri++) {
+            var row = prefRows[ri];
+            if (!row || !row.some(function(c){ return c && c.trim(); })) continue;
+            teacherCols.forEach(function(tName, ci) {
+              if (!tName) return;
+              var val = row[ci + 1] ? row[ci + 1].trim() : '';
+              if (val) { if (!negTexts[tName]) negTexts[tName] = []; negTexts[tName].push(val); }
+            });
+          }
+          for (var ri = etcHeaderIdx + 1; ri < totalEnd && ri < prefRows.length; ri++) {
+            var row = prefRows[ri];
+            if (!row || !row.some(function(c){ return c && c.trim(); })) continue;
+            teacherCols.forEach(function(tName, ci) {
+              if (!tName) return;
+              var val = row[ci + 1] ? row[ci + 1].trim() : '';
+              if (val) { if (!etcTexts[tName]) etcTexts[tName] = []; etcTexts[tName].push(val); }
+            });
+          }
+
+
 
           teacherCols.forEach(function(tName) {
             if (!tName) return;
