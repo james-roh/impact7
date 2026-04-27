@@ -10,45 +10,59 @@
 
 <style>
   :root {
-    --primary:#6c5ce7; --primary-light:#a29bfe; --primary-dark:#5a4bd1; --accent:#a29bfe;
-    --success:#00b894; --warning:#fdcb6e; --danger:#d63031;
-    --bg:#f8f9fe; --card-bg:#ffffff; --text:#2d3436; --text-sub:#636e72;
-    --text-light:#b2bec3; --border:#e0e3f0;
-    --shadow-sm:0 2px 8px rgba(108,92,231,0.08);
-    --shadow-md:0 4px 20px rgba(108,92,231,0.12);
-    --shadow-lg:0 8px 40px rgba(108,92,231,0.18);
+    --primary:#4A8FA8; --primary-light:#6BAEC4; --primary-dark:#2D5F72; --accent:#6BAEC4;
+    --success:#4A9B7F; --warning:#f0a500; --danger:#c0392b;
+    --bg:#F0F5F7; --card-bg:#ffffff; --text:#1a2e35; --text-sub:#4a6572;
+    --text-light:#8faab5; --border:#c8dde5;
+    --shadow-sm:0 2px 8px rgba(74,143,168,0.08);
+    --shadow-md:0 4px 20px rgba(74,143,168,0.12);
+    --shadow-lg:0 8px 40px rgba(74,143,168,0.18);
     --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
     --transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+
+    /* 스타벅스 시스템 참고 추가 변수 */
+    --band-bg:#2D5F72;        /* 헤더/푸터 다크 밴드 */
+    --band-text:#ffffff;
+    --band-text-soft:rgba(255,255,255,0.70);
+    --canvas:#F0F5F7;         /* 페이지 캔버스 */
+    --canvas-warm:#E8F2F5;    /* 카드 사이 구분 */
+    --gold:#c9a84c;           /* 포인트 강조 (리워드용) */
+    --card-shadow:0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24);
+    --btn-radius:50px;        /* 스타벅스식 풀필 버튼 */
+    --card-radius:12px;
   }
+
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-  .top-bar{position:fixed;top:0;left:0;right:0;height:64px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:0 2px 20px rgba(108,92,231,0.35);z-index:2000}
+  .top-bar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--band-bg);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:0 1px 3px rgba(0,0,0,0.1),0 2px 2px rgba(0,0,0,0.06),0 0 2px rgba(0,0,0,0.07);z-index:2000}
   .top-bar-logo{display:flex;align-items:center;gap:12px}
-  .logo-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px}
-  .top-bar-logo span{font-size:1.2rem;font-weight:700;color:#fff}
-  .top-bar-logo small{display:block;font-size:0.7rem;color:rgba(255,255,255,0.7);font-weight:400}
-  .btn-admin{padding:8px 18px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.18);color:#fff;border:1.5px solid rgba(255,255,255,0.3);font-size:0.85rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
-  .btn-admin:hover{background:rgba(255,255,255,0.3)}
-  .tab-bar{position:fixed;top:64px;left:0;right:0;height:52px;background:var(--card-bg);border-bottom:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:4px;z-index:1500;box-shadow:var(--shadow-sm)}
-  .tab-btn{padding:8px 20px;border-radius:var(--radius-sm);background:transparent;color:var(--text-sub);border:none;font-size:0.88rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit;position:relative;white-space:nowrap}
-  .tab-btn:hover{color:var(--primary);background:rgba(108,92,231,0.07)}
-  .tab-btn.active{color:var(--primary);background:rgba(108,92,231,0.1)}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .top-bar-logo span{font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:-0.01em}
+  .top-bar-logo small{display:block;font-size:0.7rem;color:var(--band-text-soft);font-weight:400;letter-spacing:-0.01em}
+  .btn-admin{padding:8px 18px;border-radius:50px;background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);font-size:0.85rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
+  .btn-admin:hover{background:rgba(255,255,255,0.25);transform:scale(0.98)}
+  .btn-admin:active{transform:scale(0.95)}
+  .tab-bar{position:fixed;top:64px;left:0;right:0;height:52px;background:var(--card-bg);border-bottom:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:4px;z-index:1500;box-shadow:0 1px 3px rgba(74,143,168,0.08)}
+  .tab-btn{padding:8px 20px;border-radius:50px;background:transparent;color:var(--text-sub);border:none;font-size:0.88rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit;position:relative;white-space:nowrap;letter-spacing:-0.01em;display:inline-flex;align-items:center;gap:7px}
+
+  .tab-btn:hover{color:var(--primary);background:rgba(74,143,168,0.08)}
+  .tab-btn.active{color:var(--primary);background:rgba(74,143,168,0.12)}
   .tab-btn.active::after{content:'';position:absolute;bottom:-10px;left:16px;right:16px;height:3px;border-radius:2px;background:var(--primary)}
   .main-content{max-width:1280px;margin:0 auto;padding:136px 24px 40px}
   .page{display:none} .page.active{display:block}
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-bottom:28px}
-  .stat-card{background:var(--card-bg);border-radius:var(--radius-md);padding:20px 22px;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:var(--transition);display:flex;align-items:center;gap:16px}
+  .stat-card{background:var(--card-bg);border-radius:12px;padding:20px 22px;box-shadow:0 0 0.5px rgba(0,0,0,0.14),0 1px 1px rgba(0,0,0,0.24);border:1px solid var(--border);transition:var(--transition);display:flex;align-items:center;gap:16px}
   .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
-  .stat-icon{width:50px;height:50px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
-  .stat-icon.purple{background:rgba(108,92,231,0.12)} .stat-icon.green{background:rgba(0,184,148,0.12)}
-  .stat-icon.yellow{background:rgba(253,203,110,0.18)} .stat-icon.blue{background:rgba(9,132,227,0.12)}
-  .stat-label{font-size:0.76rem;color:var(--text-sub);font-weight:500;margin-bottom:4px}
+  .stat-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+  .stat-icon.purple{background:rgba(74,143,168,0.12)} .stat-icon.green{background:rgba(74,155,127,0.12)}
+  .stat-icon.yellow{background:rgba(201,168,76,0.15)} .stat-icon.blue{background:rgba(107,174,196,0.15)}
+  .stat-label{font-size:0.76rem;color:var(--text-sub);font-weight:500;margin-bottom:4px;letter-spacing:-0.01em}
   .stat-value{font-size:1.7rem;font-weight:800;color:var(--text);line-height:1}
   .stat-sub{font-size:0.73rem;color:var(--text-light);margin-top:4px}
   .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-  .section-title{font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+  .section-title{font-size:1rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;letter-spacing:-0.01em}
   .section-title::before{content:'';display:inline-block;width:4px;height:18px;background:var(--primary);border-radius:2px}
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
   @media(max-width:768px){.two-col{grid-template-columns:1fr}}
   .history-list{display:flex;flex-direction:column;gap:8px}
   .history-item{background:var(--card-bg);border-radius:var(--radius-sm);padding:12px 16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:var(--transition)}
@@ -138,15 +152,19 @@
   .dac-icon{font-size:1.9rem;margin-bottom:9px}
   .data-action-card h3{font-size:0.93rem;font-weight:700;margin-bottom:5px}
   .data-action-card p{font-size:0.78rem;color:var(--text-sub);margin-bottom:14px}
-  .btn{padding:10px 18px;border-radius:var(--radius-sm);font-size:0.86rem;font-weight:600;cursor:pointer;border:none;transition:var(--transition);font-family:inherit;display:inline-flex;align-items:center;gap:6px}
-  .btn-primary{background:var(--primary);color:#fff} .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:var(--shadow-md)}
-  .btn-success{background:var(--success);color:#fff} .btn-success:hover{filter:brightness(0.9)}
-  .btn-warning{background:var(--warning);color:var(--text)} .btn-warning:hover{filter:brightness(0.95)}
-  .btn-danger{background:var(--danger);color:#fff} .btn-danger:hover{filter:brightness(0.9)}
-  .btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)} .btn-outline:hover{background:rgba(108,92,231,0.08)}
-  .btn-pos{background:rgba(0,184,148,0.12);color:var(--success);border:1.5px solid rgba(0,184,148,0.3)} .btn-pos:hover{background:var(--success);color:#fff}
-.btn-neg{background:rgba(214,48,49,0.1);color:var(--danger);border:1.5px solid rgba(214,48,49,0.25)} .btn-neg:hover{background:var(--danger);color:#fff}
-.btn-etc{background:rgba(108,92,231,0.1);color:var(--primary);border:1.5px solid rgba(108,92,231,0.25)} .btn-etc:hover{background:var(--primary);color:#fff}
+  .btn{padding:8px 20px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;border:none;transition:var(--transition);font-family:inherit;display:inline-flex;align-items:center;gap:6px;letter-spacing:-0.01em}
+  .btn:active{transform:scale(0.95)}
+  .btn-primary{background:var(--primary);color:#fff;border:1px solid var(--primary)} .btn-primary:hover{background:var(--primary-dark);box-shadow:var(--shadow-md)}
+  .btn-success{background:var(--success);color:#fff;border:1px solid var(--success)} .btn-success:hover{filter:brightness(0.92)}
+  .btn-warning{background:var(--warning);color:#fff;border:1px solid var(--warning)} .btn-warning:hover{filter:brightness(0.95)}
+  .btn-danger{background:var(--danger);color:#fff;border:1px solid var(--danger)} .btn-danger:hover{filter:brightness(0.92)}
+  .btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)} .btn-outline:hover{background:rgba(74,143,168,0.08)}
+  .btn-full{width:100%;justify-content:center}
+  .btn-sm{padding:5px 14px;font-size:0.78rem}
+  .btn-pos{background:rgba(74,155,127,0.1);color:var(--success);border:1.5px solid rgba(74,155,127,0.35)} .btn-pos:hover{background:var(--success);color:#fff}
+  .btn-neg{background:rgba(192,57,43,0.08);color:var(--danger);border:1.5px solid rgba(192,57,43,0.25)} .btn-neg:hover{background:var(--danger);color:#fff}
+  .btn-etc{background:rgba(74,143,168,0.1);color:var(--primary);border:1.5px solid rgba(74,143,168,0.25)} .btn-etc:hover{background:var(--primary);color:#fff}
+
 
   .btn-sm{padding:7px 13px;font-size:0.78rem} .btn-full{width:100%;justify-content:center}
   .admin-overlay{position:fixed;inset:0;background:rgba(30,20,70,0.5);backdrop-filter:blur(4px);z-index:3000;display:none;align-items:flex-start;justify-content:flex-end;padding:16px}
@@ -234,17 +252,28 @@
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchPage('dashboard',this)">🏠 대시보드</button>
-  <button class="tab-btn" onclick="switchPage('analysis',this)">📈 강사 분석</button>
-<button class="tab-btn" onclick="switchPage('data',this)">📋 설문지 선택</button>
+  <button class="tab-btn active" onclick="switchPage('dashboard',this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    대시보드
+  </button>
+  <button class="tab-btn" onclick="switchPage('analysis',this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    강사 분석
+  </button>
+  <button class="tab-btn" onclick="switchPage('data',this)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    설문지 선택
+  </button>
 </div>
+
 
 <div class="main-content">
   <div class="page active" id="page-dashboard">
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-icon purple">📝</div><div><div class="stat-label">총 설문 수</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">건</div></div></div>
-      <div class="stat-card"><div class="stat-icon green">👨‍🏫</div><div><div class="stat-label">평가 강사 수</div><div class="stat-value" id="stat-teachers">0</div><div class="stat-sub">명</div></div></div>
-      <div class="stat-card"><div class="stat-icon yellow">⭐</div><div><div class="stat-label">전체 평균 점수</div><div class="stat-value" id="stat-avg">-</div><div class="stat-sub">점</div></div></div>
+    <div class="stat-card"><div class="stat-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div><div><div class="stat-label">총 설문 수</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">건</div></div></div>
+    <div class="stat-card"><div class="stat-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="stat-label">평가 강사 수</div><div class="stat-value" id="stat-teachers">0</div><div class="stat-sub">명</div></div></div>
+    <div class="stat-card"><div class="stat-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="stat-label">전체 평균 점수</div><div class="stat-value" id="stat-avg">-</div><div class="stat-sub">점</div></div></div>
+
     </div>
     <div class="section-header" style="margin-top:20px"><div class="section-title">🏆 강사 종합 순위</div></div>
     <div class="teacher-ranking-grid" id="teacher-ranking-grid"></div>
