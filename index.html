@@ -219,6 +219,8 @@
 </style>
 
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </head>
 <body>
@@ -311,7 +313,7 @@
     <div style="background:var(--card-bg);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div style="font-size:0.88rem;font-weight:600">📋 등록된 설문지 목록</div>
-        <button class="btn btn-outline btn-sm" onclick="loadManifest()">🔄 새로고침</button>
+        <button class="btn btn-outline btn-sm" onclick="loadManifest()">🔄 설문지 검색</button>
       </div>
       <div id="remote-file-list"><div style="color:var(--text-light);font-size:0.82rem">새로고침 버튼을 눌러 목록을 불러오세요</div></div>
     </div>
@@ -408,8 +410,7 @@
   <hr style="border-color:var(--border);margin:16px 0"/>
   <div class="form-group">
     <label class="form-label">📥 데이터 가져오기</label>
-    <button class="btn btn-outline btn-full" style="margin-top:8px" onclick="document.getElementById('sheets-file-input').click()">💻 설문지 파일 선택</button>
-<input type="file" id="sheets-file-input" accept=".xlsx,.xls,.csv,.ods" style="display:none" onchange="importFromLocalFile(this)"/>
+<button class="btn btn-outline btn-full" style="margin-top:8px" onclick="importFromShareLink()">🔗 공유 링크로 가져오기</button>
 
 
   </div>
@@ -752,7 +753,9 @@ function showTeacherDetail(name) {
     + '<div class="detail-avatar">' + esc(name).charAt(0) + '</div>'
     + '<div class="detail-info"><h2>' + esc(name) + '</h2>'
     + '<p>총 설문 ' + surveys.length + '건 · 평균 ' + (avg>0?avg.toFixed(2):'-') + '점</p></div>'
+    + '<button onclick="printTeacherDetail()" style="margin-left:auto;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-md);cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px">🖨️ PDF 저장</button>'
     + '</div>'
+
     + '<div class="score-grid">' + scoreBars + '</div>'
   + '<div class="memo-readonly-section"><h4 style="font-size:1.05rem">선호도</h4>' + memoHtml + '</div>'
     + '<div class="section-header"><div class="section-title">최근 설문 이력</div></div>'
@@ -766,6 +769,78 @@ function showTeacherDetail(name) {
     + '<th>평균</th></tr></thead>'
     + '<tbody>' + (rows||'<tr><td colspan="'+colSpan+'" style="text-align:center;padding:20px;color:var(--text-light)">데이터 없음</td></tr>') + '</tbody>'
      + '</table></div>';
+}
+function printTeacherDetail() {
+  var nameEl = document.querySelector('#teacher-detail-content h2');
+  var title = nameEl ? nameEl.innerText : '강사분석';
+  var defaultName = title + '_강사분석';
+  var fileName = prompt('저장할 파일명을 입력하세요 (.pdf 자동 추가)', defaultName);
+  if (fileName === null) return;
+  if (!fileName.trim()) fileName = defaultName;
+
+  // 숨길 요소들 (관리자 버튼, PDF 버튼, 목록으로 버튼)
+  var hideEls = [];
+  // 관리자 버튼
+  var adminBtn = document.querySelector('.admin-btn') || document.querySelector('button[onclick*="openAdmin"]');
+  if (adminBtn) hideEls.push(adminBtn);
+  // PDF 저장 버튼
+  var pdfBtn = document.querySelector('#teacher-detail-content button');
+  if (pdfBtn) hideEls.push(pdfBtn);
+  // 목록으로 버튼
+  var backBtn = document.querySelector('button[onclick*="backToList"]');
+  if (backBtn) hideEls.push(backBtn);
+
+  // 숨김 처리
+  hideEls.forEach(function(el) { el.style.visibility = 'hidden'; });
+
+  showToast('PDF 생성 중...', 'info');
+
+  html2canvas(document.body, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#f0f2ff',
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: document.body.scrollWidth,
+    windowHeight: document.body.scrollHeight
+  }).then(function(canvas) {
+    // 복원
+    hideEls.forEach(function(el) { el.style.visibility = ''; });
+
+    var imgData = canvas.toDataURL('image/png');
+    var { jsPDF } = window.jspdf;
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    var pageW = pdf.internal.pageSize.getWidth();
+    var pageH = pdf.internal.pageSize.getHeight();
+    var imgW = pageW - 20;
+    var imgH = (canvas.height * imgW) / canvas.width;
+    var y = 10;
+
+    if (imgH > pageH - 20) {
+      var remainH = imgH;
+      var srcY = 0;
+      while (remainH > 0) {
+        var sliceH = Math.min(pageH - 20, remainH);
+        var sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = Math.round((sliceH / imgW) * canvas.width);
+        var ctx = sliceCanvas.getContext('2d');
+        ctx.drawImage(canvas, 0, Math.round(srcY * canvas.width / imgW), canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+        pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 10, y, imgW, sliceH);
+        remainH -= sliceH;
+        srcY += sliceH;
+        if (remainH > 0) { pdf.addPage(); y = 10; }
+      }
+    } else {
+      pdf.addImage(imgData, 'PNG', 10, y, imgW, imgH);
+    }
+    pdf.save(fileName.trim() + '.pdf');
+    showToast(fileName.trim() + '.pdf 저장 완료!', 'success');
+  }).catch(function(e) {
+    hideEls.forEach(function(el) { el.style.visibility = ''; });
+    showToast('PDF 생성 실패: ' + e.message, 'error');
+    console.error(e);
+  });
 }
 
 function backToList() {
@@ -1652,6 +1727,23 @@ function showPicker() {
     .build();
   picker.setVisible(true);
 }
+function importFromShareLink() {
+  var statusEl = document.getElementById('sheets-status');
+  var input = prompt('구글 시트 공유 링크 또는 Sheet ID를 입력하세요:\n\n예) https://docs.google.com/spreadsheets/d/XXXXXX/edit');
+  if (!input) return;
+  var match = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  var sheetId = match ? match[1] : input.trim();
+  if (!sheetId) {
+    showToast('유효하지 않은 링크입니다', 'error');
+    return;
+  }
+  DB.settings.sheetsId = sheetId;
+  saveDB();
+  var idInput = document.getElementById('sheets-id-input');
+  if (idInput) idInput.value = sheetId;
+  statusEl.innerHTML = '<div style="color:var(--text-light);font-size:0.82rem">🔄 가져오는 중...</div>';
+  importFromSheets();
+}
 
 function importFromSheets() {
   var key = DB.settings.sheetsApiKey;
@@ -1782,7 +1874,8 @@ function importFromSheets() {
               if (!DB.teachers) DB.teachers = [];
               DB.teachers.push(teacher);
             }
-            if (!teacher.memos) teacher.memos = [];
+           teacher.memos = [];
+
             (posTexts[tName] || []).forEach(function(line) {
               if (line.trim()) teacher.memos.push({ type: 'pos', text: line.trim() });
             });
