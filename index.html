@@ -36,9 +36,12 @@
   body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
   .top-bar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--band-bg);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:0 1px 3px rgba(0,0,0,0.1),0 2px 2px rgba(0,0,0,0.06),0 0 2px rgba(0,0,0,0.07);z-index:2000}
   .top-bar-logo{display:flex;align-items:center;gap:12px}
-  .logo-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px}
-  .top-bar-logo span{font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:-0.01em}
-  .top-bar-logo small{display:block;font-size:0.7rem;color:var(--band-text-soft);font-weight:400;letter-spacing:-0.01em}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;}
+  .top-bar-logo span{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:-0.01em}
+  .top-bar-logo small{display:inline;font-size:0.78rem;color:var(--band-text-soft);font-weight:400;letter-spacing:-0.01em;margin-left:6px}
+
+  .top-bar-logo small{display:inline;font-size:0.78rem;color:var(--band-text-soft);font-weight:400;letter-spacing:-0.01em;margin-left:6px}
+
   .btn-admin{padding:8px 18px;border-radius:50px;background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);font-size:0.85rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
   .btn-admin:hover{background:rgba(255,255,255,0.25);transform:scale(0.98)}
   .btn-admin:active{transform:scale(0.95)}
@@ -67,7 +70,8 @@
   .history-list{display:flex;flex-direction:column;gap:8px}
   .history-item{background:var(--card-bg);border-radius:var(--radius-sm);padding:12px 16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:var(--transition)}
   .history-item:hover{transform:translateX(4px);box-shadow:var(--shadow-md)}
-  .h-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0}
+.h-avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0}
+
   .h-info{flex:1} .h-name{font-size:0.9rem;font-weight:600} .h-sub{font-size:0.76rem;color:var(--text-sub);margin-top:2px}
   .h-score{font-size:1.15rem;font-weight:800;color:var(--primary)}
   .ranking-list{display:flex;flex-direction:column;gap:8px}
@@ -111,7 +115,8 @@
   .back-btn{padding:8px 16px;border-radius:var(--radius-sm);background:var(--bg);color:var(--primary);border:1.5px solid var(--border);font-size:0.83rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit;margin-bottom:18px}
   .back-btn:hover{background:rgba(108,92,231,0.08);border-color:var(--primary)}
   .detail-header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
-  .detail-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem;flex-shrink:0}
+.detail-avatar{width:60px;height:60px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.3rem;flex-shrink:0;letter-spacing:-0.01em}
+
   .detail-info h2{font-size:1.3rem;font-weight:800} .detail-info p{color:var(--text-sub);font-size:0.83rem;margin-top:4px}
   .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
   .score-bar-card{background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border)}
@@ -193,7 +198,8 @@
   .teacher-manage-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .teacher-manage-item{background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);overflow:hidden}
   .tm-header{display:flex;align-items:center;gap:9px;padding:9px 12px}
-  .tm-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0}
+.tm-avatar{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0}
+
   .tm-name{flex:1;font-size:0.85rem;font-weight:600} .tm-memo-count{font-size:0.72rem;color:var(--text-sub);white-space:nowrap}
   .tm-actions{display:flex;gap:5px}
   .tm-body{padding:0 12px 12px;display:none} .tm-body.open{display:block}
@@ -245,8 +251,12 @@
 
 <div class="top-bar">
   <div class="top-bar-logo">
-    <div class="logo-icon">📊</div>
-    <div><span>Impact7</span><small>강사 평가 시스템</small></div>
+    <div class="logo-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    </div>
+    <div><span>Impact7 <small>강사 평가 시스템</small></span></div>
   </div>
   <button class="btn-admin" onclick="openAdminPanel()">⚙️ 관리자</button>
 </div>
@@ -275,20 +285,21 @@
     <div class="stat-card"><div class="stat-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="stat-label">전체 평균 점수</div><div class="stat-value" id="stat-avg">-</div><div class="stat-sub">점</div></div></div>
 
     </div>
-    <div class="section-header" style="margin-top:20px"><div class="section-title">🏆 강사 종합 순위</div></div>
+        <div class="section-header" style="margin-top:20px"><div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l4-4 4 4"/><path d="M12 2v10"/><path d="M4 13h3l2 5h6l2-5h3"/></svg> 강사 종합 순위</div></div>
     <div class="teacher-ranking-grid" id="teacher-ranking-grid"></div>
     <div class="two-col" style="margin-top:20px">
       <div>
-        <div class="section-header"><div class="section-title">📊 강사별 종합 비교</div></div>
+        <div class="section-header"><div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> 강사별 종합 비교</div></div>
         <div style="background:var(--card-bg);border-radius:var(--radius-lg);padding:16px">
           <canvas id="radar-chart" style="max-height:280px"></canvas>
         </div>
       </div>
       <div>
-        <div class="section-header"><div class="section-title">📈 항목별 평균 점수</div></div>
+        <div class="section-header"><div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> 항목별 평균 점수</div></div>
         <div style="background:var(--card-bg);border-radius:var(--radius-lg);padding:16px">
           <canvas id="bar-chart" style="max-height:280px"></canvas>
         </div>
+
       </div>
     </div>
   </div>
@@ -585,7 +596,8 @@ function renderDashboard() {
     .sort((a,b) => b.avg - a.avg);
   const rankColors = ['#f1c40f','#95a5a6','#cd7f32'];
   const rankClass  = ['gold','silver','bronze'];
-  const bgColors   = ['#6c5ce7','#00b894','#0984e3','#e17055','#fd79a8','#fdcb6e'];
+ const bgColors = ['#4A8FA8','#4A8FA8','#4A8FA8','#4A8FA8','#4A8FA8','#4A8FA8'];
+
   const grid = document.getElementById('teacher-ranking-grid');
   if (!rankData.length) {
     grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🏆</div><p>데이터가 없습니다</p></div>';
