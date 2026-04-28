@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Impact7 휴가현황</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Pretendard', sans-serif; }
+  .brand { background-color: #1f4e5f; }
+  .brand-text { color: #1f4e5f; }
+  .brand-light { background-color: #e8f0f2; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- 🔒 로그인 화면 -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white p-10 rounded-xl shadow-lg w-full max-w-md border border-slate-100">
+    <div class="text-center mb-8">
+      <div class="w-14 h-14 brand rounded-xl flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="lock" class="text-white" width="26" height="26"></i>
+      </div>
+      <h1 class="text-xl font-bold text-slate-800">Impact7 휴가현황</h1>
+      <p class="text-slate-400 text-sm mt-2">접근 비밀번호를 입력하세요</p>
+    </div>
+    <input type="password" id="pwInput" placeholder="비밀번호"
+      class="w-full px-4 py-3 border border-slate-200 rounded-lg mb-3 focus:outline-none focus:border-slate-400 transition text-slate-700"
+      onkeypress="if(event.key==='Enter') tryLogin()">
+    <button onclick="tryLogin()"
+      class="w-full brand hover:opacity-90 text-white py-3 rounded-lg font-semibold transition">
+      접속하기
+    </button>
+    <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden">비밀번호가 일치하지 않습니다</p>
+    <p id="loadingMsg" class="text-slate-500 text-sm mt-3 text-center hidden">데이터를 불러오는 중...</p>
+  </div>
+</div>
+
+<!-- 📊 대시보드 -->
+<div id="dashboard" class="hidden">
+  
+  <!-- 헤더 -->
+  <header class="brand text-white">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <i data-lucide="calendar-check" width="22" height="22"></i>
+        <div>
+          <span class="font-bold text-lg">Impact7</span>
+          <span class="text-slate-200 text-sm ml-2">휴가현황</span>
+        </div>
+      </div>
+      <button onclick="logout()" class="text-slate-200 hover:text-white text-sm flex items-center gap-1">
+        <i data-lucide="log-out" width="16" height="16"></i>
+        로그아웃
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+    
+    <!-- 전체 인원 카드 -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="brand-light w-12 h-12 rounded-lg flex items-center justify-center">
+          <i data-lucide="users" class="brand-text" width="24" height="24"></i>
+        </div>
+        <div>
+          <p class="text-slate-500 text-sm">전체 인원</p>
+          <p class="text-2xl font-bold text-slate-800 mt-1"><span id="total">-</span><span class="text-base font-normal text-slate-400 ml-1">명</span></p>
+        </div>
+      </div>
+      <p class="text-slate-400 text-xs" id="updated"></p>
+    </div>
+
+    <!-- 막대 차트 -->
+    <div class="mb-3 flex items-center gap-2">
+      <div class="w-1 h-5 brand rounded-sm"></div>
+      <h2 class="text-slate-800 font-semibold">직원별 휴가 현황</h2>
+    </div>
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8">
+      <canvas id="chart" height="100"></canvas>
+    </div>
+
+    <!-- 직원 카드 그리드 -->
+    <div class="mb-3 flex items-center gap-2">
+      <div class="w-1 h-5 brand rounded-sm"></div>
+      <h2 class="text-slate-800 font-semibold">직원별 상세 내역</h2>
+    </div>
+    <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+    <p class="text-center text-slate-400 text-xs mt-8 pb-4">© Impact7 Vacation Dashboard</p>
+  </main>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbz7OYwz23qibeNcsiG1ALJtyqu8he0f720PtfMxn1-L2md_IMrc8j3ETL5DlzXshOc/exec';
+
+async function tryLogin() {
+  const pw = document.getElementById('pwInput').value;
+  const errorMsg = document.getElementById('errorMsg');
+  const loadingMsg = document.getElementById('loadingMsg');
+  errorMsg.classList.add('hidden');
+  loadingMsg.classList.remove('hidden');
+  try {
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(pw)}`);
+    const data = await res.json();
+    loadingMsg.classList.add('hidden');
+    if (data.error) {
+      errorMsg.classList.remove('hidden');
+      document.getElementById('pwInput').value = '';
+      return;
+    }
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    renderDashboard(data);
+    lucide.createIcons();
+  } catch (err) {
+    loadingMsg.classList.add('hidden');
+    errorMsg.textContent = '연결 오류가 발생했습니다';
+    errorMsg.classList.remove('hidden');
+  }
+}
+
+function renderDashboard(data) {
+  document.getElementById('total').textContent = data.length;
+  document.getElementById('updated').textContent = '업데이트: ' + new Date().toLocaleString('ko-KR');
+
+  // 막대 차트 (스택형)
+  new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(p => p.id),
+      datasets: [
+        { label: '사용', data: data.map(p => p.used), backgroundColor: '#94a3b8', borderRadius: 4 },
+      { label: '잔여', data: data.map(p => p.remaining), backgroundColor: '#7fb5ad', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 }, usePointStyle: true, pointStyle: 'circle' } }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { weight: 'bold', size: 11 } } },
+        y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
+      }
+    }
+  });
+
+  // 카드 그리드
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = data.map(p => {
+    const total = Number(p.used) + Number(p.remaining);
+    const pct = total ? Math.round(p.remaining / total * 100) : 0;
+    const initial = (p.id || '?').charAt(0);
+    return `
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="brand w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              ${initial}
+            </div>
+            <div>
+              <p class="font-bold text-slate-800 tracking-wide">${p.id}</p>
+              <p class="text-slate-400 text-xs">잔여 ${p.remaining}일 / 사용 ${p.used}일</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="brand-text font-bold text-lg">${p.remaining}</p>
+            <p class="text-slate-400 text-xs">일 남음</p>
+          </div>
+        </div>
+        <div class="bg-slate-100 rounded-full h-1.5 overflow-hidden">
+          <div class="brand h-full transition-all" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function logout() { location.reload(); }
+
+lucide.createIcons();
+</script>
+
+</body>
+</html>
