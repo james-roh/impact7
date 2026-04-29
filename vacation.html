@@ -11,6 +11,7 @@
   .brand { background-color: #1f4e5f; }
   .brand-text { color: #1f4e5f; }
   .brand-light { background-color: #e8f0f2; }
+  .brand-border { border-color: #1f4e5f; }
 </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -39,8 +40,6 @@
 
 <!-- 📊 대시보드 -->
 <div id="dashboard" class="hidden">
-  
-  <!-- 헤더 -->
   <header class="brand text-white">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center gap-3">
@@ -59,8 +58,8 @@
 
   <main class="max-w-6xl mx-auto p-6">
     
-    <!-- 전체 인원 카드 -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-6 flex items-center justify-between">
+    <!-- 전체 인원 + 연도 선택 -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-6 flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4">
         <div class="brand-light w-12 h-12 rounded-lg flex items-center justify-center">
           <i data-lucide="users" class="brand-text" width="24" height="24"></i>
@@ -70,19 +69,31 @@
           <p class="text-2xl font-bold text-slate-800 mt-1"><span id="total">-</span><span class="text-base font-normal text-slate-400 ml-1">명</span></p>
         </div>
       </div>
-      <p class="text-slate-400 text-xs" id="updated"></p>
+      <div class="flex items-center gap-2">
+        <select id="yearSelect" 
+          class="px-3 py-2 border border-slate-200 rounded-lg text-slate-700 text-sm focus:outline-none focus:border-slate-400 bg-white">
+        </select>
+        <button onclick="loadYear()" 
+          class="brand hover:opacity-90 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1.5">
+          <i data-lucide="refresh-cw" width="14" height="14"></i>
+          휴가 불러오기
+        </button>
+      </div>
     </div>
+
+    <!-- 안내 메시지 영역 -->
+    <div id="notice" class="hidden bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-4 text-sm"></div>
 
     <!-- 막대 차트 -->
     <div class="mb-3 flex items-center gap-2">
       <div class="w-1 h-5 brand rounded-sm"></div>
-      <h2 class="text-slate-800 font-semibold">직원별 휴가 현황</h2>
+      <h2 class="text-slate-800 font-semibold">직원별 휴가 현황 <span id="yearLabel" class="text-slate-400 text-sm font-normal"></span></h2>
     </div>
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8">
       <canvas id="chart" height="100"></canvas>
     </div>
 
-    <!-- 직원 카드 그리드 -->
+    <!-- 직원 카드 -->
     <div class="mb-3 flex items-center gap-2">
       <div class="w-1 h-5 brand rounded-sm"></div>
       <h2 class="text-slate-800 font-semibold">직원별 상세 내역</h2>
@@ -95,6 +106,8 @@
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbz7OYwz23qibeNcsiG1ALJtyqu8he0f720PtfMxn1-L2md_IMrc8j3ETL5DlzXshOc/exec';
+let currentToken = '';
+let chartInstance = null;
 
 async function tryLogin() {
   const pw = document.getElementById('pwInput').value;
@@ -102,19 +115,42 @@ async function tryLogin() {
   const loadingMsg = document.getElementById('loadingMsg');
   errorMsg.classList.add('hidden');
   loadingMsg.classList.remove('hidden');
+  
   try {
-    const res = await fetch(`${API_URL}?token=${encodeURIComponent(pw)}`);
-    const data = await res.json();
+    // 연도 목록 가져오기 (이게 곧 비밀번호 검증 역할도 함)
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(pw)}&action=list`);
+    const result = await res.json();
     loadingMsg.classList.add('hidden');
-    if (data.error) {
+    
+    if (result.error) {
       errorMsg.classList.remove('hidden');
       document.getElementById('pwInput').value = '';
       return;
     }
+    
+    currentToken = pw;
+    
+    // 연도 드롭다운 채우기
+    const select = document.getElementById('yearSelect');
+    const years = result.years || [];
+    if (years.length === 0) {
+      errorMsg.textContent = '사용 가능한 연도가 없습니다';
+      errorMsg.classList.remove('hidden');
+      return;
+    }
+    
+    // 최신 연도가 위로 (내림차순)
+    years.sort().reverse();
+    select.innerHTML = years.map(y => `<option value="${y}">${y}년</option>`).join('');
+    
+    // 화면 전환
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
-    renderDashboard(data);
+    
+    // 가장 최신 연도 자동 로드
+    loadYear();
     lucide.createIcons();
+    
   } catch (err) {
     loadingMsg.classList.add('hidden');
     errorMsg.textContent = '연결 오류가 발생했습니다';
@@ -122,25 +158,68 @@ async function tryLogin() {
   }
 }
 
+async function loadYear() {
+  const year = document.getElementById('yearSelect').value;
+  const notice = document.getElementById('notice');
+  notice.classList.add('hidden');
+  
+  try {
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(currentToken)}&year=${year}`);
+    const data = await res.json();
+    
+    document.getElementById('yearLabel').textContent = `(${year}년)`;
+    
+    // 에러 처리
+    if (data.error) {
+      showNotice(data.message || '데이터를 불러올 수 없습니다');
+      renderEmpty();
+      return;
+    }
+    
+    // 빈 데이터 처리
+    if (!Array.isArray(data) || data.length === 0) {
+      showNotice(`${year}년 시트에 등록된 데이터가 없습니다`);
+      renderEmpty();
+      return;
+    }
+    
+    renderDashboard(data);
+    lucide.createIcons();
+    
+  } catch (err) {
+    showNotice('연결 오류가 발생했습니다');
+  }
+}
+
+function showNotice(msg) {
+  const notice = document.getElementById('notice');
+  notice.textContent = '⚠ ' + msg;
+  notice.classList.remove('hidden');
+}
+
+function renderEmpty() {
+  document.getElementById('total').textContent = '0';
+  document.getElementById('cardGrid').innerHTML = '';
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+}
+
 function renderDashboard(data) {
   document.getElementById('total').textContent = data.length;
-  document.getElementById('updated').textContent = '업데이트: ' + new Date().toLocaleString('ko-KR');
 
-  // 막대 차트 (스택형)
-  new Chart(document.getElementById('chart'), {
+  // 차트
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('chart'), {
     type: 'bar',
     data: {
       labels: data.map(p => p.id),
       datasets: [
-        { label: '사용', data: data.map(p => p.used), backgroundColor: '#94a3b8', borderRadius: 4 },
-      { label: '잔여', data: data.map(p => p.remaining), backgroundColor: '#7fb5ad', borderRadius: 4 }
+       { label: '사용', data: data.map(p => p.used), backgroundColor: '#e2e8f0', borderRadius: 4 },
+{ label: '잔여', data: data.map(p => p.remaining), backgroundColor: '#1f4e5f', borderRadius: 4 }
       ]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: { position: 'top', labels: { font: { size: 12 }, usePointStyle: true, pointStyle: 'circle' } }
-      },
+      plugins: { legend: { position: 'top', labels: { font: { size: 12 }, usePointStyle: true, pointStyle: 'circle' } } },
       scales: {
         x: { stacked: true, grid: { display: false }, ticks: { font: { weight: 'bold', size: 11 } } },
         y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
@@ -148,7 +227,7 @@ function renderDashboard(data) {
     }
   });
 
-  // 카드 그리드
+  // 카드
   const grid = document.getElementById('cardGrid');
   grid.innerHTML = data.map(p => {
     const total = Number(p.used) + Number(p.remaining);
@@ -158,9 +237,7 @@ function renderDashboard(data) {
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-3">
-            <div class="brand w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm">
-              ${initial}
-            </div>
+            <div class="brand w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm">${initial}</div>
             <div>
               <p class="font-bold text-slate-800 tracking-wide">${p.id}</p>
               <p class="text-slate-400 text-xs">잔여 ${p.remaining}일 / 사용 ${p.used}일</p>
