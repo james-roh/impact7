@@ -308,7 +308,7 @@
   <div class="page" id="page-analysis">
     <div id="analysis-list-view">
       <div class="section-header">
-        <div class="section-title">강사별 분석</div>
+      <div class="section-title">강사별 분석 <span id="current-survey-name" style="font-size:0.78rem;font-weight:500;color:var(--text-sub);margin-left:8px;background:var(--canvas-warm);padding:3px 10px;border-radius:50px;border:1px solid var(--border)"></span></div>
         <select class="form-control" style="width:auto" onchange="renderAnalysis(this.value)">
           <option value="avg-desc">평균 높은순</option>
           <option value="avg-asc">평균 낮은순</option>
@@ -1950,6 +1950,8 @@ function loadRemoteJSON(filename, label) {
       if (data.surveys || data.teachers) {
         _loadedJSONData = data;
         document.getElementById('loaded-file-name').textContent = label;
+var surveyNameEl = document.getElementById('current-survey-name');
+if (surveyNameEl) surveyNameEl.textContent = label;
         document.getElementById('loaded-file-info').style.display = 'block';
         document.getElementById('loaded-file-stats').innerHTML =
           '👨‍🏫 강사 수: <strong>' + (data.teachers||[]).length + '명</strong><br>'
@@ -1973,8 +1975,15 @@ function applyLoadedJSON() {
   _loadedJSONData = null;
   document.getElementById('loaded-file-info').style.display = 'none';
   document.getElementById('loaded-file-name').textContent = '선택된 파일 없음';
-  showToast('데이터 적용 완료 (설문 '+DB.surveys.length+'건)', 'success');
+  var surveyCount = DB.surveys.length;
+  setTimeout(function() {
+    var ok = confirm('✅ 데이터 적용 완료!\n\n📝 설문 ' + surveyCount + '건이 적용되었습니다.\n\n확인을 누르면 대시보드로 이동합니다.');
+    if (ok) {
+      switchPage('dashboard', document.querySelector('.tab-btn'));
+    }
+  }, 100);
 }
+
 function cancelLoadedJSON() {
   _loadedJSONData = null;
   document.getElementById('loaded-file-info').style.display = 'none';
