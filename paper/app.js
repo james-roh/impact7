@@ -72,7 +72,11 @@ async function callApi(action, params = {}) {
   Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
 
   try {
-    const res = await fetch(url.toString(), { method: 'GET' });
+    const res = await fetch(url.toString(), {
+      method: 'GET',
+      redirect: 'follow',
+      mode: 'cors'
+    });
     const json = await res.json();
     return json;
   } catch (err) {
@@ -80,6 +84,7 @@ async function callApi(action, params = {}) {
     return { success: false, error: 'NETWORK_ERROR', message: err.message };
   }
 }
+
 
 // ============================================================
 // 목록 로드
