@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>임팩트세븐 - 서류발급 관리</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- 로그인 화면 -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-box">
+      <h1>임팩트세븐 서류발급 시스템</h1>
+      <p class="login-desc">관리자 계정으로 로그인하세요.</p>
+      <button id="loginBtn" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Google 계정으로 로그인
+      </button>
+      <p id="loginError" class="login-error"></p>
+    </div>
+  </div>
+
+  <!-- 메인 화면 -->
+  <div id="mainScreen" class="main-screen" style="display: none;">
+
+    <!-- 사이드바 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>임팩트세븐</h2>
+        <p class="sidebar-sub">관리시스템</p>
+      </div>
+      <nav class="sidebar-menu">
+        <a href="#" class="menu-item">📅 근무일정</a>
+        <a href="#" class="menu-item active">📄 서류발급</a>
+        <a href="#" class="menu-item">👥 강사관리</a>
+        <a href="#" class="menu-item">⚙️ 설정</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div id="userInfo" class="user-info"></div>
+        <button id="logoutBtn" class="btn-logout">로그아웃</button>
+      </div>
+    </aside>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="content">
+      <header class="content-header">
+        <h1>📄 서류발급 관리</h1>
+        <button id="refreshBtn" class="btn-secondary">🔄 새로고침</button>
+      </header>
+
+      <!-- 필터 -->
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="이름 / 소속 검색..." class="filter-input">
+        <select id="statusFilter" class="filter-select">
+          <option value="">전체 상태</option>
+          <option value="대기">대기</option>
+          <option value="발급완료">발급완료</option>
+        </select>
+        <select id="branchFilter" class="filter-select">
+          <option value="">전체 소속</option>
+          <option value="2단지 초중관">2단지 초중관</option>
+          <option value="2단지 고등관">2단지 고등관</option>
+          <option value="10단지관">10단지관</option>
+        </select>
+        <div class="filter-stats">
+          총 <span id="totalCount">0</span>건 / 대기 <span id="pendingCount">0</span>건
+        </div>
+      </div>
+
+      <!-- 로딩 -->
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>데이터를 불러오는 중...</p>
+      </div>
+
+      <!-- 테이블 -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>신청일</th>
+              <th>이름</th>
+              <th>소속</th>
+              <th>서류종류</th>
+              <th>용도</th>
+              <th>상태</th>
+              <th class="action-col">작업</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="7" class="empty">로그인 후 데이터가 표시됩니다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- 상세 모달 -->
+  <div id="detailModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📋 신청 상세</h2>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="issueBtn" class="btn-primary">📄 발급하기</button>
+        <button id="emailBtn" class="btn-success">📧 이메일 발송</button>
+        <button id="viewPdfBtn" class="btn-secondary" style="display:none;">👁 PDF 보기</button>
+        <button class="btn-cancel" onclick="closeModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
