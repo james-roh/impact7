@@ -72,11 +72,14 @@ async function callApi(action, params = {}) {
   Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
 
   try {
-    const res = await fetch(url.toString(), {
-      method: 'GET',
-      redirect: 'follow',
-      mode: 'cors'
-    });
+    // Apps Script 웹앱은 단순 GET 요청에 CORS를 허용함
+    // headers/mode/credentials를 일체 지정하지 않아야 함
+    const res = await fetch(url.toString());
+    
+    if (!res.ok) {
+      throw new Error('HTTP ' + res.status);
+    }
+    
     const json = await res.json();
     return json;
   } catch (err) {
@@ -84,6 +87,7 @@ async function callApi(action, params = {}) {
     return { success: false, error: 'NETWORK_ERROR', message: err.message };
   }
 }
+
 
 
 // ============================================================
