@@ -1,0 +1,252 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #4285f4;
+}
+
+header h1 {
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 14px;
+}
+
+/* 로그인 화면 */
+.login-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.login-screen h2 {
+  margin-bottom: 16px;
+}
+
+.login-screen p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.login-screen input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.login-screen button {
+  width: 100%;
+  padding: 12px;
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-screen button:hover {
+  background: #3367d6;
+}
+
+.error-msg {
+  color: #d32f2f;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+/* 사용자 정보 */
+.user-info {
+  background: #f0f4f8;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.user-info button {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* 폼 */
+.form-row {
+  margin-bottom: 20px;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.required {
+  color: #d32f2f;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-row textarea {
+  resize: vertical;
+}
+
+.form-row small {
+  display: block;
+  margin-top: 4px;
+  color: #888;
+  font-size: 12px;
+}
+
+/* 서명 패드 */
+.signature-area {
+  border: 2px dashed #4285f4;
+  border-radius: 4px;
+  background: #fafafa;
+  padding: 8px;
+}
+
+#signatureCanvas {
+  width: 100%;
+  height: 200px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.signature-actions {
+  margin-top: 8px;
+  text-align: right;
+}
+
+.signature-actions button {
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* 제출 버튼 */
+#submitBtn {
+  width: 100%;
+  padding: 14px;
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+#submitBtn:hover {
+  background: #3367d6;
+}
+
+#submitBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* 성공 화면 */
+.success-screen {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.success-screen h2 {
+  color: #2e7d32;
+  margin-bottom: 16px;
+}
+
+.success-screen p {
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.success-screen a {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #4285f4;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+/* 로딩 */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  z-index: 1000;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
