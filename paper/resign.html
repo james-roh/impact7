@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사직서 작성</title>
+  <link rel="stylesheet" href="resign.css">
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>사직서 작성</h1>
+      <p class="subtitle">impact7.kr 계정으로 로그인 후 작성해주세요</p>
+    </header>
+
+    <!-- 로그인 화면 -->
+    <div id="loginScreen" class="login-screen">
+      <h2>로그인</h2>
+      <p>impact7.kr 이메일을 입력하세요.</p>
+      <input type="email" id="loginEmail" placeholder="example@impact7.kr">
+      <button id="loginBtn">로그인</button>
+      <div id="loginError" class="error-msg"></div>
+    </div>
+
+    <!-- 사직서 작성 폼 -->
+    <div id="formScreen" class="form-screen" style="display:none;">
+      <div class="user-info">
+        로그인: <span id="loggedEmail"></span>
+        <button id="logoutBtn">로그아웃</button>
+      </div>
+
+      <form id="resignForm">
+        <div class="form-row">
+          <label>이름 <span class="required">*</span></label>
+          <input type="text" id="name" required>
+        </div>
+
+        <div class="form-row">
+          <label>주민등록번호 <span class="required">*</span></label>
+          <input type="text" id="ssn" placeholder="000101-3" required pattern="^\d{6}-[1-4]$">
+          <small>예: 000101-3 (생년월일 6자리 - 성별 1자리)</small>
+        </div>
+
+        <div class="form-row">
+          <label>입사일 <span class="required">*</span></label>
+          <input type="date" id="hireDate" required>
+        </div>
+
+        <div class="form-row">
+          <label>주소 <span class="required">*</span></label>
+          <input type="text" id="address" required>
+        </div>
+
+        <div class="form-row">
+          <label>소속 <span class="required">*</span></label>
+          <select id="branch" required>
+            <option value="">선택하세요</option>
+            <option value="2단지 초중관">2단지 초중관</option>
+            <option value="2단지 고등관">2단지 고등관</option>
+            <option value="10단지관">10단지관</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>직위 <span class="required">*</span></label>
+          <select id="position" required>
+            <option value="">선택하세요</option>
+            <option value="직원">직원</option>
+            <option value="강사">강사</option>
+            <option value="주임">주임</option>
+            <option value="팀장">팀장</option>
+            <option value="부장">부장</option>
+            <option value="부원장">부원장</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>사직일 <span class="required">*</span></label>
+          <input type="date" id="resignDate" required>
+        </div>
+
+        <div class="form-row">
+          <label>사유 <span class="required">*</span></label>
+          <textarea id="reason" rows="4" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <label>서명 <span class="required">*</span></label>
+          <div class="signature-area">
+            <canvas id="signatureCanvas"></canvas>
+            <div class="signature-actions">
+              <button type="button" id="clearSignature">지우기</button>
+            </div>
+          </div>
+          <small>위 영역에 마우스 또는 손가락으로 서명해주세요</small>
+        </div>
+
+        <button type="submit" id="submitBtn">제출</button>
+      </form>
+    </div>
+
+    <!-- 제출 완료 화면 -->
+    <div id="successScreen" class="success-screen" style="display:none;">
+      <h2>제출 완료</h2>
+      <p>사직서가 정상적으로 제출되었습니다.</p>
+      <a id="pdfLink" href="#" target="_blank">PDF 보기</a>
+    </div>
+
+    <!-- 로딩 -->
+    <div id="loading" class="loading" style="display:none;">
+      <div class="spinner"></div>
+      <p>처리 중...</p>
+    </div>
+  </div>
+
+  <script src="resign.js"></script>
+</body>
+</html>
