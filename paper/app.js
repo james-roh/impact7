@@ -225,7 +225,7 @@ function closeModal() {
 // ============================================================
 document.getElementById('issueBtn').addEventListener('click', async () => {
   if (!currentRow) return;
-  if (!confirm('요청 서류를 발급하시겠습니까?')) return;
+  if (!confirm('요청하신 서류를 발급하시겠습니까?')) return;
 
   const btn = document.getElementById('issueBtn');
   btn.disabled = true;
