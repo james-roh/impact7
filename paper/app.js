@@ -159,6 +159,52 @@ async function openDetail(rowIndex) {
   const row = allData.find(r => r.rowIndex === rowIndex);
   if (!row) return;
 
+  const isResign = (row.sheetType === 'resign');
+
+  if (isResign) {
+    // 사직서 모달
+    document.getElementById('modalBody').innerHTML = `
+      <div class="detail-row"><div class="detail-label">제출일시</div>
+        <div class="detail-value">${row.timestamp || '-'}</div></div>
+      <div class="detail-row"><div class="detail-label">서류종류</div>
+        <div class="detail-value">${escapeHtml(row.docType)}</div></div>
+      <div class="detail-row"><div class="detail-label">이름</div>
+        <div class="detail-value"><b>${escapeHtml(row.name)}</b></div></div>
+      <div class="detail-row"><div class="detail-label">주민등록번호</div>
+        <div class="detail-value">${escapeHtml(row.ssn)}</div></div>
+      <div class="detail-row"><div class="detail-label">주소</div>
+        <div class="detail-value">${escapeHtml(row.address)}</div></div>
+      <div class="detail-row"><div class="detail-label">소속</div>
+        <div class="detail-value">${escapeHtml(row.branch)}</div></div>
+      <div class="detail-row"><div class="detail-label">직위</div>
+        <div class="detail-value">${escapeHtml(row.position || '-')}</div></div>
+      <div class="detail-row"><div class="detail-label">입사일</div>
+        <div class="detail-value">${row.hireDate || '-'}</div></div>
+      <div class="detail-row"><div class="detail-label">사직일</div>
+        <div class="detail-value">${row.resignDate || '-'}</div></div>
+      <div class="detail-row"><div class="detail-label">사유</div>
+        <div class="detail-value">${escapeHtml(row.reason || '-')}</div></div>
+      <div class="detail-row"><div class="detail-label">제출자</div>
+        <div class="detail-value">${escapeHtml(row.email || '-')}</div></div>
+      <div class="detail-row"><div class="detail-label">상태</div>
+        <div class="detail-value"><span class="badge badge-done">발급완료</span></div></div>
+    `;
+
+    const issueBtn = document.getElementById('issueBtn');
+    const emailBtn = document.getElementById('emailBtn');
+    const viewBtn = document.getElementById('viewPdfBtn');
+
+    // 사직서: PDF 보기만 표시
+    issueBtn.style.display = 'none';
+    emailBtn.style.display = 'none';
+    viewBtn.style.display = 'inline-block';
+    viewBtn.onclick = () => window.open(row.pdfUrl, '_blank');
+
+    document.getElementById('detailModal').style.display = 'flex';
+    return;
+  }
+
+  // 일반 서류 모달 (기존 로직)
   document.getElementById('modalBody').innerHTML = `
     <div class="detail-row"><div class="detail-label">신청일시</div>
       <div class="detail-value">${row.timestamp || '-'}</div></div>
@@ -201,6 +247,10 @@ async function openDetail(rowIndex) {
   const emailBtn = document.getElementById('emailBtn');
   const viewBtn = document.getElementById('viewPdfBtn');
 
+  // 일반 서류: 발급/메일 버튼 다시 표시
+  issueBtn.style.display = 'inline-block';
+  emailBtn.style.display = 'inline-block';
+
   if (row.status === '발급완료') {
     issueBtn.textContent = '📄 재발급';
     emailBtn.disabled = false;
@@ -214,6 +264,7 @@ async function openDetail(rowIndex) {
 
   document.getElementById('detailModal').style.display = 'flex';
 }
+
 
 function closeModal() {
   document.getElementById('detailModal').style.display = 'none';
