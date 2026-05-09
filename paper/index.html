@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
 <body>
 
   <!-- 로그인 화면 -->
@@ -32,10 +34,10 @@
 
     <!-- 상단 헤더 바 -->
     <div class="top-bar">
-      <div class="top-bar-logo">
-        <div class="logo-icon">📄</div>
-        <span>Impact7 <small>서류발급 관리</small></span>
-      </div>
+     <div class="logo-icon">
+  <i data-lucide="file-text"></i>
+</div>
+
       <button id="refreshBtn" class="btn-top">🔄 새로고침</button>
     </div>
 
@@ -111,5 +113,10 @@
   <div id="toast" class="toast"></div>
 
   <script src="app.js"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+  </script>
 </body>
 </html>
+
+
