@@ -41,11 +41,15 @@ document.getElementById('loginBtn').addEventListener('click', () => {
   showMainScreen();
 });
 
-// 로그아웃
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('impact7_user');
-  location.reload();
-});
+// 로그아웃 (사이드바 제거 시 버튼이 없을 수 있음)
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('impact7_user');
+    location.reload();
+  });
+}
+
 
 // 자동 로그인 (로그인 생략 - 통합 페이지에서 사용)
 window.addEventListener('DOMContentLoaded', () => {
