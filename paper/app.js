@@ -59,11 +59,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 function showMainScreen() {
+function showMainScreen() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('mainScreen').style.display = 'flex';
-  document.getElementById('userInfo').textContent = '👤 ' + currentUser;
+  document.getElementById('mainScreen').style.display = 'block';
+  const userInfoEl = document.getElementById('userInfo');
+  if (userInfoEl) userInfoEl.textContent = '👤 ' + currentUser;
   loadList();
 }
+
 
 // ============================================================
 // API 호출
