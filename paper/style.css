@@ -57,7 +57,7 @@ body {
 .btn-logout:hover { background: #e74c3c; }
 
 /* 메인 컨텐츠 */
-.content { flex: 1; margin-left: 220px; padding: 24px 32px; }
+.content { flex: 1; margin-left: 0; padding: 24px 32px; }
 .content-header {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 24px;
