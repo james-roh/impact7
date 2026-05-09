@@ -125,22 +125,10 @@ function renderTable() {
     tbody.innerHTML = '<tr><td colspan="7" class="empty">신청 내역이 없습니다.</td></tr>';
   } else {
     tbody.innerHTML = filtered.map(row => `
-      <tr onclick="openDetail(${row.rowIndex})">
-        <td>${formatDate(row.timestamp)}</td>
-        <td><b>${escapeHtml(row.name)}</b></td>
-        <td>${escapeHtml(row.branch || '-')}</td>
-        <td>${escapeHtml(row.docType || '-')}</td>
-        <td>${escapeHtml(row.purpose || '-')}</td>
-        <td>
-          ${row.status === '발급완료'
-            ? '<span class="badge badge-done">발급완료</span>'
-            : '<span class="badge badge-pending">대기</span>'}
-          ${row.emailSent ? '<span class="badge badge-sent">메일발송</span>' : ''}
-        </td>
-        <td class="action-col">
-          <button class="btn-detail" onclick="event.stopPropagation(); openDetail(${row.rowIndex})">
-            상세
-          </button>
+     <tr onclick="openDetail(${row.rowIndex}, '${row.sheetType||''}')">
+...
+<button class="btn-detail" onclick="event.stopPropagation(); openDetail(${row.rowIndex}, '${row.sheetType||''}')">상세</button>
+
         </td>
       </tr>
     `).join('');
@@ -154,9 +142,10 @@ function renderTable() {
 // ============================================================
 // 상세 모달
 // ============================================================
-async function openDetail(rowIndex) {
+async function openDetail(rowIndex, sheetType) {
   currentRow = rowIndex;
-  const row = allData.find(r => r.rowIndex === rowIndex);
+  const row = allData.find(r => r.rowIndex === rowIndex && (r.sheetType||'') === (sheetType||''));
+
   if (!row) return;
 
   const isResign = (row.sheetType === 'resign');
