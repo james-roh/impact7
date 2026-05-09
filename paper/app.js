@@ -114,7 +114,8 @@ function renderTable() {
 
   const filtered = allData.filter(row => {
     if (search && !(row.name + row.branch).toLowerCase().includes(search)) return false;
-    if (status && row.status !== status) return false;
+    const effectiveStatus = (row.sheetType === 'resign') ? '발급완료' : row.status;
+    if (status && effectiveStatus !== status) return false;
     if (branch && row.branch !== branch) return false;
     return true;
   });
@@ -124,20 +125,36 @@ function renderTable() {
   if (filtered.length === 0) {
     tbody.innerHTML = '<tr><td colspan="7" class="empty">신청 내역이 없습니다.</td></tr>';
   } else {
-    tbody.innerHTML = filtered.map(row => `
-     <tr onclick="openDetail(${row.rowIndex}, '${row.sheetType||''}')">
-...
-<button class="btn-detail" onclick="event.stopPropagation(); openDetail(${row.rowIndex}, '${row.sheetType||''}')">상세</button>
-
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = filtered.map(row => {
+      const isResign = (row.sheetType === 'resign');
+      const sheetTypeAttr = row.sheetType || '';
+      const statusBadge = isResign
+        ? '<span class="badge badge-done">발급완료</span>'
+        : (row.status === '발급완료'
+            ? '<span class="badge badge-done">발급완료</span>'
+            : '<span class="badge badge-pending">대기</span>');
+      return `
+        <tr onclick="openDetail(${row.rowIndex}, '${sheetTypeAttr}')">
+          <td>${formatDate(row.timestamp)}</td>
+          <td><b>${escapeHtml(row.name)}</b></td>
+          <td>${escapeHtml(row.branch||'-')}</td>
+          <td>${escapeHtml(row.docType||'-')}</td>
+          <td>${escapeHtml(row.purpose||'-')}</td>
+          <td>
+            ${statusBadge}
+            ${row.emailSent ? '<span class="badge badge-sent">메일발송</span>' : ''}
+          </td>
+          <td class="action-col"><button class="btn-detail" onclick="event.stopPropagation(); openDetail(${row.rowIndex}, '${sheetTypeAttr}')">상세</button></td>
+        </tr>
+      `;
+    }).join('');
   }
 
   document.getElementById('totalCount').textContent = allData.length;
   document.getElementById('pendingCount').textContent =
-    allData.filter(r => r.status === '대기').length;
+    allData.filter(r => r.sheetType !== 'resign' && r.status === '대기').length;
 }
+
 
 // ============================================================
 // 상세 모달
