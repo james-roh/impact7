@@ -47,14 +47,12 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   location.reload();
 });
 
-// 자동 로그인
+// 자동 로그인 (로그인 생략 - 통합 페이지에서 사용)
 window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('impact7_user');
-  if (saved && ALLOWED_ADMINS.includes(saved)) {
-    currentUser = saved;
-    showMainScreen();
-  }
+  currentUser = ALLOWED_ADMINS[0];
+  showMainScreen();
 });
+
 
 function showMainScreen() {
   document.getElementById('loginScreen').style.display = 'none';
