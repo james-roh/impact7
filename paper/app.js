@@ -181,12 +181,13 @@ async function openDetail(rowIndex, sheetType) {
   emailBtn.style.display = 'inline-block';
 
   if (row.status === '발급완료') {
-    issueBtn.textContent = '📄 재발급';
+    issueBtn.innerHTML = '<i data-lucide="file-text"></i> 재발급';
     emailBtn.disabled = false;
     viewBtn.style.display = 'inline-block';
     viewBtn.onclick = () => window.open(row.pdfUrl, '_blank');
   } else {
-    issueBtn.textContent = '📄 발급하기';
+    issueBtn.innerHTML = '<i data-lucide="file-text"></i> 발급하기';
+
     emailBtn.disabled = true;
     viewBtn.style.display = 'none';
   }
@@ -208,7 +209,8 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
 
   const btn = document.getElementById('issueBtn');
   btn.disabled = true;
-  btn.textContent = '⏳ 발급 중...';
+ btn.innerHTML = '<i data-lucide="loader"></i> 발급 중...';
+
 
   const res = await callApi('issue', { row: currentRow });
   btn.disabled = false;
@@ -219,7 +221,8 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
     await loadList();
   } else {
     showToast('❌ 발급 실패: ' + (res.message || res.error), 'error');
-    btn.textContent = '📄 발급하기';
+    btn.innerHTML = '<i data-lucide="file-text"></i> 발급하기';
+
   }
 });
 
@@ -235,11 +238,13 @@ document.getElementById('emailBtn').addEventListener('click', async () => {
 
   const btn = document.getElementById('emailBtn');
   btn.disabled = true;
-  btn.textContent = '⏳ 발송 중...';
+    btn.innerHTML = '<i data-lucide="loader"></i> 발송 중...';
+
 
   const res = await callApi('sendEmail', { row: currentRow });
   btn.disabled = false;
-  btn.textContent = '📧 이메일 발송';
+ btn.innerHTML = '<i data-lucide="mail"></i> 이메일 발송';
+
 
   if (res.success) {
     showToast('✅ 이메일 발송 완료 (' + res.sentTo + ')', 'success');
