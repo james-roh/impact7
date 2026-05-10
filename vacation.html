@@ -106,57 +106,42 @@
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbz7OYwz23qibeNcsiG1ALJtyqu8he0f720PtfMxn1-L2md_IMrc8j3ETL5DlzXshOc/exec';
-let currentToken = '';
+
 let chartInstance = null;
 
-async function tryLogin() {
-  const pw = document.getElementById('pwInput').value;
-  const errorMsg = document.getElementById('errorMsg');
-  const loadingMsg = document.getElementById('loadingMsg');
-  errorMsg.classList.add('hidden');
-  loadingMsg.classList.remove('hidden');
-  
+async function autoLogin() {
   try {
-    // 연도 목록 가져오기 (이게 곧 비밀번호 검증 역할도 함)
-    const res = await fetch(`${API_URL}?token=${encodeURIComponent(pw)}&action=list`);
+    const res = await fetch(`${API_URL}?action=list`);
     const result = await res.json();
-    loadingMsg.classList.add('hidden');
     
     if (result.error) {
-      errorMsg.classList.remove('hidden');
-      document.getElementById('pwInput').value = '';
+      showNotice('접근 권한이 없습니다');
       return;
     }
     
-    currentToken = pw;
-    
-    // 연도 드롭다운 채우기
     const select = document.getElementById('yearSelect');
     const years = result.years || [];
     if (years.length === 0) {
-      errorMsg.textContent = '사용 가능한 연도가 없습니다';
-      errorMsg.classList.remove('hidden');
+      showNotice('사용 가능한 연도가 없습니다');
       return;
     }
     
-    // 최신 연도가 위로 (내림차순)
     years.sort().reverse();
     select.innerHTML = years.map(y => `<option value="${y}">${y}년</option>`).join('');
     
-    // 화면 전환
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     
-    // 가장 최신 연도 자동 로드
     loadYear();
     lucide.createIcons();
     
   } catch (err) {
-    loadingMsg.classList.add('hidden');
-    errorMsg.textContent = '연결 오류가 발생했습니다';
-    errorMsg.classList.remove('hidden');
+    alert('연결 오류가 발생했습니다');
   }
 }
+
+window.addEventListener('DOMContentLoaded', autoLogin);
+
 
 async function loadYear() {
   const year = document.getElementById('yearSelect').value;
@@ -164,7 +149,7 @@ async function loadYear() {
   notice.classList.add('hidden');
   
   try {
-    const res = await fetch(`${API_URL}?token=${encodeURIComponent(currentToken)}&year=${year}`);
+      const res = await fetch(`${API_URL}?year=${year}`);
     const data = await res.json();
     
     document.getElementById('yearLabel').textContent = `(${year}년)`;
