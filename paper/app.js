@@ -35,7 +35,9 @@ function showMainScreen() {
   if (userInfoEl) userInfoEl.textContent = '👤 ' + currentUser;
 
   loadList();
+  if (window.lucide) lucide.createIcons();
 }
+
 
 // ============================================================
 // API 호출
@@ -118,7 +120,10 @@ function renderTable() {
   document.getElementById('totalCount').textContent = allData.length;
   document.getElementById('pendingCount').textContent =
     allData.filter(r => r.sheetType !== 'resign' && r.status === '대기').length;
+
+  if (window.lucide) lucide.createIcons();
 }
+
 
 // ============================================================
 // 상세 모달
@@ -155,9 +160,11 @@ async function openDetail(rowIndex, sheetType) {
     viewBtn.style.display = 'inline-block';
     viewBtn.onclick = () => window.open(row.pdfUrl, '_blank');
 
+       if (window.lucide) lucide.createIcons();
     document.getElementById('detailModal').style.display = 'flex';
     return;
   }
+
 
   document.getElementById('modalBody').innerHTML = `
     <div class="detail-row"><div class="detail-label">신청일시</div><div class="detail-value">${row.timestamp || '-'}</div></div>
@@ -191,7 +198,7 @@ async function openDetail(rowIndex, sheetType) {
     emailBtn.disabled = true;
     viewBtn.style.display = 'none';
   }
-
+  if (window.lucide) lucide.createIcons();
   document.getElementById('detailModal').style.display = 'flex';
 }
 
