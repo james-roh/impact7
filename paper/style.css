@@ -205,6 +205,11 @@ body {
   font-size: 18px;
   color: white;
 }
+.top-bar-logo .logo-icon svg {
+  stroke: white;
+  width: 20px;
+  height: 20px;
+}
 
 .top-bar-logo span {
   font-size: 17px;
@@ -221,6 +226,7 @@ body {
 .btn-top {
   padding: 8px 18px;
   border-radius: 50px;
+
   background: rgba(255,255,255,0.12);
   color: #fff;
   border: 1.5px solid rgba(255,255,255,0.3);
