@@ -35,7 +35,17 @@ function showMainScreen() {
   if (userInfoEl) userInfoEl.textContent = '👤 ' + currentUser;
 
   loadList();
-  if (window.lucide) lucide.createIcons();
+  if (window.lucide) {
+  // 기존 SVG를 i 태그로 되돌린 후 다시 그림
+  document.querySelectorAll('svg.lucide').forEach(svg => {
+    const name = svg.getAttribute('data-lucide') || (svg.className.baseVal||'').replace('lucide lucide-','').replace('lucide','').trim();
+    if (name) {
+      const i = document.createElement('i');
+      i.setAttribute('data-lucide', name);
+      svg.replaceWith(i);
+    }
+  });
+  lucide.createIcons();
 }
 
 
