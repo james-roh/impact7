@@ -130,7 +130,14 @@ async function autoLogin() {
     }
     
     years.sort().reverse();
-    select.innerHTML = years.map(y => `<option value="${y}">${y}년</option>`).join('');
+select.innerHTML = years.map(y => `<option value="${y}">${y}년</option>`).join('');
+
+// 오늘 연도가 목록에 있으면 그걸로 선택, 없으면 가장 최신 연도
+const thisYear = String(new Date().getFullYear());
+if (years.includes(thisYear)) {
+  select.value = thisYear;
+}
+
     
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
