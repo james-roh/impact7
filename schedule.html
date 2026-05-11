@@ -68,23 +68,7 @@
 
 
 
-  <!-- 이번 주 -->
-  <section>
-    <div class="flex items-center gap-2 mb-2">
-      <span class="badge-week text-xs font-bold px-2 py-1 rounded">THIS WEEK</span>
-      <span class="text-slate-700 font-semibold">이번 주 일정</span>
-    </div>
-    <div id="weekCards" class="space-y-3"></div>
-  </section>
 
-  <!-- 다가오는 일정 -->
-  <section>
-    <div class="flex items-center gap-2 mb-2">
-      <span class="badge-week text-xs font-bold px-2 py-1 rounded">UPCOMING</span>
-      <span class="text-slate-700 font-semibold">다가오는 일정</span>
-    </div>
-    <div id="upcomingCards" class="space-y-3"></div>
-  </section>
 
 </main>
 
@@ -200,28 +184,12 @@ function render() {
   today.setHours(0,0,0,0);
   const { monday, sunday } = getWeekRange(today);
 
-  
+    // 월별 보기
+  initMonthlyFilters();
+  renderMonthly();
+}
 
-  // 이번 주
-  const weekEntries = allData.filter(e => {
-    const d = parseSheetDate(e.date);
-    return d && d >= monday && d <= sunday;
-  });
-  const weekCards = document.getElementById('weekCards');
-  if (weekEntries.length === 0) {
-    weekCards.innerHTML = '<div class="card p-4 text-center text-slate-400">이번 주 근무일이 없습니다</div>';
-  } else {
-    weekCards.innerHTML = weekEntries.map(e => {
-      const d = parseSheetDate(e.date);
-      const isToday = isSameDay(d, today);
-      return `
-        <div class="card p-4 ${isToday ? 'ring-2 ring-offset-1' : ''}" ${isToday ? 'style="--tw-ring-color:#1f4e5f;"' : ''}>
-          <div class="font-semibold brand-text mb-2">${e.date}</div>
-          ${renderDayCard(e)}
-        </div>
-      `;
-    }).join('');
-  }
+
 
   // 다가오는 일정 (이번 주 이후 다음 4개)
   const upcoming = allData.filter(e => {
