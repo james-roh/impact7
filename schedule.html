@@ -43,6 +43,29 @@
 <!-- 메인 -->
 <main id="main" class="hidden max-w-5xl mx-auto p-4 space-y-6">
 
+  <!-- 월별 보기 -->
+  <section>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="badge-week text-xs font-bold px-2 py-1 rounded">MONTHLY</span>
+      <span class="text-slate-700 font-semibold">월별 보기</span>
+    </div>
+
+    <div class="card p-4 mb-3 flex flex-wrap gap-3 items-center">
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-slate-600 font-semibold">월</label>
+        <select id="monthSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white"></select>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-slate-600 font-semibold">근무자</label>
+        <select id="personSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+          <option value="">전체</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="monthlyCards" class="space-y-3"></div>
+  </section>
+
   <!-- 오늘 근무 -->
   <section>
     <div class="flex items-center gap-2 mb-2">
@@ -68,29 +91,6 @@
       <span class="text-slate-700 font-semibold">다가오는 일정</span>
     </div>
     <div id="upcomingCards" class="space-y-3"></div>
-  </section>
-
-  <!-- 월별 보기 -->
-  <section>
-    <div class="flex items-center gap-2 mb-2">
-      <span class="badge-week text-xs font-bold px-2 py-1 rounded">MONTHLY</span>
-      <span class="text-slate-700 font-semibold">월별 보기</span>
-    </div>
-
-    <div class="card p-4 mb-3 flex flex-wrap gap-3 items-center">
-      <div class="flex items-center gap-2">
-        <label class="text-sm text-slate-600 font-semibold">월</label>
-        <select id="monthSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white"></select>
-      </div>
-      <div class="flex items-center gap-2">
-        <label class="text-sm text-slate-600 font-semibold">근무자</label>
-        <select id="personSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
-          <option value="">전체</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="monthlyCards" class="space-y-3"></div>
   </section>
 
 </main>
@@ -183,7 +183,7 @@ function renderNames(names, highlightPerson) {
 }
 
 function renderDayCard(entry, highlightPerson) {
-    const rows = branches.map(b => `
+  const rows = branches.map(b => `
     <tr class="border-t border-slate-100 align-top">
       <td class="py-2 px-2 font-semibold text-slate-700 text-sm whitespace-nowrap">${b}</td>
       <td class="py-2 px-2">
@@ -197,7 +197,7 @@ function renderDayCard(entry, highlightPerson) {
       <td></td>
     </tr>
   `).join('');
-    return `<table class="w-full" style="table-layout:fixed;"><colgroup><col style="width:80px;"><col style="width:280px;"><col><col></colgroup><tbody>${rows}</tbody></table>`;
+  return `<table class="w-full" style="table-layout:fixed;"><colgroup><col style="width:80px;"><col style="width:280px;"><col><col></colgroup><tbody>${rows}</tbody></table>`;
 }
 
 function render() {
