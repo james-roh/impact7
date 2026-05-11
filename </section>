@@ -15,7 +15,7 @@
   .badge-week { background: #e2e8f0; color: #475569; }
   .name-chip { display: inline-block; padding: 2px 8px; margin: 2px; background: #f1f5f9; border-radius: 6px; font-size: 13px; color: #334155; }
   .name-chip.all { background: #fef3c7; color: #92400e; font-weight: 600; }
-  .name-chip.x { background: #fee2e2; color: #991b1b; }
+  .name-chip.match { background: #1f4e5f; color: white; font-weight: 600; }
   .hidden { display: none; }
 </style>
 </head>
@@ -29,7 +29,7 @@
     </div>
     <div>
       <span class="font-bold text-lg">Impact7</span>
-     <span class="text-slate-200 text-sm ml-2">근무일정 (수,토)</span>
+      <span class="text-slate-200 text-sm ml-2">근무일정 (수,토)</span>
     </div>
   </div>
   <button id="refreshBtn" class="text-slate-200 hover:text-white">
@@ -70,6 +70,29 @@
     <div id="upcomingCards" class="space-y-3"></div>
   </section>
 
+  <!-- 월별 보기 -->
+  <section>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="badge-week text-xs font-bold px-2 py-1 rounded">MONTHLY</span>
+      <span class="text-slate-700 font-semibold">월별 보기</span>
+    </div>
+
+    <div class="card p-4 mb-3 flex flex-wrap gap-3 items-center">
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-slate-600 font-semibold">월</label>
+        <select id="monthSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white"></select>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-slate-600 font-semibold">근무자</label>
+        <select id="personSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+          <option value="">전체</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="monthlyCards" class="space-y-3"></div>
+  </section>
+
 </main>
 
 <script>
@@ -77,6 +100,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxhzagvpm_6HrL3JKxmbgKG
 
 let allData = [];
 let branches = [];
+let monthlyFiltersReady = false;
 
 async function loadData() {
   document.getElementById('loading').style.display = 'block';
@@ -90,6 +114,7 @@ async function loadData() {
     }
     branches = result.branches;
     allData = result.data;
+    monthlyFiltersReady = false;
     render();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').classList.remove('hidden');
@@ -105,6 +130,11 @@ function parseSheetDate(str) {
   if (!m) return null;
   const year = new Date().getFullYear();
   return new Date(year, parseInt(m[1]) - 1, parseInt(m[2]));
+}
+
+function getMonthFromDate(str) {
+  const m = str.match(/^(\d+)\//);
+  return m ? parseInt(m[1]) : null;
 }
 
 function isSameDay(a, b) {
@@ -123,27 +153,46 @@ function getWeekRange(today) {
   return { monday, sunday };
 }
 
-function renderNames(names) {
+function extractNames(cell) {
+  if (!cell) return [];
+  const t = cell.trim();
+  if (!t || t.toUpperCase() === 'X' || t.toUpperCase().startsWith('ALL')) return [];
+  return t.split(/[,\s]+/).map(s => s.trim()).filter(s => s);
+}
+
+function entryHasPerson(entry, person) {
+  if (!person) return true;
+  const upper = person.toUpperCase();
+  for (const b of branches) {
+    const all = [...extractNames(entry.gyomu[b]), ...extractNames(entry.haengjeong[b])];
+    if (all.some(n => n.toUpperCase() === upper)) return true;
+  }
+  return false;
+}
+
+function renderNames(names, highlightPerson) {
   if (!names || names.trim() === '') return '<span class="text-slate-300 text-sm">-</span>';
   const trimmed = names.trim();
   if (trimmed.toUpperCase() === 'X') return '<span class="text-slate-300 text-sm">-</span>';
   if (trimmed.toUpperCase().startsWith('ALL')) return `<span class="name-chip all">${trimmed}</span>`;
-  // 콤마 또는 공백으로 분리
   const parts = trimmed.split(/[,\s]+/).filter(p => p);
-  return parts.map(p => `<span class="name-chip">${p}</span>`).join('');
+  return parts.map(p => {
+    const isMatch = highlightPerson && p.toUpperCase() === highlightPerson.toUpperCase();
+    return `<span class="name-chip${isMatch ? ' match' : ''}">${p}</span>`;
+  }).join('');
 }
 
-function renderDayCard(entry) {
+function renderDayCard(entry, highlightPerson) {
   const rows = branches.map(b => `
     <tr class="border-t border-slate-100">
       <td class="py-2 px-2 font-semibold text-slate-700 text-sm whitespace-nowrap" style="width:80px;">${b}</td>
       <td class="py-2 px-2">
         <div class="text-xs text-slate-400 mb-1">교무</div>
-        <div>${renderNames(entry.gyomu[b])}</div>
+        <div>${renderNames(entry.gyomu[b], highlightPerson)}</div>
       </td>
       <td class="py-2 px-2">
         <div class="text-xs text-slate-400 mb-1">행정</div>
-        <div>${renderNames(entry.haengjeong[b])}</div>
+        <div>${renderNames(entry.haengjeong[b], highlightPerson)}</div>
       </td>
     </tr>
   `).join('');
@@ -208,6 +257,61 @@ function render() {
       </div>
     `).join('');
   }
+
+  // 월별 보기
+  initMonthlyFilters();
+  renderMonthly();
+}
+
+function initMonthlyFilters() {
+  if (monthlyFiltersReady) return;
+  monthlyFiltersReady = true;
+
+  const monthsInData = [...new Set(allData.map(e => getMonthFromDate(e.date)).filter(m => m))].sort((a,b)=>a-b);
+  const monthSelect = document.getElementById('monthSelect');
+  monthSelect.innerHTML = monthsInData.map(m => `<option value="${m}">${m}월</option>`).join('');
+
+  const thisMonth = new Date().getMonth() + 1;
+  monthSelect.value = monthsInData.includes(thisMonth) ? thisMonth : monthsInData[0];
+
+  const personSet = new Set();
+  allData.forEach(e => {
+    branches.forEach(b => {
+      extractNames(e.gyomu[b]).forEach(n => personSet.add(n));
+      extractNames(e.haengjeong[b]).forEach(n => personSet.add(n));
+    });
+  });
+  const persons = [...personSet].sort();
+  const personSelect = document.getElementById('personSelect');
+  personSelect.innerHTML = '<option value="">전체</option>' +
+    persons.map(p => `<option value="${p}">${p}</option>`).join('');
+
+  monthSelect.addEventListener('change', renderMonthly);
+  personSelect.addEventListener('change', renderMonthly);
+}
+
+function renderMonthly() {
+  const selectedMonth = parseInt(document.getElementById('monthSelect').value);
+  const selectedPerson = document.getElementById('personSelect').value;
+  const filtered = allData.filter(e => {
+    const m = getMonthFromDate(e.date);
+    if (m !== selectedMonth) return false;
+    if (!entryHasPerson(e, selectedPerson)) return false;
+    return true;
+  });
+  const container = document.getElementById('monthlyCards');
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="card p-6 text-center text-slate-400">
+      ${selectedPerson ? `${selectedPerson} 의 근무일이 없습니다` : '해당 월에 근무일이 없습니다'}
+    </div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(e => `
+    <div class="card p-4">
+      <div class="font-semibold brand-text mb-2">${e.date}</div>
+      ${renderDayCard(e, selectedPerson)}
+    </div>
+  `).join('');
 }
 
 document.getElementById('refreshBtn').addEventListener('click', loadData);
