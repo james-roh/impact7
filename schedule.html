@@ -183,9 +183,9 @@ function renderNames(names, highlightPerson) {
 }
 
 function renderDayCard(entry, highlightPerson) {
-  const rows = branches.map(b => `
-    <tr class="border-t border-slate-100">
-      <td class="py-2 px-2 font-semibold text-slate-700 text-sm whitespace-nowrap" style="width:80px;">${b}</td>
+    const rows = branches.map(b => `
+    <tr class="border-t border-slate-100 align-top">
+      <td class="py-2 px-2 font-semibold text-slate-700 text-sm whitespace-nowrap">${b}</td>
       <td class="py-2 px-2">
         <div class="text-xs text-slate-400 mb-1">교무</div>
         <div>${renderNames(entry.gyomu[b], highlightPerson)}</div>
@@ -194,9 +194,10 @@ function renderDayCard(entry, highlightPerson) {
         <div class="text-xs text-slate-400 mb-1">행정</div>
         <div>${renderNames(entry.haengjeong[b], highlightPerson)}</div>
       </td>
+      <td></td>
     </tr>
   `).join('');
-  return `<table class="w-full"><tbody>${rows}</tbody></table>`;
+    return `<table class="w-full" style="table-layout:fixed;"><colgroup><col style="width:80px;"><col style="width:280px;"><col><col></colgroup><tbody>${rows}</tbody></table>`;
 }
 
 function render() {
