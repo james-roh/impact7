@@ -38,6 +38,28 @@
 <div id="loading" class="text-center py-10 text-slate-500">불러오는 중...</div>
 
 <main id="main" class="hidden max-w-5xl mx-auto p-4 space-y-6">
+
+  <section>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-xs font-bold px-2 py-1 rounded" style="background:#1f4e5f; color:white;">CLOSING</span>
+      <span class="text-slate-700 font-semibold">마지막 퇴근자 현황</span>
+    </div>
+    <div class="card p-4">
+      <div id="closingLoading" class="text-center text-slate-400 text-sm py-4">불러오는 중...</div>
+      <table id="closingTable" class="w-full text-sm hidden">
+        <thead>
+          <tr class="border-b border-slate-200">
+            <th class="text-left py-2 px-3 text-slate-600">일자</th>
+            <th class="text-left py-2 px-3 text-slate-600">양지5</th>
+            <th class="text-left py-2 px-3 text-slate-600">양지10</th>
+            <th class="text-left py-2 px-3 text-slate-600">라벨라</th>
+          </tr>
+        </thead>
+        <tbody id="closingBody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section>
     <div class="flex items-center gap-2 mb-2">
       <span class="badge-week text-xs font-bold px-2 py-1 rounded">MONTHLY</span>
@@ -54,16 +76,16 @@
           <option value="">전체</option>
         </select>
         <span class="text-sm text-slate-500 ml-1">(근무자 리스트는 최근 3개월 기준)</span>
-
       </div>
-
     </div>
     <div id="monthlyCards" class="space-y-3"></div>
   </section>
+
 </main>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbxhzagvpm_6HrL3JKxmbgKGOtqG7ao8PxJ8cfsCDSRXQdaLevlUZnm7B9JU7eYDT22wuQ/exec';
+const CLOSING_API_URL = 'https://script.google.com/macros/s/AKfycbwhiKQLlrqq1UZDD8hFk4efqmOcmBdHUXBvodkaEjKxYULgz3jS97TMDl5REhqgH14C/exec';
 
 let allData = [];
 let branches = [];
@@ -87,10 +109,56 @@ async function loadData() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').classList.remove('hidden');
     lucide.createIcons();
+    loadClosing();
   } catch (err) {
     document.getElementById('loading').textContent = '연결 오류: ' + err.message;
     console.error(err);
   }
+}
+
+async function loadClosing() {
+  const loadingEl = document.getElementById('closingLoading');
+  const tableEl = document.getElementById('closingTable');
+  const bodyEl = document.getElementById('closingBody');
+  loadingEl.classList.remove('hidden');
+  loadingEl.textContent = '불러오는 중...';
+  tableEl.classList.add('hidden');
+  try {
+    const res = await fetch(CLOSING_API_URL);
+    const result = await res.json();
+    if (!result.success) {
+      loadingEl.textContent = '데이터를 불러올 수 없습니다';
+      return;
+    }
+    // 2020년 이전 데이터 제외(시트 입력 오류 방지)
+    const data = result.data.filter(r => r.date && r.date >= '2020-01-01');
+    if (data.length === 0) {
+      loadingEl.textContent = '데이터가 없습니다';
+      return;
+    }
+    bodyEl.innerHTML = data.map(r => `
+      <tr class="border-b border-slate-100">
+        <td class="py-2 px-3 font-semibold brand-text whitespace-nowrap">${formatDate(r.date)}</td>
+        <td class="py-2 px-3">${r.yangji5 ? `<span class="name-chip">${r.yangji5}</span>` : '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-2 px-3">${r.yangji10 ? `<span class="name-chip">${r.yangji10}</span>` : '<span class="text-slate-300">-</span>'}</td>
+        <td class="py-2 px-3">${r.labella ? `<span class="name-chip">${r.labella}</span>` : '<span class="text-slate-300">-</span>'}</td>
+      </tr>
+    `).join('');
+    loadingEl.classList.add('hidden');
+    tableEl.classList.remove('hidden');
+  } catch (err) {
+    loadingEl.textContent = '연결 오류: ' + err.message;
+    console.error(err);
+  }
+}
+
+function formatDate(s) {
+  // "2026-05-09" -> "5/9 (토)"
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return s;
+  const y = parseInt(m[1]), mo = parseInt(m[2]), da = parseInt(m[3]);
+  const dow = ['일','월','화','수','목','금','토'][new Date(y, mo-1, da).getDay()];
+  return `${mo}/${da} (${dow})`;
 }
 
 function getMonthFromDate(str) {
@@ -156,7 +224,6 @@ function initMonthlyFilters() {
   const thisMonth = new Date().getMonth() + 1;
   monthSelect.value = monthsInData.includes(thisMonth) ? thisMonth : monthsInData[0];
 
-    // 최근 3개월 이내에 근무한 사람만 추출
   const today = new Date();
   const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
   const personSet = new Set();
@@ -183,7 +250,7 @@ function initMonthlyFilters() {
 function renderMonthly() {
   const selectedMonth = parseInt(document.getElementById('monthSelect').value);
   const selectedPerson = document.getElementById('personSelect').value;
-    const filtered = allData.filter(e => {
+  const filtered = allData.filter(e => {
     const m = getMonthFromDate(e.date);
     if (m !== selectedMonth) return false;
     if (!entryHasPerson(e, selectedPerson)) return false;
