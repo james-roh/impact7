@@ -258,7 +258,8 @@ function initMonthlyFilters() {
     persons.map(p => `<option value="${p}">${p}</option>`).join('');
 
   monthSelect.addEventListener('change', renderMonthly);
-  personSelect.addEventListener('change', renderMonthly);
+    personSelect.addEventListener('change', onPersonChange);
+
 }
 function onPersonChange() {
   const selectedPerson = document.getElementById('personSelect').value;
