@@ -112,8 +112,10 @@ async function loadData() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').classList.remove('hidden');
     lucide.createIcons();
-  } catch (err) {
-    document.getElementById('loading').textContent = '연결 오류가 발생했습니다';
+} catch (err) {
+    document.getElementById('loading').textContent = '연결 오류: ' + err.message;
+    console.error(err);
+
   }
 }
 
@@ -198,21 +200,7 @@ function render() {
   today.setHours(0,0,0,0);
   const { monday, sunday } = getWeekRange(today);
 
-  // 오늘
-  const todayLabel = document.getElementById('todayLabel');
-  const days = ['일','월','화','수','목','금','토'];
-  todayLabel.textContent = `${today.getMonth()+1}월 ${today.getDate()}일 (${days[today.getDay()]})`;
-
-  const todayEntry = allData.find(e => {
-    const d = parseSheetDate(e.date);
-    return d && isSameDay(d, today);
-  });
-  const todayCard = document.getElementById('todayCard');
-  if (todayEntry) {
-    todayCard.innerHTML = renderDayCard(todayEntry);
-  } else {
-    todayCard.innerHTML = '<div class="text-center text-slate-400 py-6">오늘은 근무일이 아닙니다</div>';
-  }
+  
 
   // 이번 주
   const weekEntries = allData.filter(e => {
