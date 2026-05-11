@@ -184,30 +184,41 @@ function renderClasses(classes) {
   const deptColor = { '초등부': '#0ea5e9', '중등부': '#1f4e5f', '고등부': '#b45309', '정시반': '#7c3aed' };
 
 
+  // 학부별 그룹화
+  const groups = {};
+  filtered.forEach(c => {
+    if (!groups[c.dept]) groups[c.dept] = [];
+    groups[c.dept].push(c);
+  });
+
+  const groupOrder = ['초등부','중등부','고등부','정시반','기타'];
+
+  const groupsHTML = groupOrder.filter(d => groups[d]).map(dept => {
+    const color = deptColor[dept] || '#64748b';
+    const items = groups[dept];
+    const sum = items.reduce((s,c) => s + c.count, 0);
+    return `
+      <div class="mb-6">
+        <div class="text-white text-center font-bold py-2 rounded-t-lg" style="background:${color};">
+          ${dept} <span class="ml-2 font-normal opacity-90">(${sum}명)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 bg-slate-50 rounded-b-lg">
+          ${items.map(c => `
+            <div class="bg-white rounded-lg p-3 text-center shadow-sm" style="border-top:3px solid ${color};">
+              <div class="text-sm font-semibold text-slate-700 mb-1">${c.name}</div>
+              <div class="text-2xl font-bold" style="color:${color};">${c.count}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
   document.getElementById('classTable').innerHTML = `
-    <table class="w-full text-sm">
-      <thead>
-        <tr class="border-b border-slate-200">
-          <th class="text-left py-2 px-3 text-slate-600">반명</th>
-          <th class="text-left py-2 px-3 text-slate-600">학부</th>
-          <th class="text-right py-2 px-3 text-slate-600">인원</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filtered.map(c => `
-          <tr class="border-b border-slate-100">
-            <td class="py-2 px-3 font-semibold brand-text">${c.name}</td>
-            <td class="py-2 px-3 font-semibold" style="color:${deptColor[c.dept] || '#64748b'};">${c.dept}</td>
-            <td class="py-2 px-3 text-right font-semibold">${c.count}</td>
-          </tr>
-        `).join('')}
-        <tr class="bg-slate-50 font-bold">
-          <td class="py-2 px-3" colspan="2">합계</td>
-          <td class="py-2 px-3 text-right brand-text">${total}</td>
-        </tr>
-      </tbody>
-    </table>
+    ${groupsHTML}
+    <div class="text-right font-bold brand-text text-lg pr-2">총 합계: ${total}명</div>
   `;
+
 }
 // 탭 클릭 이벤트
 document.querySelectorAll('.tab-btn').forEach(btn => {
