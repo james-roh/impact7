@@ -143,10 +143,12 @@ function renderClasses(classes) {
     if (n.startsWith('AX') || n.startsWith('EX') || n.startsWith('SP')) return '중등부';
     if (n.startsWith('I') || n.startsWith('A')) return '중등부';
     if (n.startsWith('P')) return '초등부';
+    if (n.startsWith('K')) return '정시반';
     return '기타';
   }
 
-  const order = { '초등부': 1, '중등부': 2, '고등부': 3, '기타': 4 };
+
+   const order = { '초등부': 1, '중등부': 2, '고등부': 3, '정시반': 4, '기타': 5 };
 
   // 분류 + 정렬 (초등부 → 중등부 → 고등부, 같은 학부 안에서는 반명 알파벳순)
   const filtered = Object.values(map)
@@ -179,7 +181,8 @@ function renderClasses(classes) {
 
   // 표
   const total = filtered.reduce((sum, c) => sum + c.count, 0);
-  const deptColor = { '초등부': '#0ea5e9', '중등부': '#1f4e5f', '고등부': '#b45309' };
+  const deptColor = { '초등부': '#0ea5e9', '중등부': '#1f4e5f', '고등부': '#b45309', '정시반': '#7c3aed' };
+
 
   document.getElementById('classTable').innerHTML = `
     <table class="w-full text-sm">
