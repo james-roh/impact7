@@ -181,7 +181,8 @@ function renderClasses(classes) {
 
   // 표
   const total = filtered.reduce((sum, c) => sum + c.count, 0);
-  const deptColor = { '초등부': '#0ea5e9', '중등부': '#1f4e5f', '고등부': '#b45309', '정시반': '#7c3aed' };
+  const deptColor = { '초등부': '#1f4e5f', '중등부': '#1f4e5f', '고등부': '#1f4e5f', '정시반': '#1f4e5f' };
+
 
 
   // 학부별 그룹화
@@ -203,21 +204,22 @@ function renderClasses(classes) {
           ${dept} <span class="ml-2 font-normal opacity-90">(${sum}명)</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 bg-slate-50 rounded-b-lg">
-           ${(() => {
+                ${(() => {
             const maxCount = Math.max(...items.map(c => c.count), 1);
             return items.map(c => {
               const pct = (c.count / maxCount) * 100;
               return `
-                <div class="bg-white rounded-lg p-3 text-center shadow-sm">
+                <div class="bg-white rounded-lg p-3 text-center shadow-sm flex flex-col items-center">
                   <div class="text-sm font-semibold text-slate-700 mb-1">${c.name}</div>
                   <div class="text-2xl font-bold mb-2" style="color:${color};">${c.count}</div>
-                  <div class="w-full bg-slate-100 rounded h-2 overflow-hidden">
-                    <div class="h-full rounded" style="width:${pct}%; background:${color};"></div>
+                  <div class="bg-slate-100 rounded overflow-hidden flex items-end" style="height:80px; width:24px;">
+                    <div class="w-full rounded-t" style="height:${pct}%; background:${color};"></div>
                   </div>
                 </div>
               `;
             }).join('');
           })()}
+
 
         </div>
       </div>
