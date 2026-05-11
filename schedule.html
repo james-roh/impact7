@@ -53,7 +53,9 @@
         <select id="personSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
           <option value="">전체</option>
         </select>
+        <span class="text-xs text-slate-400 ml-1">(근무자 리스트는 최근 3개월 기준)</span>
       </div>
+
     </div>
     <div id="monthlyCards" class="space-y-3"></div>
   </section>
@@ -153,13 +155,21 @@ function initMonthlyFilters() {
   const thisMonth = new Date().getMonth() + 1;
   monthSelect.value = monthsInData.includes(thisMonth) ? thisMonth : monthsInData[0];
 
+    // 최근 3개월 이내에 근무한 사람만 추출
+  const today = new Date();
+  const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
   const personSet = new Set();
   allData.forEach(e => {
+    const m = getMonthFromDate(e.date);
+    if (!m) return;
+    const entryDate = new Date(today.getFullYear(), m - 1, 1);
+    if (entryDate < threeMonthsAgo) return;
     branches.forEach(b => {
       extractNames(e.gyomu[b]).forEach(n => personSet.add(n));
       extractNames(e.haengjeong[b]).forEach(n => personSet.add(n));
     });
   });
+
   const persons = [...personSet].sort();
   const personSelect = document.getElementById('personSelect');
   personSelect.innerHTML = '<option value="">전체</option>' +
