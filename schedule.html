@@ -11,7 +11,6 @@
   .brand { background: #1f4e5f; }
   .brand-text { color: #1f4e5f; }
   .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .badge-today { background: #1f4e5f; color: white; }
   .badge-week { background: #e2e8f0; color: #475569; }
   .name-chip { display: inline-block; padding: 2px 8px; margin: 2px; background: #f1f5f9; border-radius: 6px; font-size: 13px; color: #334155; }
   .name-chip.all { background: #fef3c7; color: #92400e; font-weight: 600; }
@@ -21,7 +20,6 @@
 </head>
 <body>
 
-<!-- 헤더 -->
 <header class="brand text-white py-3 px-5 flex items-center justify-between">
   <div class="flex items-center gap-3">
     <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: rgba(255,255,255,0.15);">
@@ -37,19 +35,14 @@
   </button>
 </header>
 
-<!-- 로딩 -->
 <div id="loading" class="text-center py-10 text-slate-500">불러오는 중...</div>
 
-<!-- 메인 -->
 <main id="main" class="hidden max-w-5xl mx-auto p-4 space-y-6">
-
-  <!-- 월별 보기 -->
   <section>
     <div class="flex items-center gap-2 mb-2">
       <span class="badge-week text-xs font-bold px-2 py-1 rounded">MONTHLY</span>
       <span class="text-slate-700 font-semibold">월별 보기</span>
     </div>
-
     <div class="card p-4 mb-3 flex flex-wrap gap-3 items-center">
       <div class="flex items-center gap-2">
         <label class="text-sm text-slate-600 font-semibold">월</label>
@@ -62,14 +55,8 @@
         </select>
       </div>
     </div>
-
     <div id="monthlyCards" class="space-y-3"></div>
   </section>
-
-
-
-
-
 </main>
 
 <script>
@@ -92,44 +79,20 @@ async function loadData() {
     branches = result.branches;
     allData = result.data;
     monthlyFiltersReady = false;
-    render();
+    initMonthlyFilters();
+    renderMonthly();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').classList.remove('hidden');
     lucide.createIcons();
-} catch (err) {
+  } catch (err) {
     document.getElementById('loading').textContent = '연결 오류: ' + err.message;
     console.error(err);
-
   }
-}
-
-// "1/2 (금)" → Date 객체 (올해 기준)
-function parseSheetDate(str) {
-  const m = str.match(/^(\d+)\/(\d+)/);
-  if (!m) return null;
-  const year = new Date().getFullYear();
-  return new Date(year, parseInt(m[1]) - 1, parseInt(m[2]));
 }
 
 function getMonthFromDate(str) {
   const m = str.match(/^(\d+)\//);
   return m ? parseInt(m[1]) : null;
-}
-
-function isSameDay(a, b) {
-  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
-}
-
-function getWeekRange(today) {
-  // 월요일 ~ 일요일
-  const day = today.getDay(); // 0=일, 1=월, ...
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((day + 6) % 7));
-  monday.setHours(0,0,0,0);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  sunday.setHours(23,59,59,999);
-  return { monday, sunday };
 }
 
 function extractNames(cell) {
@@ -177,40 +140,6 @@ function renderDayCard(entry, highlightPerson) {
     </tr>
   `).join('');
   return `<table class="w-full" style="table-layout:fixed;"><colgroup><col style="width:80px;"><col style="width:280px;"><col><col></colgroup><tbody>${rows}</tbody></table>`;
-}
-
-function render() {
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const { monday, sunday } = getWeekRange(today);
-
-    // 월별 보기
-  initMonthlyFilters();
-  renderMonthly();
-}
-
-
-
-  // 다가오는 일정 (이번 주 이후 다음 4개)
-  const upcoming = allData.filter(e => {
-    const d = parseSheetDate(e.date);
-    return d && d > sunday;
-  }).slice(0, 4);
-  const upcomingCards = document.getElementById('upcomingCards');
-  if (upcoming.length === 0) {
-    upcomingCards.innerHTML = '<div class="card p-4 text-center text-slate-400">예정된 일정이 없습니다</div>';
-  } else {
-    upcomingCards.innerHTML = upcoming.map(e => `
-      <div class="card p-4">
-        <div class="font-semibold brand-text mb-2">${e.date}</div>
-        ${renderDayCard(e)}
-      </div>
-    `).join('');
-  }
-
-  // 월별 보기
-  initMonthlyFilters();
-  renderMonthly();
 }
 
 function initMonthlyFilters() {
