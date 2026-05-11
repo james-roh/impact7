@@ -206,4 +206,27 @@ function renderClasses(classes) {
     </table>
   `;
 }
+// 탭 클릭 이벤트
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCampus = btn.dataset.campus;
+    renderSheetSelect();
+    loadSheetData();
+  });
+});
+
+// 시트 변경 이벤트
+document.getElementById('sheetSelect').addEventListener('change', loadSheetData);
+
+// 새로고침 버튼
+document.getElementById('refreshBtn').addEventListener('click', loadSheetData);
+
+// 페이지 로드 시 실행
+loadCampusList();
+</script>
+
+</body>
+</html>
 
