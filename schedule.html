@@ -29,7 +29,7 @@
     </div>
     <div>
       <span class="font-bold text-lg">Impact7</span>
-      <span class="text-slate-200 text-sm ml-2">근무일정</span>
+     <span class="text-slate-200 text-sm ml-2">근무일정 (수,토)</span>
     </div>
   </div>
   <button id="refreshBtn" class="text-slate-200 hover:text-white">
@@ -126,7 +126,7 @@ function getWeekRange(today) {
 function renderNames(names) {
   if (!names || names.trim() === '') return '<span class="text-slate-300 text-sm">-</span>';
   const trimmed = names.trim();
-  if (trimmed.toUpperCase() === 'X') return '<span class="name-chip x">휴무</span>';
+  if (trimmed.toUpperCase() === 'X') return '<span class="text-slate-300 text-sm">-</span>';
   if (trimmed.toUpperCase().startsWith('ALL')) return `<span class="name-chip all">${trimmed}</span>`;
   // 콤마 또는 공백으로 분리
   const parts = trimmed.split(/[,\s]+/).filter(p => p);
