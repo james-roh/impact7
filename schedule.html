@@ -53,7 +53,8 @@
         <select id="personSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
           <option value="">전체</option>
         </select>
-        <span class="text-xs text-slate-400 ml-1">(근무자 리스트는 최근 3개월 기준)</span>
+        <span class="text-sm text-slate-500 ml-1">(근무자 리스트는 최근 3개월 기준)</span>
+
       </div>
 
     </div>
@@ -182,12 +183,18 @@ function initMonthlyFilters() {
 function renderMonthly() {
   const selectedMonth = parseInt(document.getElementById('monthSelect').value);
   const selectedPerson = document.getElementById('personSelect').value;
-  const filtered = allData.filter(e => {
+    const filtered = allData.filter(e => {
     const m = getMonthFromDate(e.date);
     if (m !== selectedMonth) return false;
     if (!entryHasPerson(e, selectedPerson)) return false;
     return true;
+  }).sort((a, b) => {
+    const da = a.date.match(/^(\d+)\/(\d+)/);
+    const db = b.date.match(/^(\d+)\/(\d+)/);
+    if (!da || !db) return 0;
+    return (parseInt(db[1]) * 100 + parseInt(db[2])) - (parseInt(da[1]) * 100 + parseInt(da[2]));
   });
+
   const container = document.getElementById('monthlyCards');
   if (filtered.length === 0) {
     container.innerHTML = `<div class="card p-6 text-center text-slate-400">
