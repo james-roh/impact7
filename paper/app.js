@@ -35,7 +35,19 @@ function showMainScreen() {
   if (userInfoEl) userInfoEl.textContent = '👤 ' + currentUser;
 
   loadList();
-  if (window.lucide) lucide.createIcons();
+ if (window.lucide) {
+  document.querySelectorAll('svg.lucide').forEach(svg => {
+    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+    const name = cls ? cls[1] : null;
+    if (name) {
+      const i = document.createElement('i');
+      i.setAttribute('data-lucide', name);
+      svg.replaceWith(i);
+    }
+  });
+  lucide.createIcons();
+}
+
 }
 
 
@@ -122,7 +134,17 @@ function renderTable() {
   document.getElementById('pendingCount').textContent =
     allData.filter(r => r.sheetType !== 'resign' && r.status === '대기').length;
 
-  if (window.lucide) lucide.createIcons();
+if (window.lucide) {
+  document.querySelectorAll('svg.lucide').forEach(svg => {
+    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+    const name = cls ? cls[1] : null;
+    if (name) {
+      const i = document.createElement('i');
+      i.setAttribute('data-lucide', name);
+      svg.replaceWith(i);
+    }
+  });
+  lucide.createIcons();
 }
 
 
@@ -161,9 +183,21 @@ async function openDetail(rowIndex, sheetType) {
     viewBtn.style.display = 'inline-block';
     viewBtn.onclick = () => window.open(row.pdfUrl, '_blank');
 
-       if (window.lucide) lucide.createIcons();
-    document.getElementById('detailModal').style.display = 'flex';
-    return;
+ if (window.lucide) {
+  document.querySelectorAll('svg.lucide').forEach(svg => {
+    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+    const name = cls ? cls[1] : null;
+    if (name) {
+      const i = document.createElement('i');
+      i.setAttribute('data-lucide', name);
+      svg.replaceWith(i);
+    }
+  });
+  lucide.createIcons();
+}
+document.getElementById('detailModal').style.display = 'flex';
+return;
+
   }
 
 
@@ -199,9 +233,21 @@ async function openDetail(rowIndex, sheetType) {
     emailBtn.disabled = true;
     viewBtn.style.display = 'none';
   }
-  if (window.lucide) lucide.createIcons();
-  document.getElementById('detailModal').style.display = 'flex';
+if (window.lucide) {
+  document.querySelectorAll('svg.lucide').forEach(svg => {
+    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+    const name = cls ? cls[1] : null;
+    if (name) {
+      const i = document.createElement('i');
+      i.setAttribute('data-lucide', name);
+      svg.replaceWith(i);
+    }
+  });
+  lucide.createIcons();
 }
+document.getElementById('detailModal').style.display = 'flex';
+}
+
 
 function closeModal() {
   document.getElementById('detailModal').style.display = 'none';
