@@ -151,14 +151,24 @@ function renderClasses(classes) {
    const order = { '초등부': 1, '중등부': 2, '고등부': 3, '정시반': 4, '기타': 5 };
 
   // 분류 + 정렬 (초등부 → 중등부 → 고등부, 같은 학부 안에서는 반명 알파벳순)
-  function getPrefixOrder(name) {
+   function getPrefixOrder(name) {
     const n = (name || '').toUpperCase().trim();
-    const prefixes = ['PI','PA','PX','AX','EX','SP','I','A','HA','HX','HS','K'];
-    for (let i = 0; i < prefixes.length; i++) {
-      if (n.startsWith(prefixes[i])) return i;
-    }
+    // 검사는 긴 접두사부터, 정렬값은 원하는 순서대로
+    if (n.startsWith('PI')) return 1;
+    if (n.startsWith('PA')) return 2;
+    if (n.startsWith('PX')) return 3;
+    if (n.startsWith('AX')) return 6;
+    if (n.startsWith('EX')) return 7;
+    if (n.startsWith('SP')) return 8;
+    if (n.startsWith('HA')) return 9;
+    if (n.startsWith('HX')) return 10;
+    if (n.startsWith('HS')) return 11;
+    if (n.startsWith('I')) return 4;
+    if (n.startsWith('A')) return 5;
+    if (n.startsWith('K')) return 12;
     return 999;
   }
+
 
 
   const filtered = Object.values(map)
