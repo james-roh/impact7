@@ -68,7 +68,8 @@
 
   <!-- 반별 인원 표 -->
   <div class="mt-6">
-<h2 class="text-slate-700 font-semibold mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f4e5f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>반별 상세</h2>
+<h2 class="text-slate-700 font-semibold mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f4e5f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>학부별 인원</h2>
+
     <div id="classTable" class="card p-4"></div>
   </div>
 
@@ -134,7 +135,27 @@ function renderClasses(classes) {
       map[c.name] = { name: c.name, count: cnt, block: c.block };
     }
   });
-  const filtered = Object.values(map).filter(c => c.count > 0);
+
+  // 학부 분류 함수
+  function getDept(name) {
+    const n = (name || '').toUpperCase().trim();
+    if (n.startsWith('HA') || n.startsWith('HX') || n.startsWith('HS')) return '고등부';
+    if (n.startsWith('AX') || n.startsWith('EX') || n.startsWith('SP')) return '중등부';
+    if (n.startsWith('I') || n.startsWith('A')) return '중등부';
+    if (n.startsWith('P')) return '초등부';
+    return '기타';
+  }
+
+  const order = { '초등부': 1, '중등부': 2, '고등부': 3, '기타': 4 };
+
+  // 분류 + 정렬 (초등부 → 중등부 → 고등부, 같은 학부 안에서는 반명 알파벳순)
+  const filtered = Object.values(map)
+    .filter(c => c.count > 0)
+    .map(c => ({ ...c, dept: getDept(c.name) }))
+    .sort((a, b) => {
+      if (order[a.dept] !== order[b.dept]) return order[a.dept] - order[b.dept];
+      return a.name.localeCompare(b.name);
+    });
 
   // 차트
   if (chartInstance) chartInstance.destroy();
@@ -158,12 +179,14 @@ function renderClasses(classes) {
 
   // 표
   const total = filtered.reduce((sum, c) => sum + c.count, 0);
+  const deptColor = { '초등부': '#0ea5e9', '중등부': '#1f4e5f', '고등부': '#b45309' };
+
   document.getElementById('classTable').innerHTML = `
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b border-slate-200">
           <th class="text-left py-2 px-3 text-slate-600">반명</th>
-          <th class="text-left py-2 px-3 text-slate-600">구분</th>
+          <th class="text-left py-2 px-3 text-slate-600">학부</th>
           <th class="text-right py-2 px-3 text-slate-600">인원</th>
         </tr>
       </thead>
@@ -171,7 +194,7 @@ function renderClasses(classes) {
         ${filtered.map(c => `
           <tr class="border-b border-slate-100">
             <td class="py-2 px-3 font-semibold brand-text">${c.name}</td>
-            <td class="py-2 px-3 text-slate-500">${c.block === '상단' ? '학부 (상단)' : '학부/고등 (하단)'}</td>
+            <td class="py-2 px-3 font-semibold" style="color:${deptColor[c.dept] || '#64748b'};">${c.dept}</td>
             <td class="py-2 px-3 text-right font-semibold">${c.count}</td>
           </tr>
         `).join('')}
@@ -184,22 +207,3 @@ function renderClasses(classes) {
   `;
 }
 
-// 이벤트 바인딩
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCampus = btn.dataset.campus;
-    renderSheetSelect();
-    loadSheetData();
-  });
-});
-
-document.getElementById('sheetSelect').addEventListener('change', loadSheetData);
-document.getElementById('refreshBtn').addEventListener('click', loadSheetData);
-
-loadCampusList();
-</script>
-
-</body>
-</html>
