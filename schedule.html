@@ -15,6 +15,10 @@
   .name-chip { display: inline-block; padding: 2px 8px; margin: 2px; background: #f1f5f9; border-radius: 6px; font-size: 13px; color: #334155; }
   .name-chip.all { background: #fef3c7; color: #92400e; font-weight: 600; }
   .name-chip.match { background: #1f4e5f; color: white; font-weight: 600; }
+    .closing-row { display: grid; grid-template-columns: 90px 1fr 1fr 1fr; gap: 10px; align-items: stretch; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
+  .closing-date { display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 8px; padding: 8px; }
+  .closing-cell { background: #f8fafc; border-left: 3px solid #1f4e5f; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+
   .hidden { display: none; }
 </style>
 </head>
@@ -46,17 +50,8 @@
     </div>
     <div class="card p-4">
       <div id="closingLoading" class="text-center text-slate-400 text-sm py-4">불러오는 중...</div>
-      <table id="closingTable" class="w-full text-sm hidden">
-        <thead>
-          <tr class="border-b border-slate-200">
-            <th class="text-left py-2 px-3 text-slate-600">일자</th>
-            <th class="text-left py-2 px-3 text-slate-600">양지5</th>
-            <th class="text-left py-2 px-3 text-slate-600">양지10</th>
-            <th class="text-left py-2 px-3 text-slate-600">라벨라</th>
-          </tr>
-        </thead>
-        <tbody id="closingBody"></tbody>
-      </table>
+      <div id="closingList" class="hidden"></div>
+
     </div>
   </section>
 
@@ -116,13 +111,12 @@ async function loadData() {
   }
 }
 
-async function loadClosing() {
+aasync function loadClosing() {
   const loadingEl = document.getElementById('closingLoading');
-  const tableEl = document.getElementById('closingTable');
-  const bodyEl = document.getElementById('closingBody');
+  const listEl = document.getElementById('closingList');
   loadingEl.classList.remove('hidden');
   loadingEl.textContent = '불러오는 중...';
-  tableEl.classList.add('hidden');
+  listEl.classList.add('hidden');
   try {
     const res = await fetch(CLOSING_API_URL);
     const result = await res.json();
@@ -130,36 +124,54 @@ async function loadClosing() {
       loadingEl.textContent = '데이터를 불러올 수 없습니다';
       return;
     }
-    // 2020년 이전 데이터 제외(시트 입력 오류 방지)
     const data = result.data.filter(r => r.date && r.date >= '2020-01-01');
     if (data.length === 0) {
       loadingEl.textContent = '데이터가 없습니다';
       return;
     }
-    bodyEl.innerHTML = data.map(r => `
-      <tr class="border-b border-slate-100">
-        <td class="py-2 px-3 font-semibold brand-text whitespace-nowrap">${formatDate(r.date)}</td>
-        <td class="py-2 px-3">${r.yangji5 ? `<span class="name-chip">${r.yangji5}</span>` : '<span class="text-slate-300">-</span>'}</td>
-        <td class="py-2 px-3">${r.yangji10 ? `<span class="name-chip">${r.yangji10}</span>` : '<span class="text-slate-300">-</span>'}</td>
-        <td class="py-2 px-3">${r.labella ? `<span class="name-chip">${r.labella}</span>` : '<span class="text-slate-300">-</span>'}</td>
-      </tr>
-    `).join('');
+    listEl.innerHTML = data.map(r => {
+      const d = parseDate(r.date);
+      return `
+        <div class="closing-row">
+          <div class="closing-date">
+            <div class="text-xl font-bold brand-text">${d.day}일</div>
+            <div class="text-xs text-slate-500">(${d.dow})</div>
+          </div>
+          ${closingCell('양지5', r.yangji5)}
+          ${closingCell('양지10', r.yangji10)}
+          ${closingCell('라벨라', r.labella)}
+        </div>
+      `;
+    }).join('');
     loadingEl.classList.add('hidden');
-    tableEl.classList.remove('hidden');
+    listEl.classList.remove('hidden');
   } catch (err) {
     loadingEl.textContent = '연결 오류: ' + err.message;
     console.error(err);
   }
 }
 
-function formatDate(s) {
-  // "2026-05-09" -> "5/9 (토)"
+function closingCell(label, name) {
+  if (!name) {
+    return `<div class="closing-cell" style="border-left-color:#e2e8f0; opacity:0.5;">
+      <div class="text-xs font-semibold text-slate-500">${label}</div>
+      <div class="text-sm text-slate-300">-</div>
+    </div>`;
+  }
+  return `<div class="closing-cell">
+    <div class="text-xs font-semibold brand-text">${label}</div>
+    <div class="text-sm font-bold text-slate-800">${name}</div>
+  </div>`;
+}
+
+function parseDate(s) {
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return s;
+  if (!m) return { day: s, dow: '' };
   const y = parseInt(m[1]), mo = parseInt(m[2]), da = parseInt(m[3]);
   const dow = ['일','월','화','수','목','금','토'][new Date(y, mo-1, da).getDay()];
-  return `${mo}/${da} (${dow})`;
+  return { day: `${mo}/${da}`, dow };
 }
+
 
 function getMonthFromDate(str) {
   const m = str.match(/^(\d+)\//);
