@@ -260,6 +260,35 @@ function initMonthlyFilters() {
   monthSelect.addEventListener('change', renderMonthly);
   personSelect.addEventListener('change', renderMonthly);
 }
+function onPersonChange() {
+  const selectedPerson = document.getElementById('personSelect').value;
+  if (!selectedPerson) { renderMonthly(); return; }
+  const monthSelect = document.getElementById('monthSelect');
+  const currentMonth = parseInt(monthSelect.value);
+
+  // 현재 선택된 월에 해당 인원의 근무일이 있는지 확인
+  const hasInCurrent = allData.some(e => {
+    const m = getMonthFromDate(e.date);
+    return m === currentMonth && entryHasPerson(e, selectedPerson);
+  });
+  if (hasInCurrent) { renderMonthly(); return; }
+
+  // 없으면 가장 최근 근무가 있는 월로 변경
+  const monthsWithPerson = [...new Set(
+    allData
+      .filter(e => entryHasPerson(e, selectedPerson))
+      .map(e => getMonthFromDate(e.date))
+      .filter(m => m)
+  )].sort((a, b) => b - a);
+
+  if (monthsWithPerson.length > 0) {
+    const latest = monthsWithPerson[0];
+    if ([...monthSelect.options].some(o => parseInt(o.value) === latest)) {
+      monthSelect.value = latest;
+    }
+  }
+  renderMonthly();
+}
 
 function renderMonthly() {
   const selectedMonth = parseInt(document.getElementById('monthSelect').value);
