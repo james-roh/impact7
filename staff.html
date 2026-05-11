@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>임팩트세븐 인원현황</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background: #f1f5f9; }
+  .brand-text { color: #1f4e5f; }
+  .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .tab-btn { padding: 10px 20px; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #64748b; border: none; }
+  .tab-btn.active { background: #1f4e5f; color: white; }
+  .stat-card { padding: 16px; border-radius: 10px; text-align: center; }
+  .stat-label { font-size: 13px; color: #64748b; margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-weight: 700; color: #1f4e5f; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="max-w-6xl mx-auto p-4">
+
+  <!-- 캠퍼스 탭 -->
+  <div class="flex gap-1 mb-0">
+    <button class="tab-btn active" data-campus="양지5">양지5</button>
+    <button class="tab-btn" data-campus="양지10">양지10</button>
+    <button class="tab-btn" data-campus="10단지">10단지</button>
+  </div>
+
+  <!-- 시트 선택 -->
+  <div class="card p-4 rounded-tl-none">
+    <div class="flex items-center gap-3 flex-wrap">
+      <label class="text-sm text-slate-600 font-semibold">시트</label>
+      <select id="sheetSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white min-w-[260px]"></select>
+      <button id="refreshBtn" class="text-sm text-slate-500 hover:text-slate-700">새로고침</button>
+    </div>
+  </div>
+
+  <!-- 로딩 -->
+  <div id="loading" class="text-center py-10 text-slate-500 hidden">불러오는 중...</div>
+
+  <!-- 통계 카드 -->
+  <div class="mt-6">
+    <h2 class="text-slate-700 font-semibold mb-3">📊 인원 통계</h2>
+    <div id="statsContainer" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3"></div>
+  </div>
+
+  <!-- 반별 인원 차트 -->
+  <div class="mt-6">
+    <h2 class="text-slate-700 font-semibold mb-3">🏫 반별 인원</h2>
+    <div class="card p-4">
+      <canvas id="classChart" style="max-height: 400px;"></canvas>
+    </div>
+  </div>
+
+  <!-- 반별 인원 표 -->
+  <div class="mt-6">
+    <h2 class="text-slate-700 font-semibold mb-3">📋 반별 상세</h2>
+    <div id="classTable" class="card p-4"></div>
+  </div>
+
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyISQnGJqoW71qciw56UbA1ZBT-LtOS4NMCTD2h2rRmWAp9VE1ii4moEAHcSV70NYAjbA/exec';
+
+let campusMap = {};
+let currentCampus = '양지5';
+let chartInstance = null;
+
+async function loadCampusList() {
+  const res = await fetch(API_URL);
+  const result = await res.json();
+  if (!result.success) { alert('데이터를 불러올 수 없습니다'); return; }
+  campusMap = result.campuses;
+  renderSheetSelect();
+  loadSheetData();
+}
+
+function renderSheetSelect() {
+  const sel = document.getElementById('sheetSelect');
+  const sheets = campusMap[currentCampus] || [];
+  sel.innerHTML = sheets.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+async function loadSheetData() {
+  const sheetName = document.getElementById('sheetSelect').value;
+  if (!sheetName) return;
+  document.getElementById('loading').classList.remove('hidden');
+  try {
+    const res = await fetch(API_URL + '?sheet=' + encodeURIComponent(sheetName));
+    const result = await res.json();
+    if (!result.success) { alert('시트 로드 실패: ' + result.error); return; }
+    renderStats(result.data.stats);
+    renderClasses(result.data.classes);
+  } catch (err) {
+    alert('연결 오류: ' + err.message);
+  } finally {
+    document.getElementById('loading').classList.add('hidden');
+  }
+}
+
+function renderStats(stats) {
+  const labels = ['현인원','실인원','입학대기','가배정','실휴원','가휴원','총휴원'];
+  const colors = ['#1f4e5f','#0e7490','#ca8a04','#9333ea','#dc2626','#ea580c','#be123c'];
+  const container = document.getElementById('statsContainer');
+  container.innerHTML = labels.map((label, i) => `
+    <div class="card stat-card" style="border-top: 3px solid ${colors[i]};">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value">${stats[label] ?? '-'}</div>
+    </div>
+  `).join('');
+}
+
+function renderClasses(classes) {
+  // 중복/0명 제거: 같은 반명이 여러 번 나오면 가장 큰 인원만 사용
+  const map = {};
+  classes.forEach(c => {
+    const cnt = Number(c.count) || 0;
+    if (!map[c.name] || cnt > map[c.name].count) {
+      map[c.name] = { name: c.name, count: cnt, block: c.block };
+    }
+  });
+  const filtered = Object.values(map).filter(c => c.count > 0);
+
+  // 차트
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById('classChart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: filtered.map(c => c.name),
+      datasets: [{
+        label: '현인원',
+        data: filtered.map(c => c.count),
+        backgroundColor: '#1f4e5f'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  // 표
+  const total = filtered.reduce((sum, c) => sum + c.count, 0);
+  document.getElementById('classTable').innerHTML = `
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200">
+          <th class="text-left py-2 px-3 text-slate-600">반명</th>
+          <th class="text-left py-2 px-3 text-slate-600">구분</th>
+          <th class="text-right py-2 px-3 text-slate-600">인원</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(c => `
+          <tr class="border-b border-slate-100">
+            <td class="py-2 px-3 font-semibold brand-text">${c.name}</td>
+            <td class="py-2 px-3 text-slate-500">${c.block === '상단' ? '학부 (상단)' : '학부/고등 (하단)'}</td>
+            <td class="py-2 px-3 text-right font-semibold">${c.count}</td>
+          </tr>
+        `).join('')}
+        <tr class="bg-slate-50 font-bold">
+          <td class="py-2 px-3" colspan="2">합계</td>
+          <td class="py-2 px-3 text-right brand-text">${total}</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
+
+// 이벤트 바인딩
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCampus = btn.dataset.campus;
+    renderSheetSelect();
+    loadSheetData();
+  });
+});
+
+document.getElementById('sheetSelect').addEventListener('change', loadSheetData);
+document.getElementById('refreshBtn').addEventListener('click', loadSheetData);
+
+loadCampusList();
+</script>
+
+</body>
+</html>
