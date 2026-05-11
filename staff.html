@@ -21,7 +21,8 @@
 <body>
 <header style="background:#1f4e5f;" class="text-white py-3 px-5 flex items-center gap-3">
   <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: rgba(255,255,255,0.15);">
-   <i data-lucide="users" class="text-white" width="20" height="20"></i>
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+
   </div>
   <div>
     <span class="font-bold text-lg">Impact7</span>
@@ -52,13 +53,14 @@
 
   <!-- 통계 카드 -->
   <div class="mt-6">
-    <h2 class="text-slate-700 font-semibold mb-3">📊 인원 통계</h2>
+<h2 class="text-slate-700 font-semibold mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f4e5f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>인원 통계</h2>
+
     <div id="statsContainer" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3"></div>
   </div>
 
   <!-- 반별 인원 차트 -->
   <div class="mt-6">
-    <h2 class="text-slate-700 font-semibold mb-3">🏫 반별 인원</h2>
+<h2 class="text-slate-700 font-semibold mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f4e5f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h.01"/><path d="M15 9h.01"/><path d="M9 13h.01"/><path d="M15 13h.01"/><path d="M10 21v-4h4v4"/></svg>반별 인원</h2>
     <div class="card p-4">
       <canvas id="classChart" style="max-height: 400px;"></canvas>
     </div>
@@ -66,7 +68,7 @@
 
   <!-- 반별 인원 표 -->
   <div class="mt-6">
-    <h2 class="text-slate-700 font-semibold mb-3">📋 반별 상세</h2>
+<h2 class="text-slate-700 font-semibold mb-3 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f4e5f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>반별 상세</h2>
     <div id="classTable" class="card p-4"></div>
   </div>
 
