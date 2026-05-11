@@ -151,13 +151,27 @@ function renderClasses(classes) {
    const order = { '초등부': 1, '중등부': 2, '고등부': 3, '정시반': 4, '기타': 5 };
 
   // 분류 + 정렬 (초등부 → 중등부 → 고등부, 같은 학부 안에서는 반명 알파벳순)
+  function getPrefixOrder(name) {
+    const n = (name || '').toUpperCase().trim();
+    const prefixes = ['PI','PA','PX','AX','EX','SP','I','A','HA','HX','HS','K'];
+    for (let i = 0; i < prefixes.length; i++) {
+      if (n.startsWith(prefixes[i])) return i;
+    }
+    return 999;
+  }
+
+
   const filtered = Object.values(map)
     .filter(c => c.count > 0)
     .map(c => ({ ...c, dept: getDept(c.name) }))
     .sort((a, b) => {
       if (order[a.dept] !== order[b.dept]) return order[a.dept] - order[b.dept];
+      const pa = getPrefixOrder(a.name);
+      const pb = getPrefixOrder(b.name);
+      if (pa !== pb) return pa - pb;
       return a.name.localeCompare(b.name);
     });
+
 
   // 차트
   if (chartInstance) chartInstance.destroy();
