@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>임팩트세븐 통합관리</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -16,7 +17,7 @@
     .layout { display: flex; height: 100vh; }
 
     .sidebar {
-      width: 240px;
+      width: 180px;
       background: #1f4e5f;
       color: white;
       display: flex;
@@ -24,9 +25,9 @@
       flex-shrink: 0;
     }
     .sidebar h1 {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
-      padding: 22px 20px;
+      padding: 22px 16px;
       border-bottom: 1px solid rgba(255,255,255,0.15);
       letter-spacing: -0.02em;
     }
@@ -40,7 +41,7 @@
       color: rgba(255,255,255,0.85);
       font-size: 14px;
       font-family: inherit;
-      padding: 13px 22px;
+      padding: 13px 16px;
       cursor: pointer;
       border-left: 3px solid transparent;
       transition: background 0.15s;
@@ -59,6 +60,24 @@
       border-radius: 10px;
       margin-left: 6px;
     }
+
+    .user-info {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+    .user-info .email { display: block; margin-bottom: 6px; word-break: break-all; }
+    .user-info button {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .user-info button:hover { background: rgba(255,255,255,0.2); }
 
     .content { flex: 1; position: relative; background: white; }
     iframe { width: 100%; height: 100%; border: none; display: none; }
@@ -83,49 +102,182 @@
       margin-bottom: 8px;
     }
     .placeholder p { font-size: 14px; color: #8faab5; }
+
+    /* 로그인 화면 */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      background: #f5f7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .login-box {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+    }
+    .login-box h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f4e5f;
+      margin-bottom: 8px;
+    }
+    .login-box p {
+      font-size: 13px;
+      color: #6c7a89;
+      margin-bottom: 24px;
+    }
+    .login-box #googleBtn {
+      display: flex;
+      justify-content: center;
+    }
+    .login-error {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #c0392b;
+      min-height: 18px;
+    }
+    #app { display: none; }
+    #app.ready { display: block; }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
+
+  <!-- 로그인 화면 -->
+  <div id="loginScreen">
+    <div class="login-box">
       <h1>임팩트세븐 통합관리</h1>
-      <nav class="menu">
-<button class="menu-item active" onclick="showPage('staff', this)">1. 인원현황</button>
+      <p>회사 계정으로 로그인해주세요</p>
+      <div id="googleBtn"></div>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
 
-  <button class="menu-item" onclick="showPage('schedule', this)">2. 근무현황</button>
+  <!-- 메인 앱 -->
+  <div id="app">
+    <div class="layout">
+      <aside class="sidebar">
+        <h1>임팩트세븐 통합관리</h1>
+        <nav class="menu">
+          <button class="menu-item active" onclick="showPage('staff', this)">1. 인원현황</button>
+          <button class="menu-item" onclick="showPage('schedule', this)">2. 근무현황</button>
+          <button class="menu-item" onclick="showPage('paper', this)">3. 서류발급</button>
+          <button class="menu-item" onclick="showPage('vacation', this)">4. 휴가현황</button>
+          <button class="menu-item" onclick="showPage('evaluation', this)">5. 강사평가</button>
+        </nav>
+        <div class="user-info">
+          <span class="email" id="userEmail">-</span>
+          <button onclick="logout()">로그아웃</button>
+        </div>
+      </aside>
 
-        </button>
-        <button class="menu-item" onclick="showPage('paper', this)">
-          3. 서류발급
-        </button>
-        <button class="menu-item" onclick="showPage('vacation', this)">
-          4. 휴가현황
-        </button>
-        <button class="menu-item" onclick="showPage('evaluation', this)">
-          5. 강사평가
-        </button>
-      </nav>
-    </aside>
-
-    <main class="content">
-
-<iframe id="staff" src="./staff.html" class="active"></iframe>
-
-
-      <iframe id="schedule" src="./schedule.html"></iframe>
-      <iframe id="paper" src="./paper/index.html?v=201"></iframe>
-      <iframe id="vacation" src="./vacation.html"></iframe>
-      <iframe id="evaluation" src="./evaluation.html"></iframe>
-    </main>
+      <main class="content">
+        <iframe id="staff" src="" class="active" data-src="./staff.html"></iframe>
+        <iframe id="schedule" src="" data-src="./schedule.html"></iframe>
+        <iframe id="paper" src="" data-src="./paper/index.html?v=201"></iframe>
+        <iframe id="vacation" src="" data-src="./vacation.html"></iframe>
+        <iframe id="evaluation" src="" data-src="./evaluation.html"></iframe>
+      </main>
+    </div>
   </div>
 
   <script>
+    // ===== 설정 =====
+    const CLIENT_ID = '497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com';
+    const ALLOWED_EMAILS = [
+      'jon@impact7.kr',
+      'nami@impact7.kr',
+      'rachel@impact7.kr',
+      'roh@impact7.kr'
+    ];
+
+    // ===== 메뉴 전환 =====
     function showPage(id, btn) {
       document.querySelectorAll('iframe, .placeholder').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       btn.classList.add('active');
     }
+
+    // ===== 로그아웃 =====
+    function logout() {
+      sessionStorage.removeItem('userEmail');
+      location.reload();
+    }
+
+    // ===== JWT 디코딩 =====
+    function decodeJwt(token) {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(json);
+    }
+
+    // ===== Google 로그인 응답 처리 =====
+    function handleCredentialResponse(response) {
+      const payload = decodeJwt(response.credential);
+      const email = (payload.email || '').toLowerCase();
+
+      if (!ALLOWED_EMAILS.includes(email)) {
+        document.getElementById('loginError').textContent =
+          '접근 권한이 없는 계정입니다: ' + email;
+        return;
+      }
+
+      sessionStorage.setItem('userEmail', email);
+      enterApp(email);
+    }
+
+    // ===== 앱 진입 =====
+function enterApp(email) {
+  const userEl = document.getElementById('userEmail');
+  if (userEl) userEl.textContent = email;
+  
+  const loginEl = document.getElementById('loginScreen');
+  if (loginEl) loginEl.style.display = 'none';
+  
+  const appEl = document.getElementById('app');
+  if (appEl) appEl.classList.add('ready');
+
+  document.querySelectorAll('iframe[data-src]').forEach(f => {
+    f.src = f.dataset.src;
+  });
+}
+
+
+
+    // ===== Google 로그인 초기화 =====
+window.onload = function () {
+  // 로컬 테스트용 임시 우회 (GitHub push 전 이 줄 삭제)
+  if (location.protocol === 'file:') { enterApp('roh@impact7.kr'); return; }
+  
+  // 이미 로그인된 세션이 있으면 바로 진입
+  const saved = sessionStorage.getItem('userEmail');
+  if (saved && ALLOWED_EMAILS.includes(saved)) {
+    enterApp(saved);
+    return;
+  }
+
+      // 구글 GSI 스크립트 로드 대기
+      const waitGsi = setInterval(() => {
+        if (window.google && google.accounts && google.accounts.id) {
+          clearInterval(waitGsi);
+          google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: handleCredentialResponse
+          });
+          google.accounts.id.renderButton(
+            document.getElementById('googleBtn'),
+            { theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular' }
+          );
+        }
+      }, 100);
+    };
   </script>
 </body>
 </html>
