@@ -43,7 +43,6 @@
 
 <main id="main" class="hidden w-full px-6 py-4 space-y-6">
 
-
   <section>
     <div class="flex items-center gap-2 mb-2">
       <span class="text-xs font-bold px-2 py-1 rounded" style="background:#1f4e5f; color:white;">CLOSING</span>
@@ -51,16 +50,20 @@
     </div>
     <div class="card p-4">
       <div id="closingLoading" class="text-center text-slate-400 text-sm py-4">불러오는 중...</div>
-<div id="closingList" class="hidden" style="max-height: 420px; overflow-y: auto; padding-right: 8px;"></div>
-
-
+      <div id="closingList" class="hidden" style="max-height: 750px; overflow-y: auto; padding-right: 8px;"></div>
     </div>
   </section>
 
+
+
+
+
   <section>
     <div class="flex items-center gap-2 mb-2">
-      <span class="badge-week text-xs font-bold px-2 py-1 rounded">MONTHLY</span>
-      <span class="text-slate-700 font-semibold">월별 / 개인별 보기</span>
+<span class="badge-week text-xs font-bold px-2 py-1 rounded">SCHEDULE</span>
+
+<span class="text-slate-700 font-semibold">수,토 근무 일정</span>
+
     </div>
     <div class="card p-4 mb-3 flex flex-wrap gap-3 items-center">
       <div class="flex items-center gap-2">
@@ -72,7 +75,7 @@
         <select id="personSelect" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
           <option value="">전체</option>
         </select>
-        <span class="text-sm text-slate-500 ml-1">(근무자 리스트는 최근 3개월 기준)</span>
+        <span class="text-sm text-slate-500 ml-1">(월별 개인 검색은 최근 3개월 기준 입니다)</span>
       </div>
     </div>
     <div id="monthlyCards" class="space-y-3"></div>
@@ -83,6 +86,7 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbxhzagvpm_6HrL3JKxmbgKGOtqG7ao8PxJ8cfsCDSRXQdaLevlUZnm7B9JU7eYDT22wuQ/exec';
 const CLOSING_API_URL = 'https://script.google.com/macros/s/AKfycbwhiKQLlrqq1UZDD8hFk4efqmOcmBdHUXBvodkaEjKxYULgz3jS97TMDl5REhqgH14C/exec';
+
 
 let allData = [];
 let branches = [];
@@ -106,13 +110,14 @@ async function loadData() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').classList.remove('hidden');
     lucide.createIcons();
-    loadClosing();
+const CLOSING_API_URL = 'https://script.google.com/macros/s/AKfycbwhiKQLlrqq1UZDD8hFk4efqmOcmBdHUXBvodkaEjKxYULgz3jS97TMDl5REhqgH14C/exec';
+
+    loadClosing();     
   } catch (err) {
     document.getElementById('loading').textContent = '연결 오류: ' + err.message;
     console.error(err);
   }
 }
-
 async function loadClosing() {
   const loadingEl = document.getElementById('closingLoading');
   const listEl = document.getElementById('closingList');
@@ -133,17 +138,17 @@ async function loadClosing() {
     }
     listEl.innerHTML = data.map(r => {
       const d = parseDate(r.date);
-      return `
-        <div class="closing-row">
-          <div class="closing-date">
-            <div class="text-xl font-bold brand-text">${d.day}일</div>
-            <div class="text-xs text-slate-500">(${d.dow})</div>
-          </div>
-          ${closingCell('양지5', r.yangji5)}
-          ${closingCell('양지10', r.yangji10)}
-          ${closingCell('라벨라', r.labella)}
-        </div>
-      `;
+    return `
+  <div class="closing-row">
+    <div class="closing-date">
+      <div class="font-semibold brand-text">${d.day} (${d.dow})</div>
+    </div>
+    ${closingCell('양지5', r.yangji5)}
+    ${closingCell('양지10', r.yangji10)}
+    ${closingCell('라벨라', r.labella)}
+  </div>
+`;
+
     }).join('');
     loadingEl.classList.add('hidden');
     listEl.classList.remove('hidden');
@@ -264,17 +269,10 @@ function initMonthlyFilters() {
 function onPersonChange() {
   const selectedPerson = document.getElementById('personSelect').value;
   if (!selectedPerson) { renderMonthly(); return; }
+
   const monthSelect = document.getElementById('monthSelect');
-  const currentMonth = parseInt(monthSelect.value);
 
-  // 현재 선택된 월에 해당 인원의 근무일이 있는지 확인
-  const hasInCurrent = allData.some(e => {
-    const m = getMonthFromDate(e.date);
-    return m === currentMonth && entryHasPerson(e, selectedPerson);
-  });
-  if (hasInCurrent) { renderMonthly(); return; }
-
-  // 없으면 가장 최근 근무가 있는 월로 변경
+  // 선택된 인원의 근무가 있는 월들을 최신순으로
   const monthsWithPerson = [...new Set(
     allData
       .filter(e => entryHasPerson(e, selectedPerson))
