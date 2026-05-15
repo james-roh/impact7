@@ -118,14 +118,6 @@ const CLOSING_API_URL = 'https://script.google.com/macros/s/AKfycbwhiKQLlrqq1UZD
     console.error(err);
   }
 }
-  function formatTime(ts) {
-  if (!ts) return '';
-  const date = new Date(ts);
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
-}
-
 async function loadClosing() {
   const loadingEl = document.getElementById('closingLoading');
   const listEl = document.getElementById('closingList');
@@ -166,29 +158,18 @@ async function loadClosing() {
   }
 }
 
-ffunction closingCell(label, name) {
+function closingCell(label, name) {
   if (!name) {
     return `<div class="closing-cell" style="border-left-color:#e2e8f0; opacity:0.5;">
       <div class="text-xs font-semibold text-slate-500">${label}</div>
       <div class="text-sm text-slate-300">-</div>
     </div>`;
   }
-  // name이 객체인 경우 이름과 시간을 함께 표시
-  if (typeof name === 'object' && name !== null && name.name) {
-    const timeStr = formatTime(name.ts);
-    const nameWithTime = name.name + (timeStr ? ' (' + timeStr + ')' : '');
-    return `<div class="closing-cell">
-      <div class="text-xs font-semibold brand-text">${label}</div>
-      <div class="text-sm font-bold text-slate-800">${nameWithTime}</div>
-    </div>`;
-  }
-  // name이 문자열인 경우 (이전 데이터 호환성을 위해)
   return `<div class="closing-cell">
     <div class="text-xs font-semibold brand-text">${label}</div>
     <div class="text-sm font-bold text-slate-800">${name}</div>
   </div>`;
 }
-ㅊ
 
 function parseDate(s) {
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
