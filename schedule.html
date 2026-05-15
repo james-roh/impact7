@@ -180,10 +180,10 @@ function closingCell(label, data) {
   } else {
     displayName = data;
   }
+  const nameWithTime = timeStr ? `${displayName} (${timeStr})` : displayName;
   return `<div class="closing-cell">
     <div class="text-xs font-semibold brand-text">${label}</div>
-    <div class="text-sm font-bold text-slate-800">${displayName}</div>
-    ${timeStr ? `<div class="text-xs text-slate-500">${timeStr}</div>` : ''}
+    <div class="text-sm font-bold text-slate-800">${nameWithTime}</div>
   </div>`;
 }
 
