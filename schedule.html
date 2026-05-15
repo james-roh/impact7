@@ -165,11 +165,20 @@ function closingCell(label, name) {
       <div class="text-sm text-slate-300">-</div>
     </div>`;
   }
+  if (typeof name === 'object' && name !== null && name.name) {
+    const timeStr = formatTime(name.ts);
+    const nameWithTime = name.name + (timeStr ? ' (' + timeStr + ')' : '');
+    return `<div class="closing-cell">
+      <div class="text-xs font-semibold brand-text">${label}</div>
+      <div class="text-sm font-bold text-slate-800">${nameWithTime}</div>
+    </div>`;
+  }
   return `<div class="closing-cell">
     <div class="text-xs font-semibold brand-text">${label}</div>
     <div class="text-sm font-bold text-slate-800">${name}</div>
   </div>`;
 }
+
 
 function parseDate(s) {
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
