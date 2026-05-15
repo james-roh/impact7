@@ -159,19 +159,33 @@ async function loadClosing() {
   }
 }
 
-function closingCell(label, name, time) {
-  if (!name) {
+function closingCell(label, data) {
+  if (!data || (typeof data === 'object' && !data.name)) {
     return `<div class="closing-cell" style="border-left-color:#e2e8f0; opacity:0.5;">
       <div class="text-xs font-semibold text-slate-500">${label}</div>
       <div class="text-sm text-slate-300">-</div>
     </div>`;
   }
+  let displayName = '';
+  let timeStr = '';
+  if (typeof data === 'object') {
+    displayName = data.name;
+    if (data.ts) {
+      const d = new Date(data.ts);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      timeStr = hh + ':' + mm;
+    }
+  } else {
+    displayName = data;
+  }
   return `<div class="closing-cell">
     <div class="text-xs font-semibold brand-text">${label}</div>
-    <div class="text-sm font-bold text-slate-800">${name}</div>
-    <div class="text-[11px] text-slate-400 mt-1">${time || ''}</div>
+    <div class="text-sm font-bold text-slate-800">${displayName}</div>
+    ${timeStr ? `<div class="text-xs text-slate-500">${timeStr}</div>` : ''}
   </div>`;
 }
+
 
 
 function parseDate(s) {
