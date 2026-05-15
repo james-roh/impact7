@@ -143,13 +143,14 @@ async function loadClosing() {
     <div class="closing-date">
       <div class="font-semibold brand-text">${d.day} (${d.dow})</div>
     </div>
-    ${closingCell('양지5', r.yangji5)}
-    ${closingCell('양지10', r.yangji10)}
-    ${closingCell('라벨라', r.labella)}
+    ${closingCell('양지5', r.yangji5, r.yangji5Time)}
+    ${closingCell('양지10', r.yangji10, r.yangji10Time)}
+    ${closingCell('라벨라', r.labella, r.labellaTime)}
   </div>
 `;
 
     }).join('');
+
     loadingEl.classList.add('hidden');
     listEl.classList.remove('hidden');
   } catch (err) {
@@ -158,24 +159,17 @@ async function loadClosing() {
   }
 }
 
-function closingCell(label, name) {
+function closingCell(label, name, time) {
   if (!name) {
     return `<div class="closing-cell" style="border-left-color:#e2e8f0; opacity:0.5;">
       <div class="text-xs font-semibold text-slate-500">${label}</div>
       <div class="text-sm text-slate-300">-</div>
     </div>`;
   }
-  if (typeof name === 'object' && name !== null && name.name) {
-    const timeStr = formatTime(name.ts);
-    const nameWithTime = name.name + (timeStr ? ' (' + timeStr + ')' : '');
-    return `<div class="closing-cell">
-      <div class="text-xs font-semibold brand-text">${label}</div>
-      <div class="text-sm font-bold text-slate-800">${nameWithTime}</div>
-    </div>`;
-  }
   return `<div class="closing-cell">
     <div class="text-xs font-semibold brand-text">${label}</div>
     <div class="text-sm font-bold text-slate-800">${name}</div>
+    <div class="text-[11px] text-slate-400 mt-1">${time || ''}</div>
   </div>`;
 }
 
