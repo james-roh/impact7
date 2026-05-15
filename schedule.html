@@ -118,6 +118,14 @@ const CLOSING_API_URL = 'https://script.google.com/macros/s/AKfycbwhiKQLlrqq1UZD
     console.error(err);
   }
 }
+  function formatTime(ts) {
+  if (!ts) return '';
+  const date = new Date(ts);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
 async function loadClosing() {
   const loadingEl = document.getElementById('closingLoading');
   const listEl = document.getElementById('closingList');
