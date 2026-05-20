@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>수업료 환불 계산기</title>
+    <title>수강료 환불 시스템</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             background-color: #F2EFE9;
@@ -42,424 +43,201 @@
             }
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
+        /* 입력 폼 스타일 */
+        .form-group { margin-bottom: 15px; }
         .form-group label, .panel-top-title {
-            display: block;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 6px;
-            color: #222222;
-            height: 20px;
-            line-height: 20px;
+            display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #222222; height: 20px; line-height: 20px;
         }
-
-        .panel-top-title {
-            color: #2D6A4F;
-            margin-bottom: 6px;
-        }
+        .panel-top-title { color: #2D6A4F; }
 
         .input-control {
-            width: 100%;
-            padding: 11px 14px;
-            font-size: 14px;
-            border: 1px solid #DCD9D2;
-            border-radius: 12px;
-            background-color: #FFFFFF;
-            box-sizing: border-box;
-            outline: none;
-            color: #333333;
+            width: 100%; padding: 11px 14px; font-size: 14px; border: 1px solid #DCD9D2; border-radius: 12px; background-color: #FFFFFF; box-sizing: border-box; outline: none; color: #333333;
         }
 
         select.input-control {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            background-size: 14px;
+            background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
         }
 
-        .calendar-container-wrap {
-            margin-top: 26px;
-        }
-
-        .calendar-board-box {
-            background-color: #E6E2DA;
-            border-radius: 24px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .calendar-header-day {
-            font-size: 11px;
-            font-weight: bold;
-            color: #666666;
-            padding-bottom: 4px;
-        }
-
+        /* 달력 스타일 */
+        .calendar-container-wrap { margin-top: 26px; }
+        .calendar-board-box { background-color: #E6E2DA; border-radius: 24px; padding: 20px; box-sizing: border-box; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-bottom: 15px; }
+        .calendar-header-day { font-size: 11px; font-weight: bold; color: #666666; padding-bottom: 4px; }
         .calendar-cell {
-            background-color: #FFFFFF;
-            border: 2px solid transparent;
-            border-radius: 50%;
-            aspect-ratio: 1;
-            font-size: 13px;
-            font-weight: bold;
-            color: #333333;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            padding: 0;
+            background-color: #FFFFFF; border: 2px solid transparent; border-radius: 50%; aspect-ratio: 1; font-size: 13px; font-weight: bold; color: #333333; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;
         }
+        .calendar-cell.empty { background-color: transparent; cursor: default; border: none !important; }
+        .calendar-cell.academy-holiday { background-color: #E74C3C !important; border: 2px solid #C0392B !important; color: #FFFFFF !important; }
+        .calendar-cell.attended-day { background-color: #1A73E8 !important; border: 2px solid #1557B0 !important; color: #FFFFFF !important; }
 
-        .calendar-cell.empty {
-            background-color: transparent;
-            cursor: default;
-            border: none !important;
-        }
-
-        .calendar-cell.academy-holiday {
-            background-color: #E74C3C !important;
-            border: 2px solid #C0392B !important;
-            color: #FFFFFF !important;
-        }
-
-        .calendar-cell.attended-day {
-            background-color: #1A73E8 !important;
-            border: 2px solid #1557B0 !important;
-            color: #FFFFFF !important;
-        }
-
-        .radio-option-container {
-            margin-top: 30px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .radio-label {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333333;
-            cursor: pointer;
-        }
-
-        .radio-label input[type="radio"] {
-            margin-right: 8px;
-            width: 17px;
-            height: 17px;
-            cursor: pointer;
-            accent-color: #2D6A4F;
-        }
-
+        /* 하단 결과 카드 */
         .bottom-full-width-result-card {
-            grid-column: span 2; 
-            background-color: #FFFFFF;
-            border-radius: 20px;
-            padding: 25px 30px;
-            margin-top: 15px;
-            box-sizing: border-box;
-            border: 1px solid #DCD9D2;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            grid-column: span 2; background-color: #FFFFFF; border-radius: 20px; padding: 25px 30px; margin-top: 15px; border: 1px solid #DCD9D2; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         }
-
-        .result-card-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: #555555;
-            margin-bottom: 12px;
-            letter-spacing: -0.3px;
-        }
-
-        .result-card-price-display {
-            font-size: 38px;
-            font-weight: 900;
-            color: #111111;
-            line-height: 1;
-            letter-spacing: -1px;
-        }
-
+        .result-card-title { font-size: 15px; font-weight: 800; color: #555555; margin-bottom: 12px; }
+        .result-card-price-display { font-size: 38px; font-weight: 900; color: #111111; line-height: 1; letter-spacing: -1px; }
         .result-card-description {
-            font-size: 14px;
-            color: #D32F2F; 
-            margin-top: 12px;
-            font-weight: bold;
-            background-color: #FDF2F2;
-            padding: 8px 12px;
-            border-radius: 8px;
-            display: inline-block;
-        }
-
-        .action-btn-container {
-            margin-top: 15px;
-            margin-bottom: 10px;
-            display: block !important;
+            font-size: 14px; color: #D32F2F; margin-top: 12px; font-weight: bold; background-color: #FDF2F2; padding: 8px 12px; border-radius: 8px; display: inline-block;
         }
 
         .save-lock-btn {
-            background-color: #E74C3C;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 10px;
-            padding: 13px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            display: block !important;
-            transition: opacity 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .save-lock-btn:hover {
-            opacity: 0.9;
+            background-color: #E74C3C; color: #FFFFFF; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; transition: opacity 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .editor-tracker-line {
-            font-size: 14px; 
-            color: #333333;
-            text-align: right;
-            padding-top: 12px;
-            border-top: 1px dashed #C8C4BC;
-            margin-top: 12px;
-            display: block !important;
-            font-weight: bold;
+            font-size: 14px; color: #333333; text-align: right; padding-top: 12px; border-top: 1px dashed #C8C4BC; margin-top: 12px; font-weight: bold;
         }
-        .editor-tracker-line span {
-            font-weight: 800;
-            color: #2D6A4F;
+        .editor-tracker-line span { font-weight: 800; color: #2D6A4F; }
+
+        /* 🔒 로그인 오버레이 화면 디자인 */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #F0F2F5; display: none; align-items: center; justify-content: center; z-index: 10000;
         }
 
-        .system-notice-text {
-            font-size: 12px;
-            color: #666666;
-            text-align: right;
-            margin-top: 6px;
-            font-weight: 500;
-            letter-spacing: -0.3px;
+        .login-card {
+            background: white; width: 90%; max-width: 420px; padding: 50px 40px;
+            border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            text-align: center; box-sizing: border-box;
         }
 
-        /* 🌐 구글 스타일 로그인 모달 전용 디자인 */
+        .login-card h1 { font-size: 28px; font-weight: 800; color: #1f1f1f; margin: 0 0 10px 0; }
+        .login-card p { font-size: 16px; color: #70757a; margin: 0 0 40px 0; }
+
+        /* 구글 계정 카드 내부 스타일 */
         .google-modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); display: none; align-items: center; justify-content: center; z-index: 10001;
         }
-
         .google-account-card {
-            background-color: #E9EEF6;
-            width: 100%;
-            max-width: 380px;
-            border-radius: 28px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            box-sizing: border-box;
-            position: relative;
-            text-align: center;
+            background-color: #E9EEF6; width: 100%; max-width: 380px; border-radius: 28px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); box-sizing: border-box; position: relative; text-align: center;
         }
-
-        .google-card-close-btn {
-            position: absolute;
-            top: 16px; right: 16px;
-            background: none; border: none;
-            font-size: 20px; color: #444746;
-            cursor: pointer;
-        }
-
-        .google-admin-email {
-            font-size: 14px; color: #444746; font-weight: bold; margin-bottom: 2px;
-        }
-        .google-admin-subtext {
-            font-size: 11px; color: #727775; margin-bottom: 20px;
-        }
-
-        .google-main-avatar-wrapper {
-            position: relative; width: 84px; height: 84px; margin: 0 auto 12px auto;
-        }
-        .google-main-avatar {
-            width: 100%; height: 100%; border-radius: 50%; background-color: #C2E7FF;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            border: 1px solid #A8C7FA;
-        }
-        .google-main-avatar svg {
-            width: 52px; height: 52px; fill: #004a77;
-        }
-        .google-avatar-camera-icon {
-            position: absolute; bottom: 0; right: 0;
-            background-color: #FFFFFF; border-radius: 50%; width: 26px; height: 26px;
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid #C4C7C5; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .google-welcome-title {
-            font-size: 20px; font-weight: 500; color: #1f1f1f; margin-bottom: 16px;
-        }
-
-        .google-manage-btn {
-            background-color: #FFFFFF; border: 1px solid #747775; border-radius: 100px;
-            padding: 10px 24px; font-size: 14px; font-weight: 500; color: #0b57d0;
-            cursor: pointer; margin-bottom: 24px; display: inline-block; text-decoration: none;
-        }
-
-        .google-account-list-container {
-            background-color: #FFFFFF; border-radius: 20px; overflow: hidden;
-            margin-bottom: 12px; text-align: left;
-        }
-
-        .google-list-toggle-header {
-            padding: 16px; font-size: 14px; font-weight: 500; color: #1f1f1f;
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; border-bottom: 1px solid #E3E3E3;
-        }
-
-        /* 스크롤 영역 제한 추가 */
-        .google-dynamic-scroll-area {
-            max-height: 260px;
-            overflow-y: auto;
-        }
-
-        .google-account-item {
-            display: flex; align-items: center; padding: 14px 16px;
-            cursor: pointer; transition: background-color 0.2s;
-            border-bottom: 1px solid #F1F1F1;
-        }
+        .google-card-close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #444746; cursor: pointer; }
+        .google-admin-email { font-size: 14px; color: #444746; font-weight: bold; margin-bottom: 2px; }
+        .google-admin-subtext { font-size: 11px; color: #727775; margin-bottom: 20px; }
+        .google-main-avatar-wrapper { position: relative; width: 84px; height: 84px; margin: 0 auto 12px auto; }
+        .google-main-avatar { width: 100%; height: 100%; border-radius: 50%; background-color: #C2E7FF; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #A8C7FA; }
+        .google-main-avatar svg { width: 52px; height: 52px; fill: #004a77; }
+        .google-welcome-title { font-size: 20px; font-weight: 500; color: #1f1f1f; margin-bottom: 16px; }
+        .google-manage-btn { background-color: #FFFFFF; border: 1px solid #747775; border-radius: 100px; padding: 10px 24px; font-size: 14px; font-weight: 500; color: #0b57d0; cursor: pointer; margin-bottom: 24px; display: inline-block; }
+        .google-account-list-container { background-color: #FFFFFF; border-radius: 20px; overflow: hidden; margin-bottom: 12px; text-align: left; }
+        .google-list-toggle-header { padding: 16px; font-size: 14px; font-weight: 500; color: #1f1f1f; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E3E3E3; }
+        .google-dynamic-scroll-area { max-height: 220px; overflow-y: auto; }
+        .google-account-item { display: flex; align-items: center; padding: 14px 16px; cursor: pointer; border-bottom: 1px solid #F1F1F1; }
         .google-account-item:last-child { border-bottom: none; }
         .google-account-item:hover { background-color: #F8FAFD; }
-
-        .google-item-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: #FFFFFF; font-size: 13px; margin-right: 12px;
-            flex-shrink: 0;
-        }
+        .google-item-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #FFFFFF; font-size: 13px; margin-right: 12px; flex-shrink: 0; }
         .google-item-info { display: flex; flex-direction: column; min-width: 0; }
         .google-item-name { font-size: 14px; font-weight: 500; color: #1f1f1f; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .google-item-email { font-size: 12px; color: #444746; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-
-        .google-footer-action-item {
-            display: flex; align-items: center; padding: 14px 16px;
-            cursor: pointer; background-color: #FFFFFF; border-radius: 20px;
-            margin-bottom: 10px; font-size: 14px; font-weight: 500; color: #1f1f1f; text-align: left;
-        }
+        .google-footer-action-item { display: flex; align-items: center; padding: 14px 16px; cursor: pointer; background-color: #FFFFFF; border-radius: 20px; margin-bottom: 10px; font-size: 14px; font-weight: 500; color: #1f1f1f; text-align: left; }
         .google-footer-action-item:hover { background-color: #F8FAFD; }
-        .google-footer-icon {
-            width: 36px; display: flex; justify-content: center; font-size: 18px; margin-right: 12px; color: #444746;
-        }
+        .google-footer-icon { width: 36px; display: flex; justify-content: center; font-size: 18px; margin-right: 12px; color: #444746; }
 
-        .google-card-bottom-links {
-            margin-top: 15px; font-size: 11px; color: #444746;
+        /* 이미지 연동 구글 원탭 스타일 버튼 */
+        .google-login-btn {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 12px 16px; border: 1px solid #dadce0;
+            border-radius: 8px; cursor: pointer; background: white; transition: background 0.2s;
         }
-        .google-card-bottom-links span { margin: 0 5px; color: #727775; }
+        .google-login-btn:hover { background-color: #f8f9fa; }
+        .btn-user-profile { display: flex; align-items: center; gap: 12px; }
+        .profile-circle { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: #eee; }
+        .profile-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-user-info { text-align: left; }
+        .btn-user-name { display: block; font-size: 15px; font-weight: 600; color: #3c4043; line-height: 1.2; }
+        .btn-user-email { display: block; font-size: 13px; color: #70757a; line-height: 1.2; }
+        .google-icon-svg { width: 24px; height: 24px; }
     </style>
 </head>
 <body>
 
+<div id="loginOverlay">
+    <div class="login-card">
+        <h1>임팩트세븐 통합관리</h1>
+        <p>회사 계정으로 로그인해주세요</p>
+        
+        <button class="google-login-btn" onclick="openGoogleAccountChooser()">
+            <div class="btn-user-profile">
+                <div class="profile-circle">
+                    <img src="https://lh3.googleusercontent.com/a/default-user=s88-c" id="currentBtnAvatar" alt="profile">
+                </div>
+                <div class="btn-user-info">
+                    <span class="btn-user-name" id="currentBtnName">jaewon(으)로 로그인</span>
+                    <span class="btn-user-email" id="currentBtnEmail">roh@impact7.kr <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 3px;"></i></span>
+                </div>
+            </div>
+            <div class="google-icon-wrapper">
+                <svg class="google-icon-svg" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c1.47-1.35 2.31-3.33 2.31-5.32z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1.01.67-2.28 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.1c-.22-.67-.35-1.39-.35-2.1s.13-1.43.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+            </div>
+        </button>
+    </div>
+</div>
+
 <div class="google-modal-overlay" id="googleLoginModal">
     <div class="google-account-card">
         <button class="google-card-close-btn" onclick="closeGoogleModalWithWarning()">✕</button>
-        
-        <div class="google-admin-email">roh@impact7.kr</div>
+        <div class="google-admin-email" id="modalTopEmail">roh@impact7.kr</div>
         <div class="google-admin-subtext">impact7.kr에서 관리함</div>
         
         <div class="google-main-avatar-wrapper">
             <div class="google-main-avatar">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
             </div>
-            <div class="google-avatar-camera-icon">📷</div>
         </div>
 
-        <div class="google-welcome-title">안녕하세요, jaewon님.</div>
-        <button class="google-manage-btn" onclick="closeGoogleModalWithWarning()">Google 계정 관리</button>
+        <div class="google-welcome-title" id="modalWelcomeTitle">안녕하세요, jaewon님.</div>
+        <div class="google-manage-btn" onclick="closeGoogleModalWithWarning()">Google 계정 관리</div>
 
         <div class="google-account-list-container">
             <div class="google-list-toggle-header">
-                <span>계정 선택</span>
-                <span>▼</span>
+                <span>계정 선택</span><span>▼</span>
             </div>
-            
             <div class="google-dynamic-scroll-area" id="accountListBody">
                 <div class="google-account-item" onclick="verifyAndLogin('노재원', 'webnjw01@gmail.com')">
                     <div class="google-item-avatar" style="background-color: #673AB7;">재원</div>
-                    <div class="google-item-info">
-                        <span class="google-item-name">노재원</span>
-                        <span class="google-item-email">webnjw01@gmail.com</span>
-                    </div>
+                    <div class="google-item-info"><span class="google-item-name">노재원</span><span class="google-item-email">webnjw01@gmail.com</span></div>
                 </div>
-
                 <div class="google-account-item" onclick="verifyAndLogin('임팩트', 'admin@impact7.kr')">
                     <div class="google-item-avatar" style="background-color: #009688;">임</div>
-                    <div class="google-item-info">
-                        <span class="google-item-name">임팩트</span>
-                        <span class="google-item-email">admin@impact7.kr</span>
-                    </div>
+                    <div class="google-item-info"><span class="google-item-name">임팩트</span><span class="google-item-email">admin@impact7.kr</span></div>
                 </div>
-
                 <div class="google-account-item" onclick="verifyAndLogin('임팩트7', 'impact7eng@gmail.com')">
                     <div class="google-item-avatar" style="background-color: #FF5722;">임7</div>
-                    <div class="google-item-info">
-                        <span class="google-item-name">임팩트7</span>
-                        <span class="google-item-email">impact7eng@gmail.com</span>
-                    </div>
+                    <div class="google-item-info"><span class="google-item-name">임팩트7</span><span class="google-item-email">impact7eng@gmail.com</span></div>
                 </div>
-
                 <div class="google-account-item" onclick="verifyAndLogin('Jae Won Roh', 'webnjw@gmail.com')">
                     <div class="google-item-avatar" style="background-color: #3F51B5;">J</div>
-                    <div class="google-item-info">
-                        <span class="google-item-name">Jae Won Roh</span>
-                        <span class="google-item-email">webnjw@gmail.com</span>
-                    </div>
+                    <div class="google-item-info"><span class="google-item-name">Jae Won Roh</span><span class="google-item-email">webnjw@gmail.com</span></div>
                 </div>
-
                 <div class="google-account-item" onclick="verifyAndLogin('impact7 aca', 'impact7tax@gmail.com')">
                     <div class="google-item-avatar" style="background-color: #E91E63;">i</div>
-                    <div class="google-item-info">
-                        <span class="google-item-name">impact7 aca</span>
-                        <span class="google-item-email">impact7tax@gmail.com</span>
-                    </div>
+                    <div class="google-item-info"><span class="google-item-name">impact7 aca</span><span class="google-item-email">impact7tax@gmail.com</span></div>
                 </div>
             </div>
         </div>
 
         <div class="google-footer-action-item" onclick="promptCustomUserWithoutName()">
-            <div class="google-footer-icon">＋</div>
-            <span>다른 계정 추가</span>
+            <div class="google-footer-icon">＋</div><span>다른 계정 추가</span>
         </div>
-
         <div class="google-footer-action-item" onclick="executeClearSession()">
-            <div class="google-footer-icon">➔</div>
-            <span>모든 계정에서 로그아웃</span>
-        </div>
-
-        <div class="google-card-bottom-links">
-            개인정보처리방침 <span>•</span> 서비스 약관
+            <div class="google-footer-icon">➔</div><span>모든 계정에서 로그아웃</span>
         </div>
     </div>
 </div>
 
-
 <div class="main-container">
-    <div class="main-system-title">수업료 환불 계산기</div>
+    <div class="main-system-title">수강료 환불</div>
 
     <div class="app-layout-grid">
-        <div class="left-form-panel" id="leftFormWrapper">
+        <div class="left-form-panel">
             <div class="form-group">
                 <label>기준 월 선택</label>
                 <input type="month" id="targetMonth" class="input-control" value="2026-05" onchange="renderCalendarCoreSystem()">
@@ -480,7 +258,7 @@
                 <select id="tuitionType" class="input-control" onchange="handleTuitionSelectEvent()">
                     <option value="">선택하세요</option>
                 </select>
-                <input type="number" id="tuitionInput" class="input-control" placeholder="수강료 금액을 직접 입력하세요 (원)" style="display: none; margin-top: 10px;" onblur="handleTuitionInputBlurEvent()">
+                <input type="number" id="tuitionInput" class="input-control" placeholder="금액 직접 입력 (원)" style="display: none; margin-top: 10px;" onblur="handleTuitionInputBlurEvent()">
             </div>
 
             <div class="form-group">
@@ -504,7 +282,7 @@
             
             <div class="form-group">
                 <label>소계</label>
-                <input type="text" id="finalSubtotalDisplay" class="input-control" placeholder="수강료 선택 후 달력에서 실제 등원일을 클릭하세요" readonly style="font-weight: bold; color: #D32F2F; background-color: #FAFAFA;" oninput="handleManualSubtotalInput()">
+                <input type="text" id="finalSubtotalDisplay" class="input-control" placeholder="달력에서 실제 등원일을 클릭하세요" readonly style="font-weight: bold; color: #D32F2F; background-color: #FAFAFA;" oninput="handleManualSubtotalInput()">
             </div>
 
             <div class="radio-option-container">
@@ -519,23 +297,14 @@
             </div>
         </div>
 
-        <div class="right-calendar-panel" id="rightCalendarWrapper" style="display: block !important;">
-            <div class="panel-top-title" id="dynamicCalendarTitle">수업시수 설정 (등원일 선택)</div>
-            
+        <div class="right-calendar-panel">
+            <div class="panel-top-title">수업시수 설정 (등원일 선택)</div>
             <div class="calendar-container-wrap">
                 <div class="calendar-board-box">
                     <div class="calendar-grid" id="calendarGridBox"></div>
-                    
-                    <div class="action-btn-container" id="fixedActionBtnArea">
-                        <button id="calendarLockBtn" class="save-lock-btn" onclick="executeSettingSaveAlert()">설정 수정하기(수업 시수만 해당)</button>
-                    </div>
-
-                    <div class="editor-tracker-line" id="fixedTrackerArea">
+                    <button class="save-lock-btn" onclick="executeSettingSaveAlert()">설정 수정하기(수업 시수만 해당)</button>
+                    <div class="editor-tracker-line">
                         최종 수정자: <span id="lastEditorDisplay">roh</span>
-                    </div>
-                    
-                    <div class="system-notice-text">
-                        월별 수업 시수는 누구라도 수정 및 저장이 가능 합니다.
                     </div>
                 </div>
             </div>
@@ -544,56 +313,35 @@
         <div class="bottom-full-width-result-card">
             <div class="result-card-title">최종 환불금액</div>
             <div class="result-card-price-display" id="grandFinalRefundDisplay">0 원</div>
-            <div class="result-card-description" id="refundLawDescription">기본 수강료 정보를 먼저 입력해 주세요.</div>
+            <div class="result-card-description" id="refundLawDescription">기본 정보를 먼저 입력해 주세요.</div>
         </div>
     </div>
 </div>
 
 <script>
-    const fixedHolidaysDB = {
-        "2026-05": [1, 2, 5, 25],
-        "2026-06": [6],
-        "2026-07": []
-    };
-
+    const fixedHolidaysDB = { "2026-05": [1, 2, 5, 25], "2026-06": [6] };
     const tuitionFeeDB = {
-        elem: [
-            { text: "350,000 원", value: "350000" },
-            { text: "315,000 원 (형제할인)", value: "315000" },
-            { text: "직접 입력", value: "custom" }
-        ],
-        mid: [
-            { text: "400,000 원", value: "400000" },
-            { text: "360,000 원 (형제할인)", value: "360000" },
-            { text: "직접 입력", value: "custom" }
-        ],
-        high: [
-            { text: "420,000 원", value: "420000" },
-            { text: "378,000 원 (형제할인1)", value: "378000" },
-            { text: "400,000 원 (장기수강할인)", value: "400000" },
-            { text: "360,000 원 (형제할인2)", value: "360000" },
-            { text: "직접 입력", value: "custom" }
-        ]
+        elem: [{ text: "350,000 원", value: "350000" }, { text: "315,000 원 (형제할인)", value: "315000" }, { text: "직접 입력", value: "custom" }],
+        mid: [{ text: "400,000 원", value: "400000" }, { text: "360,000 원 (형제할인)", value: "360000" }, { text: "직접 입력", value: "custom" }],
+        high: [{ text: "420,000 원", value: "420000" }, { text: "378,000 원 (형제할인1)", value: "378000" }, { text: "400,000 원 (장기수강할인)", value: "400000" }, { text: "360,000 원 (형제할인2)", value: "360000" }, { text: "직접 입력", value: "custom" }]
     };
 
-    let currentLoggedId = "roh";
+    let currentLoggedId = "jaewon";
+    let lastActiveEmail = "roh@impact7.kr";
 
     window.onload = function() {
+        loadSavedCustomAccounts();
+        checkLoginState();
         renderCalendarCoreSystem();
-        loadSavedCustomAccounts(); // 저장된 커스텀 계정 먼저 불러오기
-        checkLoginStateSystem();
     };
 
-    // 🔄 스토리지에서 수동 추가된 회사 계정 목록을 파싱해 화면에 먼저 추가하는 로직
     function loadSavedCustomAccounts() {
         const storedList = localStorage.getItem('customImpactAccounts');
         if (!storedList) return;
-
         const accounts = JSON.parse(storedList);
         const container = document.getElementById('accountListBody');
-
         accounts.forEach(acc => {
-            // 이미 하드코딩된 목록에 없는 경우에만 추가 노출
+            if ([...container.querySelectorAll('.google-item-email')].some(el => el.innerText === acc.email)) return;
             const div = document.createElement('div');
             div.className = 'google-account-item';
             div.setAttribute('onclick', `verifyAndLogin('${acc.name}', '${acc.email}')`);
@@ -608,15 +356,31 @@
         });
     }
 
-    function checkLoginStateSystem() {
+    function checkLoginState() {
         const savedUser = localStorage.getItem('refundSystemUser');
+        const savedEmail = localStorage.getItem('refundSystemEmail') || "roh@impact7.kr";
+        
+        lastActiveEmail = savedEmail;
+        currentLoggedId = savedUser || savedEmail.split('@')[0];
+
+        // 메인 로그인 원탭 버튼의 텍스트와 이메일 갱신 동적 바인딩
+        document.getElementById('currentBtnName').innerText = `${currentLoggedId}(으)로 로그인`;
+        document.getElementById('currentBtnEmail').innerHTML = `${lastActiveEmail} <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 3px;"></i>`;
+        
+        // 내부 모달 데이터 매칭
+        document.getElementById('modalTopEmail').innerText = lastActiveEmail;
+        document.getElementById('modalWelcomeTitle').innerText = `안녕하세요, ${currentLoggedId}님.`;
+
         if (savedUser) {
-            currentLoggedId = savedUser;
-            document.getElementById('lastEditorDisplay').innerText = currentLoggedId;
-            document.getElementById('googleLoginModal').style.display = 'none';
+            document.getElementById('lastEditorDisplay').innerText = savedUser;
+            document.getElementById('loginOverlay').style.display = 'none';
         } else {
-            document.getElementById('googleLoginModal').style.display = 'flex';
+            document.getElementById('loginOverlay').style.display = 'flex';
         }
+    }
+
+    function openGoogleAccountChooser() {
+        document.getElementById('googleLoginModal').style.display = 'flex';
     }
 
     function verifyAndLogin(userName, userEmail) {
@@ -624,44 +388,38 @@
             alert("⚠️ 로그인 권한 오류!\n해당 시스템은 @impact7.kr 회사 전용 이메일 계정으로만 접근이 가능합니다.");
             return;
         }
-
         localStorage.setItem('refundSystemUser', userName);
+        localStorage.setItem('refundSystemEmail', userEmail);
         currentLoggedId = userName;
         document.getElementById('lastEditorDisplay').innerText = currentLoggedId;
         document.getElementById('googleLoginModal').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'none';
+        checkLoginState();
     }
 
-    // 🔒 [수정] 이름을 묻지 않고 이메일 아이디 파싱 및 다음 로그인에 노출하도록 자동 저장
     function promptCustomUserWithoutName() {
         let customEmail = prompt("로그인할 사용자의 회사 이메일 주소를 입력하세요:", "username@impact7.kr");
         if (!customEmail) return;
-
         customEmail = customEmail.trim();
         if (!customEmail.endsWith('@impact7.kr')) {
             alert("⚠️ 차단됨: 오직 @impact7.kr 메일 형식을 갖춘 계정만 등록 및 로그인이 가능합니다.");
             return;
         }
 
-        // 이메일에서 @ 앞부분을 자동으로 추출하여 별명(이름)으로 사용합니다.
         let extractedName = customEmail.split('@')[0];
-
-        // 새로운 커스텀 계정 영구 리스트 데이터 배열에 세팅
         let currentStored = localStorage.getItem('customImpactAccounts');
         let accountArray = currentStored ? JSON.parse(currentStored) : [];
         
-        // 중복 추가 방지 검증
         if(!accountArray.some(e => e.email === customEmail)) {
             accountArray.push({ name: extractedName, email: customEmail });
             localStorage.setItem('customImpactAccounts', JSON.stringify(accountArray));
         }
-
-        // 검증 및 즉시 로그인 처리 완료
         verifyAndLogin(extractedName, customEmail);
     }
 
     function closeGoogleModalWithWarning() {
         if (!localStorage.getItem('refundSystemUser')) {
-            alert("🔒 시스템을 이용하시려면 목록 중 [@impact7.kr] 규정 승인 계정을 선택하여 인증해야 합니다.");
+            document.getElementById('googleLoginModal').style.display = 'none';
         } else {
             document.getElementById('googleLoginModal').style.display = 'none';
         }
@@ -669,6 +427,7 @@
 
     function executeClearSession() {
         localStorage.removeItem('refundSystemUser');
+        localStorage.removeItem('refundSystemEmail');
         alert("모든 계정 세션이 안전하게 해제되었습니다. 페이지를 새로고침합니다.");
         location.reload();
     }
@@ -676,38 +435,22 @@
     function updateTuitionDropdownOptions() {
         const school = document.getElementById('schoolType').value;
         const tuitionSelect = document.getElementById('tuitionType');
-        const tuitionInput = document.getElementById('tuitionInput');
-        
-        tuitionSelect.style.display = 'block';
-        tuitionInput.style.display = 'none';
-        tuitionInput.value = '';
-
-        if (!school) {
-            tuitionSelect.innerHTML = '<option value="">선택하세요</option>';
-            calculateRefundSystemLogic();
-            return;
-        }
-
+        if (!school) return;
         tuitionSelect.innerHTML = '';
         tuitionFeeDB[school].forEach((item, idx) => {
             const opt = document.createElement('option');
-            opt.value = item.value;
-            opt.innerText = item.text;
+            opt.value = item.value; opt.innerText = item.text;
             if(idx === 0) opt.selected = true;
             tuitionSelect.appendChild(opt);
         });
-        
         calculateRefundSystemLogic();
     }
 
     function handleTuitionSelectEvent() {
         const selectEl = document.getElementById('tuitionType');
         const inputEl = document.getElementById('tuitionInput');
-        
         if (selectEl.value === 'custom') {
-            selectEl.style.display = 'none';
-            inputEl.style.display = 'block';
-            inputEl.focus();
+            selectEl.style.display = 'none'; inputEl.style.display = 'block'; inputEl.focus();
         }
         calculateRefundSystemLogic();
     }
@@ -715,196 +458,106 @@
     function handleTuitionInputBlurEvent() {
         const selectEl = document.getElementById('tuitionType');
         const inputEl = document.getElementById('tuitionInput');
-        
         if (!inputEl.value.trim()) {
-            inputEl.style.display = 'none';
-            selectEl.style.display = 'block';
-            selectEl.value = selectEl.options[0].value;
+            inputEl.style.display = 'none'; selectEl.style.display = 'block'; selectEl.value = selectEl.options[0].value;
         }
         calculateRefundSystemLogic();
     }
 
     function renderCalendarCoreSystem() {
         const monthVal = document.getElementById('targetMonth').value;
-        if (!monthVal) return;
-
         const [year, month] = monthVal.split('-').map(Number);
         const firstDayIdx = new Date(year, month - 1, 1).getDay();
         const lastDateNum = new Date(year, month, 0).getDate();
         const gridBox = document.getElementById('calendarGridBox');
-        
-        if (!gridBox) return;
         gridBox.innerHTML = '';
-
         const baseHolidays = fixedHolidaysDB[monthVal] || [];
 
         ['일', '월', '화', '수', '목', '금', '토'].forEach(d => {
-            const h = document.createElement('div');
-            h.className = 'calendar-header-day';
-            h.innerText = d;
-            gridBox.appendChild(h);
+            const h = document.createElement('div'); h.className = 'calendar-header-day'; h.innerText = d; gridBox.appendChild(h);
         });
 
         for (let i = 0; i < firstDayIdx; i++) {
-            const emp = document.createElement('div');
-            emp.className = 'calendar-cell empty';
-            gridBox.appendChild(emp);
+            const emp = document.createElement('div'); emp.className = 'calendar-cell empty'; gridBox.appendChild(emp);
         }
 
         for (let date = 1; date <= lastDateNum; date++) {
             const btn = document.createElement('button');
-            btn.className = 'calendar-cell';
-            btn.innerText = date;
-
-            if (baseHolidays.includes(date)) {
-                btn.classList.add('academy-holiday');
-            }
-
-            btn.onclick = function() {
-                this.classList.toggle('attended-day');
-                calculateRefundSystemLogic();
-            };
-
+            btn.className = 'calendar-cell'; btn.innerText = date;
+            if (baseHolidays.includes(date)) btn.classList.add('academy-holiday');
+            btn.onclick = function() { this.classList.toggle('attended-day'); calculateRefundSystemLogic(); };
             gridBox.appendChild(btn);
         }
-
         calculateRefundSystemLogic();
     }
 
     function handleCalculationModeChange() {
         const isCustomMode = document.getElementById('modeCustom').checked;
         const subtotalInput = document.getElementById('finalSubtotalDisplay');
-        const descDisplay = document.getElementById('refundLawDescription');
-        
         if (isCustomMode) {
-            subtotalInput.readOnly = false;
-            subtotalInput.style.backgroundColor = '#FFFFFF';
-            subtotalInput.value = '';
-            subtotalInput.placeholder = '원하는 환불 수수료/금액 직접 타이핑 입력 (원)';
-            
+            subtotalInput.readOnly = false; subtotalInput.style.backgroundColor = '#FFFFFF'; subtotalInput.value = '';
             document.getElementById('grandFinalRefundDisplay').innerText = '0 원';
-            descDisplay.innerText = '원장님이 직접 입력하신 금액 그대로 정산됩니다. (직접 입력 모드)';
-            subtotalInput.focus();
+            document.getElementById('refundLawDescription').innerText = '직접 입력 모드입니다.';
         } else {
-            subtotalInput.readOnly = true;
-            subtotalInput.style.backgroundColor = '#FAFAFA';
+            subtotalInput.readOnly = true; subtotalInput.style.backgroundColor = '#FAFAFA';
             calculateRefundSystemLogic();
         }
     }
 
     function handleManualSubtotalInput() {
-        const isCustomMode = document.getElementById('modeCustom').checked;
-        if (!isCustomMode) return;
-
+        if (!document.getElementById('modeCustom').checked) return;
         const subtotalInput = document.getElementById('finalSubtotalDisplay').value;
         const cleanNum = parseFloat(subtotalInput.replace(/[^0-9]/g, ''));
-        
-        if (!isNaN(cleanNum)) {
-            document.getElementById('grandFinalRefundDisplay').innerText = `${cleanNum.toLocaleString()} 원`;
-        } else {
-            document.getElementById('grandFinalRefundDisplay').innerText = '0 원';
-        }
+        document.getElementById('grandFinalRefundDisplay').innerText = isNaN(cleanNum) ? '0 원' : `${cleanNum.toLocaleString()} 원`;
     }
 
     function calculateRefundSystemLogic() {
         const isCustomMode = document.getElementById('modeCustom').checked;
-
         const monthVal = document.getElementById('targetMonth').value;
-        if (!monthVal) return;
-        
         const [year, month] = monthVal.split('-').map(Number);
         const daysInMonth = new Date(year, month, 0).getDate(); 
-
         const baseHolidays = fixedHolidaysDB[monthVal] || [];
         const pattern = document.getElementById('lessonDaysPattern').value;
 
-        let targetLessonDaysCount = 0;
-
-        if (pattern === 'once-week') {
-            targetLessonDaysCount = 4;
-        } else {
+        let targetLessonDaysCount = (pattern === 'once-week') ? 4 : 0;
+        if (pattern !== 'once-week') {
             for (let d = 1; d <= daysInMonth; d++) {
                 const dayOfWeek = new Date(year, month - 1, d).getDay();
-                if (dayOfWeek === 0 || dayOfWeek === 6) continue;
-                if (baseHolidays.includes(d)) continue;
-
-                if (pattern === 'mon-fri' && (dayOfWeek === 1 || dayOfWeek === 5)) {
-                    targetLessonDaysCount++;
-                }
-                if (pattern === 'tue-thu' && (dayOfWeek === 2 || dayOfWeek === 4)) {
-                    targetLessonDaysCount++;
-                }
+                if (dayOfWeek === 0 || dayOfWeek === 6 || baseHolidays.includes(d)) continue;
+                if ((pattern === 'mon-fri' && (dayOfWeek === 1 || dayOfWeek === 5)) || (pattern === 'tue-thu' && (dayOfWeek === 2 || dayOfWeek === 4))) targetLessonDaysCount++;
             }
         }
 
         const selectCount = document.querySelectorAll('.calendar-cell.attended-day').length;
-        const displayEl = document.getElementById('actualAttendanceDisplay');
-        
-        const selectTuition = document.getElementById('tuitionType').value;
-        const inputTuition = document.getElementById('tuitionInput').value;
         const isCustom = document.getElementById('tuitionType').style.display === 'none';
-        let baseTuitionPrice = isCustom ? parseFloat(inputTuition) : parseFloat(selectTuition);
+        let baseTuitionPrice = isCustom ? parseFloat(document.getElementById('tuitionInput').value) : parseFloat(document.getElementById('tuitionType').value);
         
-        const perLessonDisplay = document.getElementById('perLessonPriceDisplay');
-        const subtotalDisplay = document.getElementById('finalSubtotalDisplay');
-        const grandDisplay = document.getElementById('grandFinalRefundDisplay');
-        const descDisplay = document.getElementById('refundLawDescription');
-
-        if (!baseTuitionPrice || isNaN(baseTuitionPrice)) {
-            if (perLessonDisplay) perLessonDisplay.value = '0 원';
-            if (displayEl) displayEl.value = '0일 (0 원)';
-            if (subtotalDisplay && !isCustomMode) subtotalDisplay.value = '수강료를 먼저 선택/입력해주세요.';
-            grandDisplay.innerText = '0 원';
-            descDisplay.innerText = '기본 수강료 정보를 먼저 입력해 주세요.';
-            return;
-        }
+        if (!baseTuitionPrice || isNaN(baseTuitionPrice)) return;
 
         let perLessonAmount = targetLessonDaysCount > 0 ? Math.round(baseTuitionPrice / targetLessonDaysCount) : 0;
-        if (perLessonDisplay) {
-            perLessonDisplay.value = `${perLessonAmount.toLocaleString()} 원 (${targetLessonDaysCount}회 기준)`;
-        }
-
-        let realAttendedTotalPrice = perLessonAmount * selectCount;
-        if (displayEl) {
-            displayEl.value = `${selectCount}일 (${realAttendedTotalPrice.toLocaleString()} 원)`;
-        }
-
-        let initialSubtotal = baseTuitionPrice - realAttendedTotalPrice;
-        if (initialSubtotal < 0) initialSubtotal = 0;
+        document.getElementById('perLessonPriceDisplay').value = `${perLessonAmount.toLocaleString()} 원 (${targetLessonDaysCount}회 기준)`;
+        document.getElementById('actualAttendanceDisplay').value = `${selectCount}일 (${(perLessonAmount * selectCount).toLocaleString()} 원)`;
 
         if (!isCustomMode) {
-            if (subtotalDisplay) {
-                subtotalDisplay.value = `${initialSubtotal.toLocaleString()} 원`;
-            }
+            let initialSubtotal = Math.max(0, baseTuitionPrice - (perLessonAmount * selectCount));
+            document.getElementById('finalSubtotalDisplay').value = `${initialSubtotal.toLocaleString()} 원`;
 
-            let finalRefundAmount = 0;
-            let statusText = "";
-
+            let finalRefundAmount = 0; let statusText = "";
             if (selectCount === 0) {
-                finalRefundAmount = baseTuitionPrice;
-                statusText = "⚖️ 학원법 조건: 교습 시작 전 (이미 납부한 수강료 전액 100% 환불)";
+                finalRefundAmount = baseTuitionPrice; statusText = "⚖️ 학원법: 교습 시작 전 (100% 환불)";
             } else {
                 let progressRatio = selectCount / targetLessonDaysCount;
-
-                if (progressRatio <= 1/3) {
-                    finalRefundAmount = Math.round(baseTuitionPrice * (2/3));
-                    statusText = `⚖️ 학원법 조건: 총 교습시간의 1/3 경과 전 (수강료의 2/3 해당액 환불 / 출석률: ${(progressRatio*100).toFixed(1)}%)`;
-                } else if (progressRatio <= 1/2) {
-                    finalRefundAmount = Math.round(baseTuitionPrice * (1/2));
-                    statusText = `⚖️ 학원법 조건: 총 교습시간의 1/2 경과 전 (수강료의 1/2 해당액 환불 / 출석률: ${(progressRatio*100).toFixed(1)}%)`;
-                } else {
-                    finalRefundAmount = 0;
-                    statusText = `⚖️ 학원법 조건: 총 교습시간의 1/2 경과 후 (환불 금액 없음 / 출석률: ${(progressRatio*100).toFixed(1)}%)`;
-                }
+                if (progressRatio <= 1/3) { finalRefundAmount = Math.round(baseTuitionPrice * (2/3)); statusText = "⚖️ 학원법: 1/3 경과 전 (2/3 환불)"; }
+                else if (progressRatio <= 1/2) { finalRefundAmount = Math.round(baseTuitionPrice * (1/2)); statusText = "⚖️ 학원법: 1/2 경과 전 (1/2 환불)"; }
+                else { finalRefundAmount = 0; statusText = "⚖️ 학원법: 1/2 경과 후 (환불 불가)"; }
             }
-
-            grandDisplay.innerText = `${finalRefundAmount.toLocaleString()} 원`;
-            descDisplay.innerText = statusText;
+            document.getElementById('grandFinalRefundDisplay').innerText = `${finalRefundAmount.toLocaleString()} 원`;
+            document.getElementById('refundLawDescription').innerText = statusText;
         }
     }
 
     function executeSettingSaveAlert() {
-        alert(`현재 수업 시수 및 등원일 설정 사항이 [최종 수정자: ${currentLoggedId}] 명의로 학원 시스템 데이터베이스에 정상 고정 반영되었습니다.`);
+        alert(`설정 사항이 [최종 수정자: ${currentLoggedId}] 명의로 저장되었습니다.`);
     }
 </script>
 </body>
