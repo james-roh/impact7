@@ -316,6 +316,14 @@
                 </div>
             </div>
 
+            <div class="form-group" id="vocaGroupWrap" style="display: none;">
+                <label>보카교재 선택</label>
+                <select id="vocaBookType" class="input-control" onchange="calculateMainSystemLogic()">
+                    <option value="impact">임팩트보카 (8,000원)</option>
+                    <option value="prep">싹쓰리 Prep (10,000원)</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>진단평가 응시료 설정</label>
                 <div class="radio-group-wrap">
@@ -463,6 +471,17 @@
     }
 
     function handleSchoolTypeChangeEvent() {
+        const school = document.getElementById('schoolType').value;
+        const vocaWrap = document.getElementById('vocaGroupWrap');
+        
+        // 중등 선택 시 보카 선택 상자 노출 및 초기화
+        if (school === 'mid') {
+            vocaWrap.style.display = 'block';
+            document.getElementById('vocaBookType').value = 'impact';
+        } else {
+            vocaWrap.style.display = 'none';
+        }
+
         updateTuitionDropdownOptions();
         updateAttendanceTimeOptions();
         updateLessonDaysOptions();
@@ -692,9 +711,22 @@
         let customBookListText = "";
         let totalBookPrice = 0;
 
-        if (school === 'elem' || school === 'mid') {
+        if (school === 'elem') {
             customBookListText = `▶어휘 텍스트북: 임팩트 보카 8,000원 \n▶어휘 워크북: 6,000원\n▶숙어 워크북: 6,000원\n▶숙어 텍스트북: 4,000원\n▶영작 워크북: 6,000원\n▶영작 텍스트북: 4,000원\n▶써머리노트: 5,000원`;
             totalBookPrice = 8000 + 6000 + 6000 + 4000 + 6000 + 4000 + 5000; 
+        } else if (school === 'mid') {
+            // 중등부 보카 선택값에 따른 분기 처리
+            const vocaType = document.getElementById('vocaBookType').value;
+            let vocaName = "임팩트 보카";
+            let vocaPrice = 8000;
+            
+            if (vocaType === 'prep') {
+                vocaName = "싹쓰리 Prep";
+                vocaPrice = 10000;
+            }
+
+            customBookListText = `▶어휘 텍스트북: ${vocaName} ${vocaPrice.toLocaleString()}원 \n▶어휘 워크북: 6,000원\n▶숙어 워크북: 6,000원\n▶숙어 텍스트북: 4,000원\n▶영작 워크북: 6,000원\n▶영작 텍스트북: 4,000원\n▶써머리노트: 5,000원`;
+            totalBookPrice = vocaPrice + 6000 + 6000 + 4000 + 6000 + 4000 + 5000; 
         } else if (school === 'high') {
             const upperClassName = className.toUpperCase();
             if (upperClassName.includes('HA')) {
@@ -832,7 +864,6 @@
 
         let finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원)${testFeeOption === 'deduct' ? ' - 진단평가 응시료(20,000원)' : ''} = ${totalPriceCalculated.toLocaleString()}원`;
 
-        // 🌟 '정규:' 텍스트가 제거된 안내문 템플릿
         const templateText = `■ 임팩트7 영어학원 입학 안내 ■ 
   
 신규 입학을 축하드리며, 믿고 맡겨주신 신뢰에 보답하고자 정성을 다하여 지도하겠습니다.
