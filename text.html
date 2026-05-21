@@ -286,7 +286,7 @@
 
             <div class="form-group">
                 <label>반명</label>
-                <input type="text" id="classNameInput" class="input-control" placeholder="반명을 입력하세요 (예: AX102)" oninput="calculateMainSystemLogic()">
+                <input type="text" id="classNameInput" class="input-control" placeholder="정규반명 또는 정규반 / 내신(학교) 입력 (예: AX102 / 목동고)" oninput="calculateMainSystemLogic()">
             </div>
 
             <div class="form-group">
@@ -619,7 +619,7 @@
 
             if (baseHolidays.includes(date)) {
                 btn.classList.add('academy-holiday');
-            } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+            } else if (dayOfWeek === 0) { 
                 btn.classList.add('weekend-disabled');
             }
             
@@ -664,7 +664,6 @@
         const school = document.getElementById('schoolType').value;
         const className = document.getElementById('classNameInput').value || "";
 
-        // 1. 캠퍼스 구분 및 주소/계좌 매칭 데이터 정의
         const campusKey = getCampusKeyByRule(school, className);
         
         const addressMap = {
@@ -681,7 +680,6 @@
         };
         const finalAccountInfo = accountMap[campusKey];
 
-        // 2. 캠퍼스별 교재 구입처 템플릿 처리 (양지10의 경우 문구를 완전히 제거)
         let bookStoreSectionText = "";
         if (campusKey === 'yangji5') {
             bookStoreSectionText = `※교재구입처: \`칸트의 시간\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 칸트의 시간 : 02-2646-1242 (현대월드타워 지하 1층)\n`;
@@ -691,7 +689,6 @@
             bookStoreSectionText = ""; 
         }
 
-        // 3. 학부 및 반명에 따른 3-2 자체교재 목록 및 교재비 합계 판별
         let customBookListText = "";
         let totalBookPrice = 0;
 
@@ -734,7 +731,6 @@
         }
         let displayTimeText = rawTimeText ? `${rawTimeText}~` : "[시간 선택 필요]";
 
-        // 수강료 가져오기 및 포맷 고도화 (금액 원 (항목명) 형태로 매칭)
         const tuitionSelect = document.getElementById('tuitionType');
         const isTuitionCustom = (tuitionSelect.value === 'custom');
         let rawPrice = 0;
@@ -744,8 +740,6 @@
             rawPrice = parseFloat(document.getElementById('tuitionInput').value);
             const customName = document.getElementById('tuitionNameInput').value.trim();
             const formattedPrice = rawPrice ? `${rawPrice.toLocaleString()} 원` : "0 원";
-            
-            // 핵심 수정: 기존 고정 항목들과 완전히 같게 '금액 원 (항목명)' 구조로 통일화
             baseTuitionText = customName ? `${formattedPrice} (${customName})` : formattedPrice;
         } else {
             rawPrice = parseFloat(tuitionSelect.value);
@@ -761,7 +755,7 @@
         let totalMonthLessonsCount = 0; 
         for (let d = 1; d <= daysInMonth; d++) {
             const dayOfWeek = new Date(year, month - 1, d).getDay();
-            if (dayOfWeek === 0 || dayOfWeek === 6 || baseHolidays.includes(d)) continue;
+            if (dayOfWeek === 0 || baseHolidays.includes(d)) continue; 
             if (activeDays.includes(dayOfWeek)) {
                 totalMonthLessonsCount++;
             }
@@ -778,7 +772,7 @@
                 if (!targetCell) continue;
 
                 const dayOfWeek = new Date(year, month - 1, d).getDay();
-                const isHolidayOrWeekend = (dayOfWeek === 0 || dayOfWeek === 6 || baseHolidays.includes(d));
+                const isHolidayOrWeekend = (dayOfWeek === 0 || baseHolidays.includes(d)); 
 
                 if (d === selectedStartDate) {
                     targetCell.classList.add('start-day');
@@ -818,23 +812,27 @@
         
         let otTimeLine = calculateOtTime(school, rawTimeText);
 
-        // 1-2 OT 동영상 파트 조건 분기 (고등부는 보이지 않음)
         let otVideoSectionText = "";
         if (school !== 'high') {
             otVideoSectionText = `\n1-2 OT 동영상 (신규생 필수 시청)\n▶신규생이 등원전에 반드시 시청해야 할 동영상 링크\n▶go.impact7.kr/orientation\n`;
         }
 
         const testFeeOption = document.querySelector('input[name="testFeeOption"]:checked').value;
-        let finalCalculatedTuitionText = "";
+        let totalPriceCalculated = 0;
         
         if (testFeeOption === 'deduct') {
-            const totalPriceCalculated = finalAttendedPrice + totalBookPrice - 20000;
-            finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원) - 진단평가 응시료(20,000원) = ${totalPriceCalculated.toLocaleString()}원`;
+            totalPriceCalculated = finalAttendedPrice + totalBookPrice - 20000;
         } else {
-            const totalPriceCalculated = finalAttendedPrice + totalBookPrice;
-            finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원) = ${totalPriceCalculated.toLocaleString()}원`;
+            totalPriceCalculated = finalAttendedPrice + totalBookPrice;
         }
 
+        if (totalPriceCalculated > 0) {
+            totalPriceCalculated = Math.floor(totalPriceCalculated / 1000) * 1000;
+        }
+
+        let finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원)${testFeeOption === 'deduct' ? ' - 진단평가 응시료(20,000원)' : ''} = ${totalPriceCalculated.toLocaleString()}원`;
+
+        // 🌟 '정규:' 텍스트가 제거된 안내문 템플릿
         const templateText = `■ 임팩트7 영어학원 입학 안내 ■ 
   
 신규 입학을 축하드리며, 믿고 맡겨주신 신뢰에 보답하고자 정성을 다하여 지도하겠습니다.
@@ -850,7 +848,7 @@
 ${otVideoSectionText}
 ■2. 시간표
 2-1 요일 및 시간
-▶정규: ${lessonDaysText || "[수업요일 선택 필요]"} ${displayTimeText}
+▶${lessonDaysText || "[수업요일 선택 필요]"} ${displayTimeText}
 
 2-2 장소
 ▶${finalLocationAddress}
@@ -879,7 +877,6 @@ ${finalCalculatedTuitionText}
         document.getElementById('smsTextPreviewArea').innerText = templateText;
     }
 
-    // [전체 문자 자동 클립보드 복사 함수]
     function executeTextCopySystem() {
         const textToCopy = document.getElementById('smsTextPreviewArea').innerText;
         if (!textToCopy || textToCopy.includes("[학부 및 반명 선택 필요]")) {
