@@ -246,7 +246,9 @@ function enterApp(email) {
   if (appEl) appEl.classList.add('ready');
 
   document.querySelectorAll('iframe[data-src]').forEach(f => {
-    f.src = f.dataset.src;
+    const sep = f.dataset.src.includes('?') ? '&' : '?';
+    f.src = f.dataset.src + sep + 'user=' + encodeURIComponent(email);
+
   });
 }
 
