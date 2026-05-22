@@ -37,28 +37,24 @@
         @media (min-width: 1024px) {
             .app-layout-grid {
                 display: grid;
-                /* 좌측 영역 400px, 우측 영역을 560px로 고정 정렬 */
-                grid-template-columns: 400px 560px; 
+                grid-template-columns: 400px 560px;
                 gap: 40px;
                 align-items: flex-start;
             }
         }
 
-        /* 입력 폼 스타일 */
         .form-group { margin-bottom: 15px; }
-        
-        /* 좌우 타이틀의 완벽한 수평선 유지를 위한 세팅 */
+
         .form-group label, .panel-top-title {
-            display: block; 
-            font-size: 14px; 
-            font-weight: bold; 
-            margin-bottom: 6px; 
-            color: #222222; 
-            height: 20px; 
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #222222;
+            height: 20px;
             line-height: 20px;
         }
-        
-        /* 달력 타이틀 스타일 */
+
         .calendar-title { color: #2D6A4F; }
 
         .input-control {
@@ -75,7 +71,6 @@
             display: flex; gap: 8px; margin-top: 10px;
         }
 
-        /* 라디오 버튼 그룹 스타일 */
         .radio-group-wrap {
             display: flex; gap: 15px; background: #FFFFFF; padding: 11px 14px; border: 1px solid #DCD9D2; border-radius: 12px; box-sizing: border-box;
         }
@@ -84,10 +79,7 @@
         }
         .radio-option-label input { margin: 0; cursor: pointer; width: 16px; height: 16px; }
 
-        /* 좌측 하단 달력 섹션 */
-        .calendar-section-wrap {
-            margin-top: 25px;
-        }
+        .calendar-section-wrap { margin-top: 25px; }
         .calendar-container-wrap { margin-top: 6px; }
         .calendar-board-box { background-color: #E6E2DA; border-radius: 24px; padding: 20px; box-sizing: border-box; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; margin-bottom: 15px; }
@@ -98,34 +90,59 @@
         .calendar-cell.empty { background-color: transparent; cursor: default; border: none !important; }
         .calendar-cell.weekend-disabled { background-color: #F5F3EF !important; color: #A8A59E !important; cursor: not-allowed !important; }
         .calendar-cell.academy-holiday { background-color: #E74C3C !important; border: 2px solid #C0392B !important; color: #FFFFFF !important; cursor: not-allowed !important; }
-        
         .calendar-cell.start-day { border: 2px solid #1A73E8 !important; font-weight: 900; background-color: #1A73E8 !important; color: #FFFFFF !important; }
 
-        .save-lock-btn {
-            background-color: #E74C3C; color: #FFFFFF; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; transition: opacity 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        /* 달력 하단 버튼 행 */
+        .calendar-bottom-btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 0;
         }
+
+        .save-lock-btn {
+            background-color: #E74C3C; color: #FFFFFF; border: none; border-radius: 10px; padding: 13px; font-size: 14px; font-weight: bold; cursor: pointer; flex: 1; transition: opacity 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .save-lock-btn:hover { opacity: 0.88; }
+
+        /* 설정 버튼 */
+        .settings-open-btn {
+            background-color: #4A5568;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .settings-open-btn:hover { background-color: #2D3748; }
+
         .editor-tracker-line {
             font-size: 14px; color: #333333; text-align: right; padding-top: 12px; border-top: 1px dashed #C8C4BC; margin-top: 12px; font-weight: bold;
         }
         .editor-tracker-line span { font-weight: 800; color: #2D6A4F; }
 
-        /* 우측 정렬 패널 */
         .right-preview-panel {
             display: flex;
             flex-direction: column;
             width: 100%;
             max-width: 560px;
-            margin-top: 0px; 
+            margin-top: 0px;
         }
         .bottom-full-width-result-card {
             background-color: #FFFFFF; border-radius: 20px; padding: 25px; border: 1px solid #DCD9D2; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03); box-sizing: border-box;
-            margin-top: 0px; 
         }
-        
+
         .pure-text-display-field {
             width: 100%;
             height: auto;
-            min-height: 686px; 
+            min-height: 686px;
             white-space: pre-wrap;
             font-family: 'Malgun Gothic', Arial, sans-serif;
             font-size: 13.5px;
@@ -136,13 +153,12 @@
             overflow-y: hidden;
         }
 
-        /* 문자 복사 버튼 스타일 */
         .copy-text-action-btn {
             background-color: #2D6A4F; color: #FFFFFF; border: none; border-radius: 12px; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; transition: background-color 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.08);
         }
         .copy-text-action-btn:hover { background-color: #1B4332; }
 
-        /* 로그인 관련 스타일 */
+        /* ───── 로그인 관련 스타일 ───── */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #F0F2F5; display: none; align-items: center; justify-content: center; z-index: 10000;
         }
@@ -152,10 +168,10 @@
         .login-card h1 { font-size: 28px; font-weight: 800; color: #1f1f1f; margin: 0 0 10px 0; }
         .login-card p { font-size: 16px; color: #70757a; margin: 0 0 40px 0; }
         .google-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); display: none; align-items: center; justify-content: center; z-index: 10001;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 10001;
         }
         .google-account-card {
-            background-color: #E9EEF6; width: 100%; max-width: 380px; border-radius: 28px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.15); box-sizing: border-box; position: relative; text-align: center;
+            background-color: #E9EEF6; width: 100%; max-width: 380px; border-radius: 28px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); box-sizing: border-box; position: relative; text-align: center;
         }
         .google-card-close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #444746; cursor: pointer; }
         .google-admin-email { font-size: 14px; color: #444746; font-weight: bold; margin-bottom: 2px; }
@@ -189,15 +205,203 @@
         .btn-user-name { display: block; font-size: 15px; font-weight: 600; color: #3c4043; line-height: 1.2; }
         .btn-user-email { display: block; font-size: 13px; color: #70757a; line-height: 1.2; }
         .google-icon-svg { width: 24px; height: 24px; }
+
+        /* ───── 설정 모달 스타일 ───── */
+        .settings-modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9000;
+        }
+        .settings-modal-overlay.active {
+            display: flex;
+        }
+
+        .settings-modal-card {
+            background-color: #FFFFFF;
+            width: 90%;
+            max-width: 640px;
+            max-height: 88vh;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            overflow-y: auto;
+        }
+
+        /* 모달 헤더 */
+        .settings-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .settings-modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #111111;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .settings-modal-title i {
+            color: #4A5568;
+        }
+        .settings-modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #888;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+        .settings-modal-close-btn:hover {
+            background-color: #F2EFE9;
+            color: #333;
+        }
+
+        /* 접근 권한 배지 */
+        .settings-access-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background-color: #EBF8F1;
+            color: #2D6A4F;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid #B7DFD0;
+            margin-bottom: 24px;
+        }
+        .settings-access-badge i { font-size: 11px; }
+
+        /* 구분선 */
+        .settings-divider {
+            border: none;
+            border-top: 1px solid #EEE;
+            margin: 20px 0;
+        }
+
+        /* 지침 섹션 */
+        .settings-section-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .settings-section-label i {
+            color: #2D6A4F;
+        }
+
+        .settings-guidelines-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .settings-guideline-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .settings-guideline-item-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4A5568;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .settings-guideline-textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            line-height: 1.65;
+            border: 1px solid #DCD9D2;
+            border-radius: 12px;
+            background-color: #FAFAFA;
+            box-sizing: border-box;
+            outline: none;
+            color: #222;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        .settings-guideline-textarea:focus {
+            border-color: #2D6A4F;
+            background-color: #FFFFFF;
+        }
+
+        /* 저장 버튼 */
+        .settings-save-btn {
+            background-color: #2D6A4F;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 22px;
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(45, 106, 79, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .settings-save-btn:hover { background-color: #1B4332; }
+
+        /* 저장 완료 토스트 */
+        .settings-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: #1B4332;
+            color: #FFFFFF;
+            padding: 13px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 99999;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .settings-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
 
+<!-- 로그인 오버레이 -->
 <div id="loginOverlay">
     <div class="login-card">
         <h1>임팩트세븐 통합관리</h1>
         <p>회사 계정으로 로그인해주세요</p>
-        
         <button class="google-login-btn" onclick="openGoogleAccountChooser()">
             <div class="btn-user-profile">
                 <div class="profile-circle">
@@ -220,21 +424,19 @@
     </div>
 </div>
 
+<!-- Google 계정 선택 모달 -->
 <div class="google-modal-overlay" id="googleLoginModal">
     <div class="google-account-card">
         <button class="google-card-close-btn" onclick="closeGoogleModalWithWarning()">✕</button>
         <div class="google-admin-email" id="modalTopEmail">roh@impact7.kr</div>
         <div class="google-admin-subtext">impact7.kr에서 관리함</div>
-        
         <div class="google-main-avatar-wrapper">
             <div class="google-main-avatar">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
             </div>
         </div>
-
-        <div class="google-welcome-title" id="modalWelcomeTitle">안녕하세요, ${currentLoggedId}님.</div>
+        <div class="google-welcome-title" id="modalWelcomeTitle">안녕하세요.</div>
         <div class="google-manage-btn" onclick="closeGoogleModalWithWarning()">Google 계정 관리</div>
-
         <div class="google-account-list-container">
             <div class="google-list-toggle-header">
                 <span>계정 선택</span><span>▼</span>
@@ -262,7 +464,6 @@
                 </div>
             </div>
         </div>
-
         <div class="google-footer-action-item" onclick="promptCustomUserWithoutName()">
             <div class="google-footer-icon">＋</div><span>다른 계정 추가</span>
         </div>
@@ -270,6 +471,56 @@
             <div class="google-footer-icon">➔</div><span>모든 계정에서 로그아웃</span>
         </div>
     </div>
+</div>
+
+<!-- ───── 설정 모달 ───── -->
+<div class="settings-modal-overlay" id="settingsModal">
+    <div class="settings-modal-card">
+
+        <div class="settings-modal-header">
+            <div class="settings-modal-title">
+                <i class="fas fa-sliders-h"></i> 시스템 설정
+            </div>
+            <button class="settings-modal-close-btn" onclick="closeSettingsModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="settings-access-badge">
+            <i class="fas fa-lock"></i> 관리자 전용 — roh@impact7.kr
+        </div>
+
+       
+
+    <div class="settings-guidelines-list">
+
+    <div class="settings-guideline-item">
+        <div class="settings-guideline-item-label">
+            <i class="fas fa-clipboard-list" style="color:#2D6A4F;"></i>
+            지침 내용
+        </div>
+<textarea class="settings-guideline-textarea" id="guideline_class"
+    placeholder="반명 코드별 규칙을 입력하세요. (미입력 시 반명 자동 규칙 적용)
+예)
+AX = 중등, 월금, 양지5층
+HA = 고등, 화목, 10단지
+SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
+
+    </div>
+
+</div>
+
+
+        <button class="settings-save-btn" onclick="saveGuidelinesData()">
+            <i class="fas fa-save"></i> 설정 저장하기
+        </button>
+
+    </div>
+</div>
+
+<!-- 저장 완료 토스트 -->
+<div class="settings-toast" id="settingsToast">
+    <i class="fas fa-check-circle"></i>&nbsp; 설정이 저장되었습니다!
 </div>
 
 <div class="main-container">
@@ -287,28 +538,14 @@
                 <input type="text" id="selectedDatesDisplay" class="input-control" placeholder="아래 달력에서 등원 시작일을 선택하세요" readonly style="font-weight: bold; background-color: #FAFAFA; color: #1A73E8;">
             </div>
 
-            <div class="form-group">
-                <label>학부</label>
-                <select id="schoolType" class="input-control" onchange="handleSchoolTypeChangeEvent()">
-                    <option value="">선택하세요</option>
-                    <option value="elem">초등</option>
-                    <option value="mid">중등</option>
-                    <option value="high">고등</option>
-                </select>
-            </div>
 
             <div class="form-group">
                 <label>반명</label>
-                <input type="text" id="classNameInput" class="input-control" placeholder="정규반명 또는 정규반 / 내신(학교) 입력 (예: AX102 / 목동고)" oninput="calculateMainSystemLogic()">
+<input type="text" id="classNameInput" class="input-control" placeholder="정규반명 입력 (예: AX102 / 내신(학교))" oninput="handleClassNameInput()">
+
             </div>
 
-            <div class="form-group">
-                <label>수업요일</label>
-                <select id="lessonDaysPattern" class="input-control" onchange="handleLessonDaysPatternChangeEvent()">
-                    <option value="">학부를 먼저 선택하세요</option>
-                </select>
-                <input type="text" id="lessonDaysCustomInput" class="input-control" placeholder="수업요일 직접 입력 (예: 월수금)" style="display: none; margin-top: 10px;" oninput="calculateMainSystemLogic()" onblur="handleLessonDaysCustomInputBlur()">
-            </div>
+        
 
             <div class="form-group">
                 <label>등원 시간</label>
@@ -354,7 +591,15 @@
                 <div class="calendar-container-wrap">
                     <div class="calendar-board-box">
                         <div class="calendar-grid" id="calendarGridBox"></div>
-                        <button class="save-lock-btn" onclick="executeSettingSaveAlert()">설정 및 수정하기</button>
+
+                        <!-- 달력 하단 버튼 행 -->
+                        <div class="calendar-bottom-btn-row">
+                            <button class="save-lock-btn" onclick="executeSettingSaveAlert()">설정 및 수정하기</button>
+                            <button class="settings-open-btn" onclick="openSettingsModal()">
+                                <i class="fas fa-cog"></i> 설정
+                            </button>
+                        </div>
+
                         <div class="editor-tracker-line">
                             최종 수정자: <span id="lastEditorDisplay">roh</span>
                         </div>
@@ -380,36 +625,40 @@
     const fixedHolidaysDB = { "2026-05": [1, 2, 5, 25], "2026-06": [6] };
     const tuitionFeeDB = {
         elem: [{ text: "350,000 원", value: "350000" }, { text: "315,000 원 (형제할인)", value: "315000" }, { text: "직접 입력", value: "custom" }],
-        mid: [{ text: "400,000 원", value: "400000" }, { text: "360,000 원 (형제할인)", value: "360000" }, { text: "직접 입력", value: "custom" }],
+        mid:  [{ text: "400,000 원", value: "400000" }, { text: "360,000 원 (형제할인)", value: "360000" }, { text: "직접 입력", value: "custom" }],
         high: [{ text: "420,000 원", value: "420000" }, { text: "378,000 원 (형제할인1)", value: "378000" }, { text: "400,000 원 (장기수강할인)", value: "400000" }, { text: "360,000 원 (형제할인2)", value: "360000" }, { text: "직접 입력", value: "custom" }]
     };
-
     const classTimeDB = {
         elem: [{ text: "3:00", value: "3:00" }, { text: "직접 입력", value: "custom" }],
-        mid: [{ text: "4:50", value: "4:50" }, { text: "7:30", value: "7:30" }, { text: "직접 입력", value: "custom" }],
+        mid:  [{ text: "4:50", value: "4:50" }, { text: "7:30", value: "7:30" }, { text: "직접 입력", value: "custom" }],
         high: [{ text: "5:10", value: "5:10" }, { text: "7:10", value: "7:10" }, { text: "직접 입력", value: "custom" }]
     };
-
     const lessonDaysDB = {
         elem: [{ text: "월금", value: "mon-fri" }, { text: "화목", value: "tue-thu" }],
-        mid: [{ text: "월금", value: "mon-fri" }, { text: "화목", value: "tue-thu" }, { text: "직접 입력", value: "custom" }],
+        mid:  [{ text: "월금", value: "mon-fri" }, { text: "화목", value: "tue-thu" }, { text: "직접 입력", value: "custom" }],
         high: [{ text: "월금", value: "mon-fri" }, { text: "화목", value: "tue-thu" }, { text: "수(정시)", value: "wed-regular" }, { text: "토(정시)", value: "sat-regular" }, { text: "직접 입력", value: "custom" }]
     };
 
-    let selectedStartDate = null; 
-    let currentLoggedId = "jaewon";
-    let lastActiveEmail = "roh@impact7.kr";
+    /* 설정 관리자 이메일 — 이 주소만 설정 모달 접근 허용 */
+    const SETTINGS_ADMIN_EMAIL = "roh@impact7.kr";
 
-    window.onload = function() {
+    let selectedStartDate = null;
+    let currentLoggedId   = "jaewon";
+    let lastActiveEmail   = "roh@impact7.kr";
+
+    /* ── 초기화 ── */
+    window.onload = function () {
         loadSavedCustomAccounts();
         checkLoginState();
         renderCalendarCoreSystem();
+        loadGuidelinesData();   // 저장된 지침 불러오기
     };
 
+    /* ── 로그인 관련 ── */
     function loadSavedCustomAccounts() {
         const storedList = localStorage.getItem('customImpactAccounts');
         if (!storedList) return;
-        const accounts = JSON.parse(storedList);
+        const accounts  = JSON.parse(storedList);
         const container = document.getElementById('accountListBody');
         accounts.forEach(acc => {
             if ([...container.querySelectorAll('.google-item-email')].some(el => el.innerText === acc.email)) return;
@@ -417,45 +666,46 @@
             div.className = 'google-account-item';
             div.setAttribute('onclick', `verifyAndLogin('${acc.name}', '${acc.email}')`);
             div.innerHTML = `
-                <div class="google-item-avatar" style="background-color: #673AB7;">재원</div>
+                <div class="google-item-avatar" style="background-color: #673AB7;">${acc.name.charAt(0)}</div>
                 <div class="google-item-info">
                     <span class="google-item-name">${acc.name}</span>
                     <span class="google-item-email">${acc.email}</span>
-                </div>
-            `;
+                </div>`;
             container.appendChild(div);
         });
     }
 
     function checkLoginState() {
-        const savedUser = localStorage.getItem('refundSystemUser');
+        const savedUser  = localStorage.getItem('refundSystemUser');
         const savedEmail = localStorage.getItem('refundSystemEmail') || "roh@impact7.kr";
-        lastActiveEmail = savedEmail;
-        currentLoggedId = savedUser || savedEmail.split('@')[0];
-        document.getElementById('currentBtnName').innerText = `${currentLoggedId}(으)로 로그인`;
+        lastActiveEmail  = savedEmail;
+        currentLoggedId  = savedUser || savedEmail.split('@')[0];
+        document.getElementById('currentBtnName').innerText  = `${currentLoggedId}(으)로 로그인`;
         document.getElementById('currentBtnEmail').innerHTML = `${lastActiveEmail} <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 3px;"></i>`;
-        document.getElementById('modalTopEmail').innerText = lastActiveEmail;
+        document.getElementById('modalTopEmail').innerText   = lastActiveEmail;
         document.getElementById('modalWelcomeTitle').innerText = `안녕하세요, ${currentLoggedId}님.`;
         if (savedUser) {
             document.getElementById('lastEditorDisplay').innerText = savedUser;
-            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('loginOverlay').style.display  = 'none';
         } else {
-            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('loginOverlay').style.display  = 'flex';
         }
     }
 
     function openGoogleAccountChooser() { document.getElementById('googleLoginModal').style.display = 'flex'; }
+
     function verifyAndLogin(userName, userEmail) {
         if (!userEmail.endsWith('@impact7.kr')) {
             alert("⚠️ 로그인 권한 오류!\n해당 시스템은 @impact7.kr 회사 전용 이메일 계정으로만 접근이 가능합니다.");
             return;
         }
-        localStorage.setItem('refundSystemUser', userName);
+        localStorage.setItem('refundSystemUser',  userName);
         localStorage.setItem('refundSystemEmail', userEmail);
         currentLoggedId = userName;
+        lastActiveEmail = userEmail;
         document.getElementById('lastEditorDisplay').innerText = currentLoggedId;
         document.getElementById('googleLoginModal').style.display = 'none';
-        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('loginOverlay').style.display     = 'none';
         checkLoginState();
     }
 
@@ -467,10 +717,10 @@
             alert("⚠️ 차단됨: 오직 @impact7.kr 메일 형식을 갖춘 계정만 등록 및 로그인이 가능합니다.");
             return;
         }
-        let extractedName = customEmail.split('@')[0];
-        let currentStored = localStorage.getItem('customImpactAccounts');
-        let accountArray = currentStored ? JSON.parse(currentStored) : [];
-        if(!accountArray.some(e => e.email === customEmail)) {
+        let extractedName  = customEmail.split('@')[0];
+        let currentStored  = localStorage.getItem('customImpactAccounts');
+        let accountArray   = currentStored ? JSON.parse(currentStored) : [];
+        if (!accountArray.some(e => e.email === customEmail)) {
             accountArray.push({ name: extractedName, email: customEmail });
             localStorage.setItem('customImpactAccounts', JSON.stringify(accountArray));
         }
@@ -478,6 +728,7 @@
     }
 
     function closeGoogleModalWithWarning() { document.getElementById('googleLoginModal').style.display = 'none'; }
+
     function executeClearSession() {
         localStorage.removeItem('refundSystemUser');
         localStorage.removeItem('refundSystemEmail');
@@ -485,105 +736,110 @@
         location.reload();
     }
 
-    function handleSchoolTypeChangeEvent() {
-        const school = document.getElementById('schoolType').value;
-        const vocaWrap = document.getElementById('vocaGroupWrap');
-        
-        if (school === 'mid') {
-            vocaWrap.style.display = 'block';
-            document.getElementById('vocaBookType').value = 'impact';
-        } else {
-            vocaWrap.style.display = 'none';
-        }
+    /* ── 설정 모달 ── */
+function openSettingsModal() {
+    const currentEmail = localStorage.getItem('refundSystemEmail') || lastActiveEmail || "";
+    if (currentEmail !== SETTINGS_ADMIN_EMAIL) {
+        // 권한 없으면 → Google 계정 선택창 열어서 roh@impact7.kr 로 로그인 유도
+        alert(`⛔ 접근 권한 없음\n설정 메뉴는 관리자 계정(${SETTINGS_ADMIN_EMAIL})으로만 접근할 수 있습니다.\n\n현재 계정: ${currentEmail || "미로그인"}\n\n확인을 누르면 계정 선택 창이 열립니다.`);
+        openGoogleAccountChooser();
+        return;
+    }
+    document.getElementById('settingsModal').classList.add('active');
+}
 
-        updateTuitionDropdownOptions();
-        updateAttendanceTimeOptions();
-        updateLessonDaysOptions();
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('active');
     }
 
-    function updateLessonDaysOptions() {
-        const school = document.getElementById('schoolType').value;
-        const daysSelect = document.getElementById('lessonDaysPattern');
-        const daysCustomInput = document.getElementById('lessonDaysCustomInput');
-        daysSelect.style.display = 'block';
-        daysCustomInput.style.display = 'none';
-        daysSelect.innerHTML = '';
-        if (!school) {
-            const opt = document.createElement('option'); opt.value = ""; opt.innerText = "학부를 먼저 선택하세요";
-            daysSelect.appendChild(opt); return;
-        }
-        lessonDaysDB[school].forEach((item, idx) => {
-            const opt = document.createElement('option'); opt.value = item.value; opt.innerText = item.text;
-            if(idx === 0) opt.selected = true;
-            daysSelect.appendChild(opt);
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('settingsModal').addEventListener('click', function (e) {
+        if (e.target === this) closeSettingsModal();
+    });
+
+    /* ── 지침 저장 / 불러오기 ── */
+    const GUIDELINE_KEYS = ['guideline_class'];
+
+
+    function saveGuidelinesData() {
+        GUIDELINE_KEYS.forEach(key => {
+            const val = document.getElementById(key).value;
+            localStorage.setItem(key, val);
         });
-        calculateMainSystemLogic();
+        showSettingsToast();
     }
 
-    function handleLessonDaysPatternChangeEvent() {
-        const selectEl = document.getElementById('lessonDaysPattern');
-        const inputEl = document.getElementById('lessonDaysCustomInput');
-        if (selectEl.value === 'custom') {
-            selectEl.style.display = 'none'; inputEl.style.display = 'block'; inputEl.focus();
-        }
-        calculateMainSystemLogic();
-    }
-
-    function handleLessonDaysCustomInputBlur() {
-        const selectEl = document.getElementById('lessonDaysPattern');
-        const inputEl = document.getElementById('lessonDaysCustomInput');
-        if (!inputEl.value.trim()) {
-            inputEl.style.display = 'none'; selectEl.style.display = 'block'; selectEl.value = selectEl.options[0].value;
-        }
-        calculateMainSystemLogic();
-    }
-
-    function updateTuitionDropdownOptions() {
-        const school = document.getElementById('schoolType').value;
-        const tuitionSelect = document.getElementById('tuitionType');
-        if (!school) return;
-        tuitionSelect.innerHTML = '';
-        tuitionFeeDB[school].forEach((item, idx) => {
-            const opt = document.createElement('option'); opt.value = item.value; opt.innerText = item.text;
-            if(idx === 0) opt.selected = true;
-            tuitionSelect.appendChild(opt);
-        });
-        calculateMainSystemLogic();
-    }
-
-    function updateAttendanceTimeOptions() {
-        const school = document.getElementById('schoolType').value;
-        const timeSelect = document.getElementById('attendanceTimeSelect');
-        const timeInput = document.getElementById('attendanceTimeInput');
-        timeSelect.style.display = 'block'; timeInput.style.display = 'none'; timeSelect.innerHTML = '';
-        if (!school) {
-            const opt = document.createElement('option'); opt.value = ""; opt.innerText = "학부를 먼저 선택하세요";
-            timeSelect.appendChild(opt); return;
-        }
-        classTimeDB[school].forEach((item, idx) => {
-            const opt = document.createElement('option'); opt.value = item.value; opt.innerText = item.text;
-            if(idx === 0) opt.selected = true;
-            timeSelect.appendChild(opt);
+    function loadGuidelinesData() {
+        GUIDELINE_KEYS.forEach(key => {
+            const saved = localStorage.getItem(key);
+            if (saved !== null) {
+                document.getElementById(key).value = saved;
+            }
         });
     }
+
+    function showSettingsToast() {
+        const toast = document.getElementById('settingsToast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    /* ── 학부/수업요일/시간/수강료 관련 ── */
+
+
+    
+  
+
+
+
+function updateTuitionDropdownOptions(school) {
+    school = school || "";
+    const tuitionSelect = document.getElementById('tuitionType');
+    if (!school || !tuitionFeeDB[school]) return;
+    tuitionSelect.innerHTML = '';
+    tuitionFeeDB[school].forEach((item, idx) => {
+        const opt = document.createElement('option'); opt.value = item.value; opt.innerText = item.text;
+        if (idx === 0) opt.selected = true;
+        tuitionSelect.appendChild(opt);
+    });
+    calculateMainSystemLogic();
+}
+
+
+function updateAttendanceTimeOptions(school) {
+    school = school || "";
+    const timeSelect  = document.getElementById('attendanceTimeSelect');
+    const timeInput   = document.getElementById('attendanceTimeInput');
+    timeSelect.style.display = 'block'; timeInput.style.display = 'none'; timeSelect.innerHTML = '';
+    if (!school || !classTimeDB[school]) {
+        const opt = document.createElement('option'); opt.value = ""; opt.innerText = "반명을 먼저 입력하세요";
+        timeSelect.appendChild(opt); return;
+    }
+    classTimeDB[school].forEach((item, idx) => {
+        const opt = document.createElement('option'); opt.value = item.value; opt.innerText = item.text;
+        if (idx === 0) opt.selected = true;
+        timeSelect.appendChild(opt);
+    });
+}
+
 
     function handleTimeSelectEvent() {
         const selectEl = document.getElementById('attendanceTimeSelect');
-        const inputEl = document.getElementById('attendanceTimeInput');
+        const inputEl  = document.getElementById('attendanceTimeInput');
         if (selectEl.value === 'custom') { selectEl.style.display = 'none'; inputEl.style.display = 'block'; inputEl.focus(); }
         calculateMainSystemLogic();
     }
     function handleTimeInputBlurEvent() {
         const selectEl = document.getElementById('attendanceTimeSelect');
-        const inputEl = document.getElementById('attendanceTimeInput');
+        const inputEl  = document.getElementById('attendanceTimeInput');
         if (!inputEl.value.trim()) { inputEl.style.display = 'none'; selectEl.style.display = 'block'; selectEl.value = selectEl.options[0].value; }
         calculateMainSystemLogic();
     }
     function handleTuitionSelectEvent() {
-        const selectEl = document.getElementById('tuitionType');
+        const selectEl  = document.getElementById('tuitionType');
         const customRow = document.getElementById('customTuitionRow');
-        if (selectEl.value === 'custom') { 
-            customRow.style.display = 'flex'; 
+        if (selectEl.value === 'custom') {
+            customRow.style.display = 'flex';
             document.getElementById('tuitionNameInput').focus();
         } else {
             customRow.style.display = 'none';
@@ -591,8 +847,9 @@
         calculateMainSystemLogic();
     }
 
+    /* ── 달력 ── */
     function resetAndRenderCalendar() {
-        selectedStartDate = null; 
+        selectedStartDate = null;
         renderCalendarCoreSystem();
     }
 
@@ -607,34 +864,163 @@
         if (daysText.includes('일')) targetList.push(0);
         return targetList;
     }
+const schoolCodeMap = {
+    elem: ['PI', 'PA', 'PX'],
+    mid:  ['I', 'A', 'AX', 'EX', 'SP'],
+    high: ['HA', 'HX', 'HS']
+};
 
-    function getCampusKeyByRule(school, className) {
-        if (!school || !className) return "yangji5";
-        const numMatch = className.match(/\d{3}/);
-        if (!numMatch) return "yangji5";
-        
-        const firstDigit = numMatch[0].charAt(0);
+function parseGuidelineRules() {
+    const raw = localStorage.getItem('guideline_class') || '';
+    const rules = {};
+    const campusTextMap = {
+        '양지5층':  'yangji5',
+        '양지10층': 'yangji10',
+        '10단지':   'danji10'
+    };
+    const elemMidCodes = ['PI','PA','PX','I','A','AX','EX','SP'];
+    const lines = raw.split('\n');
+    let currentCode = null;
+    let isElemMid = false;
+    let bookLines = [];
 
-        if (school === 'elem' || school === 'mid') {
-            if (firstDigit === '1') return "yangji5";
-            if (firstDigit === '2') return "danji10";
-        } else if (school === 'high') {
-            if (firstDigit === '1') return "yangji10";
-            if (firstDigit === '2') return "danji10";
+    const saveCurrentSection = () => {
+        if (bookLines.length === 0) return;
+        const bookText = bookLines.join('\n').trim();
+        if (isElemMid) {
+            // 초등/중등 전체 코드에 동일 교재 적용
+            elemMidCodes.forEach(c => {
+                rules[c] = rules[c] || {};
+                rules[c].bookText = bookText;
+                rules[c].bookPrice = calcBookPrice(bookText);
+            });
+        } else if (currentCode) {
+            rules[currentCode] = rules[currentCode] || {};
+            rules[currentCode].bookText = bookText;
+            rules[currentCode].bookPrice = calcBookPrice(bookText);
         }
-        return "yangji5";
+    };
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+
+        // "코드 = 학부, 요일, 캠퍼스" 형식 (KS131 등)
+        const ruleMatch = trimmed.match(/^([A-Za-z0-9]+)\s*=\s*(.+)$/);
+        if (ruleMatch) {
+            saveCurrentSection();
+            currentCode = null; isElemMid = false; bookLines = [];
+            const code  = ruleMatch[1].trim().toUpperCase();
+            const parts = ruleMatch[2].split(',').map(s => s.trim());
+            rules[code] = rules[code] || {};
+            rules[code].days   = parts[1] || null;
+            rules[code].campus = campusTextMap[parts[2]] || null;
+            return;
+        }
+
+        // "초등/중등" 섹션
+        if (trimmed === '초등/중등' || trimmed === '초등' || trimmed === '중등') {
+            saveCurrentSection();
+            currentCode = null; isElemMid = true; bookLines = [];
+            return;
+        }
+
+        // "HA", "HX", "HS" 등 코드 단독 줄
+        const codeOnly = trimmed.match(/^([A-Z]{1,3})$/);
+        if (codeOnly) {
+            saveCurrentSection();
+            currentCode = codeOnly[1].toUpperCase();
+            isElemMid = false; bookLines = [];
+            rules[currentCode] = rules[currentCode] || {};
+            return;
+        }
+
+        // 교재 내용 줄 수집
+        if ((currentCode || isElemMid) && trimmed !== '') {
+            bookLines.push(line);
+        }
+    });
+
+    saveCurrentSection();
+    return rules;
+}
+
+function calcBookPrice(bookText) {
+    let total = 0;
+    const priceMatches = bookText.match(/[\d,]+원/g) || [];
+    priceMatches.forEach(p => {
+        total += parseInt(p.replace(/[,원]/g, '')) || 0;
+    });
+    return total;
+}
+
+
+function parseClassInfo(rawClassName) {
+    const className = rawClassName.split('/')[0].trim().toUpperCase();
+const codeMatch = className.match(/^([A-Z]+)(\d{3})/);
+
+    if (!codeMatch) return null;
+
+    const code        = codeMatch[1];
+    const digits      = codeMatch[2];
+    const campusDigit = digits[0];
+    const dayDigit    = digits[2];
+
+    let school = null;
+    for (const [key, codes] of Object.entries(schoolCodeMap)) {
+        if (codes.includes(code)) { school = key; break; }
     }
+    if (!school) return null;
+
+const guidelineRules = parseGuidelineRules();
+const fullMatch = guidelineRules[className] || null;
+const codeMatch2 = guidelineRules[code] || null;
+const ruleToUse = fullMatch || codeMatch2;
+
+let campusKey = ruleToUse?.campus || null;
+if (!campusKey) {
+    if (campusDigit === '1') campusKey = (school === 'high') ? 'yangji10' : 'yangji5';
+    else if (campusDigit === '2') campusKey = 'danji10';
+    else campusKey = 'yangji5';
+}
+
+let lessonDays = ruleToUse?.days || null;
+if (!lessonDays) {
+    const dayNum = parseInt(dayDigit);
+    if (dayNum % 2 === 1) lessonDays = '월금';
+    else if (dayNum % 2 === 0) lessonDays = '화목';
+    else lessonDays = '';
+}
+
+
+    return { school, campusKey, lessonDays, code };
+}
+
+function handleClassNameInput() {
+    const rawClassName = document.getElementById('classNameInput').value || "";
+    const classInfo = parseClassInfo(rawClassName);
+    if (classInfo) {
+        updateAttendanceTimeOptions(classInfo.school);
+        updateTuitionDropdownOptions(classInfo.school);
+        const vocaWrap = document.getElementById('vocaGroupWrap');
+        vocaWrap.style.display = (classInfo.school === 'mid') ? 'block' : 'none';
+    }
+    calculateMainSystemLogic();
+}
+
+
+
+
 
     function renderCalendarCoreSystem() {
-        const monthVal = document.getElementById('targetMonth').value;
+        const monthVal   = document.getElementById('targetMonth').value;
         const [year, month] = monthVal.split('-').map(Number);
-        const firstDayIdx = new Date(year, month - 1, 1).getDay();
-        const lastDateNum = new Date(year, month, 0).getDate();
-        const gridBox = document.getElementById('calendarGridBox');
-        gridBox.innerHTML = '';
-        const baseHolidays = fixedHolidaysDB[monthVal] || [];
+        const firstDayIdx   = new Date(year, month - 1, 1).getDay();
+        const lastDateNum   = new Date(year, month, 0).getDate();
+        const gridBox       = document.getElementById('calendarGridBox');
+        gridBox.innerHTML   = '';
+        const baseHolidays  = fixedHolidaysDB[monthVal] || [];
 
-        ['일', '월', '화', '수', '목', '금', '토'].forEach(d => {
+        ['일','월','화','수','목','금','토'].forEach(d => {
             const h = document.createElement('div'); h.className = 'calendar-header-day'; h.innerText = d; gridBox.appendChild(h);
         });
 
@@ -643,45 +1029,38 @@
         }
 
         for (let date = 1; date <= lastDateNum; date++) {
-            const btn = document.createElement('button');
-            btn.className = 'calendar-cell';
-            btn.innerText = date;
+            const btn      = document.createElement('button');
+            btn.className  = 'calendar-cell';
+            btn.innerText  = date;
             btn.dataset.date = date;
-            
             const dayOfWeek = new Date(year, month - 1, date).getDay();
-
             if (baseHolidays.includes(date)) {
                 btn.classList.add('academy-holiday');
-            } else if (dayOfWeek === 0) { 
+            } else if (dayOfWeek === 0) {
                 btn.classList.add('weekend-disabled');
             }
-            
-            btn.onclick = function() { 
-                if (this.classList.contains('academy-holiday') || this.classList.contains('weekend-disabled')) {
-                    return; 
-                }
-                const currentDay = parseInt(this.dataset.date);
-                selectedStartDate = currentDay;
-                calculateMainSystemLogic(); 
+            btn.onclick = function () {
+                if (this.classList.contains('academy-holiday') || this.classList.contains('weekend-disabled')) return;
+                selectedStartDate = parseInt(this.dataset.date);
+                calculateMainSystemLogic();
             };
             gridBox.appendChild(btn);
         }
         calculateMainSystemLogic();
     }
 
+    /* ── 문자 생성 로직 ── */
     function calculateOtTime(school, timeStr) {
         if (!timeStr || timeStr.trim() === "") return "[시간 선택 필요]";
         try {
             const parts = timeStr.split(':');
             if (parts.length !== 2) return timeStr;
             let hour = parseInt(parts[0]);
-            let min = parseInt(parts[1]);
+            let min  = parseInt(parts[1]);
             if (isNaN(hour) || isNaN(min)) return timeStr;
-            
             const minusMinutes = (school === 'high') ? 10 : 20;
             min -= minusMinutes;
             if (min < 0) { min += 60; hour -= 1; if (hour < 0) hour += 24; }
-            
             const paddedMin = String(min).padStart(2, '0');
             const otDuration = (school === 'high') ? 10 : 20;
             return `${hour}:${paddedMin}~ (OT ${otDuration}분 소요)`;
@@ -689,144 +1068,140 @@
     }
 
     function calculateMainSystemLogic() {
-        const monthVal = document.getElementById('targetMonth').value;
+        const monthVal   = document.getElementById('targetMonth').value;
         const [year, month] = monthVal.split('-').map(Number);
-        const daysInMonth = new Date(year, month, 0).getDate(); 
-        const baseHolidays = fixedHolidaysDB[monthVal] || [];
-        
-        const school = document.getElementById('schoolType').value;
-        const className = document.getElementById('classNameInput').value || "";
+        const daysInMonth   = new Date(year, month, 0).getDate();
+        const baseHolidays  = fixedHolidaysDB[monthVal] || [];
 
-        const campusKey = getCampusKeyByRule(school, className);
-        
-        const addressMap = {
-            yangji5: "양천구 목동서로 61, 5층",
-            yangji10: "양천구 목동서로 61, 10층",
-            danji10: "양천구 신정동 323-6 6층 (SJ라벨라 6층)"
-        };
-        const finalLocationAddress = addressMap[campusKey];
+      const rawClassName   = document.getElementById('classNameInput').value || "";
+const classInfo      = parseClassInfo(rawClassName);
+
+const school         = classInfo?.school    || "";
+const campusKey      = classInfo?.campusKey || "yangji5";
+const lessonDaysText = classInfo?.lessonDays || "";
+const className      = rawClassName.trim();
+
+
+function parseAddressFromGuideline() {
+    const raw = localStorage.getItem('guideline_class') || '';
+    const addressMap = {
+        yangji5:  "양천구 목동서로 61, 5층 (우리은행 건물 5층)",
+        yangji10: "양천구 목동서로 61, 10층 (우리은행 건물 10층)",
+        danji10:  "양천구 목동서로 383, 6층 (SJ라벨라 6층)"
+    };
+    raw.split('\n').forEach(line => {
+        if (!line.includes('->')) return;
+        const parts = line.split('->');
+        const key  = parts[0].trim();
+        const addr = parts[1].replace('▶', '').trim();
+        if (key.includes('양지5'))  addressMap.yangji5  = addr;
+        if (key.includes('양지10')) addressMap.yangji10 = addr;
+        if (key.includes('10단지')) addressMap.danji10  = addr;
+    });
+    return addressMap;
+}
+
+const addressMap = parseAddressFromGuideline();
+const finalLocationAddress = addressMap[campusKey];
+
 
         const accountMap = {
-            yangji5: "하나은행 125-910455-50107 (예금주: 이종수)",
+            yangji5:  "하나은행 125-910455-50107 (예금주: 이종수)",
             yangji10: "하나은행 125-910025-02404 (예금주: 임팩트세븐2단지고등관학원)",
-            danji10: "하나은행 125-910023-38804 (예금주: 임팩트세븐주식회사)"
+            danji10:  "하나은행 125-910023-38804 (예금주: 임팩트세븐주식회사)"
         };
         const finalAccountInfo = accountMap[campusKey];
 
-        let bookStoreSectionText = "";
-        if (campusKey === 'yangji5') {
-            bookStoreSectionText = `※교재구입처: \`칸트의 시간\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 칸트의 시간 : 02-2646-1242 (현대월드타워 지하 1층)\n`;
-        } else if (campusKey === 'danji10') {
-            bookStoreSectionText = `※교재구입처: \`목동문고\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 목동문고 : 0507-1389-3070  (목동 10단지아파트 A상가 지하 )\n`;
-        } else if (campusKey === 'yangji10') {
-            bookStoreSectionText = ""; 
+           let bookStoreSectionText = "";
+        if (school !== 'high') {
+            if (campusKey === 'yangji5') {
+                bookStoreSectionText = `※교재구입처: \`칸트의 시간\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 칸트의 시간 : 02-2646-1242 (현대월드타워 지하 1층)\n`;
+            } else if (campusKey === 'danji10') {
+                bookStoreSectionText = `※교재구입처: \`목동문고\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 목동문고 : 0507-1389-3070  (목동 10단지아파트 A상가 지하 )\n`;
+            }
         }
 
+
         let customBookListText = "";
-        let totalBookPrice = 0;
+        let totalBookPrice     = 0;
 
-        if (school === 'elem') {
-            customBookListText = `▶ 어휘 텍스트북: 임팩트 보카 8,000원 \n▶ 어휘 워크북: 6,000원\n▶ 숙어 워크북: 6,000원\n▶ 숙어 텍스트북: 4,000원\n▶ 영작 워크북: 6,000원\n▶ 영작 텍스트북: 4,000원\n▶ 써머리노트: 5,000원`;
-            totalBookPrice = 8000 + 6000 + 6000 + 4000 + 6000 + 4000 + 5000; 
-        } else if (school === 'mid') {
-            const vocaType = document.getElementById('vocaBookType').value;
-            let vocaName = "임팩트 보카";
-            let vocaPrice = 8000;
-            
-            if (vocaType === 'prep') {
-                vocaName = "싹쓰리 Prep";
-                vocaPrice = 10000;
-            }
+                const guidelineRules = parseGuidelineRules();
+        const classCode = classInfo?.code || "";
+        const ruleForBook = guidelineRules[classCode] || null;
 
-            customBookListText = `▶ 어휘 텍스트북: ${vocaName} ${vocaPrice.toLocaleString()}원 \n▶ 어휘 워크북: 6,000원\n▶ 숙어 워크북: 6,000원\n▶ 숙어 텍스트북: 4,000원\n▶ 영작 워크북: 6,000원\n▶ 영작 텍스트북: 4,000원\n▶ 써머리노트: 5,000원`;
-            totalBookPrice = vocaPrice + 6000 + 6000 + 4000 + 6000 + 4000 + 5000; 
-        } else if (school === 'high') {
-            const upperClassName = className.toUpperCase();
-            if (upperClassName.includes('HA')) {
-                customBookListText = `*문법 : 기출로 어법 완성 (임팩트7) :10,000원\n*실전 : 수능 실전어법X (임팩트7) :12,000원\n*독해 : 고난도 유형 X (임팩트7) :10,000원\n*어휘: 싹쓰리 (임팩트7)\n    Text Book : 10,000원\n    Work Book : 6,000원`;
-                totalBookPrice = 10000 + 12000 + 10000 + 10000 + 6000; 
-            } else if (upperClassName.includes('HX')) {
-                customBookListText = `*문법 : 기출로 어법 완성 (임팩트7) :11,000원\n*실전 : 수능 실전어법X (임팩트7) :12,000원\n*독해 : 고난도 유형 X (임팩特7) :10,000원\n*어휘: 싹쓰리 (임팩트7)\n    Text Book : 10,000원\n    Work Book : 6,000원`;
-                totalBookPrice = 11000 + 12000 + 10000 + 10000 + 6000; 
-            } else if (upperClassName.includes('HS')) {
-                customBookListText = `*문법 : 기출로 어법 완성 (임팩트7) :12,000원\n*실전 : 수능 실전어법X (임팩트7) :12,000원\n*독해 : 고난도 유형 X (임팩트7) :10,000원\n*어휘: 싹쓰리 (임팩트7)\n    Text Book : 10,000원\n    Work Book : 6,000원`;
-                totalBookPrice = 12000 + 12000 + 10000 + 10000 + 6000; 
+              if (ruleForBook?.bookText) {
+            let bookText = ruleForBook.bookText;
+            if (school === 'mid') {
+                const vocaEl = document.getElementById('vocaBookType');
+                if (vocaEl && vocaEl.value === 'prep') {
+                    bookText = bookText.replace(/임팩트[\s]*보카[\s]*[\d,]+원/g, '싹쓰리 Prep 10,000원');
+                    totalBookPrice = (ruleForBook.bookPrice - 8000) + 10000;
+                } else {
+                    totalBookPrice = ruleForBook.bookPrice || 0;
+                }
             } else {
-                customBookListText = `[반명에 HA, HX, HS 포함 시 해당 고등 교재 자동 출력됨]`;
-                totalBookPrice = 0;
+                totalBookPrice = ruleForBook.bookPrice || 0;
             }
+            customBookListText = bookText;
         } else {
-            customBookListText = `[학부 및 반명 선택 필요]`;
+            customBookListText = `[설정 지침에 "${classCode}" 교재 내용을 입력해주세요]`;
             totalBookPrice = 0;
         }
 
-        const patternSelect = document.getElementById('lessonDaysPattern');
-        let lessonDaysText = patternSelect.options[patternSelect.selectedIndex]?.text || "";
-        if (patternSelect.value === 'custom') {
-            lessonDaysText = document.getElementById('lessonDaysCustomInput').value || "";
-        }
-        if (!school) lessonDaysText = "";
 
-        const activeDays = parseActiveTargetDays(lessonDaysText);
 
-        const timeSelect = document.getElementById('attendanceTimeSelect');
-        let rawTimeText = timeSelect.options[timeSelect.selectedIndex]?.text || "";
+const activeDays = parseActiveTargetDays(lessonDaysText);
+
+
+        const timeSelect  = document.getElementById('attendanceTimeSelect');
+        let rawTimeText   = timeSelect.options[timeSelect.selectedIndex]?.text || "";
         if (timeSelect.value === 'custom') {
             rawTimeText = document.getElementById('attendanceTimeInput').value || "";
         }
         let displayTimeText = rawTimeText ? `${rawTimeText}~` : "[시간 선택 필요]";
 
-        const tuitionSelect = document.getElementById('tuitionType');
+        const tuitionSelect  = document.getElementById('tuitionType');
         const isTuitionCustom = (tuitionSelect.value === 'custom');
-        let rawPrice = 0;
+        let rawPrice       = 0;
         let baseTuitionText = "0 원";
 
         if (isTuitionCustom) {
             rawPrice = parseFloat(document.getElementById('tuitionInput').value);
-            const customName = document.getElementById('tuitionNameInput').value.trim();
+            const customName     = document.getElementById('tuitionNameInput').value.trim();
             const formattedPrice = rawPrice ? `${rawPrice.toLocaleString()} 원` : "0 원";
             baseTuitionText = customName ? `${formattedPrice} (${customName})` : formattedPrice;
         } else {
-            rawPrice = parseFloat(tuitionSelect.value);
+            rawPrice        = parseFloat(tuitionSelect.value);
             baseTuitionText = tuitionSelect.options[tuitionSelect.selectedIndex]?.text || "0 원";
         }
 
         const cells = document.querySelectorAll('.calendar-cell:not(.empty)');
         cells.forEach(c => { c.classList.remove('start-day'); });
 
-        let startDayOfWeekText = "";
+        let startDayOfWeekText   = "";
         let actualAttendanceCount = 0;
 
-        let totalMonthLessonsCount = 0; 
+        let totalMonthLessonsCount = 0;
         for (let d = 1; d <= daysInMonth; d++) {
             const dayOfWeek = new Date(year, month - 1, d).getDay();
-            if (dayOfWeek === 0 || baseHolidays.includes(d)) continue; 
-            if (activeDays.includes(dayOfWeek)) {
-                totalMonthLessonsCount++;
-            }
+            if (dayOfWeek === 0 || baseHolidays.includes(d)) continue;
+            if (activeDays.includes(dayOfWeek)) totalMonthLessonsCount++;
         }
-        if (totalMonthLessonsCount === 0) totalMonthLessonsCount = 8; 
+        if (totalMonthLessonsCount === 0) totalMonthLessonsCount = 8;
 
         if (selectedStartDate !== null) {
             const startDayIdx = new Date(year, month - 1, selectedStartDate).getDay();
-            const weekNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const weekNames   = ['일','월','화','수','목','금','토'];
             startDayOfWeekText = weekNames[startDayIdx];
 
             for (let d = 1; d <= daysInMonth; d++) {
                 const targetCell = Array.from(cells).find(c => parseInt(c.dataset.date) === d);
                 if (!targetCell) continue;
-
                 const dayOfWeek = new Date(year, month - 1, d).getDay();
-                const isHolidayOrWeekend = (dayOfWeek === 0 || baseHolidays.includes(d)); 
-
-                if (d === selectedStartDate) {
-                    targetCell.classList.add('start-day');
-                }
-
-                if (!isHolidayOrWeekend && d >= selectedStartDate) {
-                    if (activeDays.includes(dayOfWeek)) {
-                        actualAttendanceCount++;
-                    }
+                const isHolidayOrWeekend = (dayOfWeek === 0 || baseHolidays.includes(d));
+                if (d === selectedStartDate) targetCell.classList.add('start-day');
+                if (!isHolidayOrWeekend && d >= selectedStartDate && activeDays.includes(dayOfWeek)) {
+                    actualAttendanceCount++;
                 }
             }
         }
@@ -834,52 +1209,47 @@
         const displayInput = document.getElementById('selectedDatesDisplay');
         if (selectedStartDate !== null) {
             const formattedMonth = String(month).padStart(2, '0');
-            const formattedDay = String(selectedStartDate).padStart(2, '0');
-            displayInput.value = `${formattedMonth}월 ${formattedDay}일, (실제수업일수-${actualAttendanceCount}일)`;
+            const formattedDay   = String(selectedStartDate).padStart(2, '0');
+            displayInput.value   = `${formattedMonth}월 ${formattedDay}일, (실제수업일수-${actualAttendanceCount}일)`;
         } else {
-            displayInput.value = '아래 달력에서 등원 시작일을 선택하세요';
+            displayInput.value   = '아래 달력에서 등원 시작일을 선택하세요';
         }
 
-        let perLessonAmount = 0;
-        let finalAttendedPrice = 0; 
+        let perLessonAmount     = 0;
+        let finalAttendedPrice  = 0;
         if (rawPrice && !isNaN(rawPrice)) {
-            perLessonAmount = Math.round(rawPrice / totalMonthLessonsCount);
+            perLessonAmount    = Math.round(rawPrice / totalMonthLessonsCount);
             finalAttendedPrice = perLessonAmount * actualAttendanceCount;
         }
-        
-        document.getElementById('perLessonPriceDisplay').value = `${perLessonAmount.toLocaleString()} 원 (${totalMonthLessonsCount}회 기준)`;
-        document.getElementById('actualAttendanceDisplay').value = `${actualAttendanceCount}일 (${finalAttendedPrice.toLocaleString()} 원)`;
+
+        document.getElementById('perLessonPriceDisplay').value   = `${perLessonAmount.toLocaleString()} 원 (${totalMonthLessonsCount}회 기준)`;
+        document.getElementById('actualAttendanceDisplay').value  = `${actualAttendanceCount}일 (${finalAttendedPrice.toLocaleString()} 원)`;
 
         let otDateLine = "[달력에서 등원일 선택 필요]";
         if (selectedStartDate !== null) {
             otDateLine = `${month}/${selectedStartDate} (${startDayOfWeekText})`;
         }
-        
+
         let otTimeLine = calculateOtTime(school, rawTimeText);
 
         let otVideoSectionText = "";
         if (school !== 'high') {
-            /* [삼각형 뒤 공백 수정 반영] ▶ go.impact7.kr/orientation */
             otVideoSectionText = `\n1-2 OT 동영상 (신규생 필수 시청)\n▶ 신규생이 등원전에 반드시 시청해야 할 동영상 링크\n▶ go.impact7.kr/orientation\n`;
         }
 
         const testFeeOption = document.querySelector('input[name="testFeeOption"]:checked').value;
         let totalPriceCalculated = 0;
-        
         if (testFeeOption === 'deduct') {
             totalPriceCalculated = finalAttendedPrice + totalBookPrice - 20000;
         } else {
             totalPriceCalculated = finalAttendedPrice + totalBookPrice;
         }
-
         if (totalPriceCalculated > 0) {
             totalPriceCalculated = Math.floor(totalPriceCalculated / 1000) * 1000;
         }
 
-        /* [삼각형 뒤 공백 수정 반영] ▶ 수업료 */
         let finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원)${testFeeOption === 'deduct' ? ' - 진단평가 응시료(20,000원)' : ''} = ${totalPriceCalculated.toLocaleString()}원`;
 
-        /* [삼각형 뒤 공백 수정 반영] 전체 본문 템플릿의 링크 및 텍스트 띄어쓰기 가독성 전면 개선 */
         const templateText = `■ 임팩트7 영어학원 입학 안내 ■ 
   
 신규 입학을 축하드리며, 믿고 맡겨주신 신뢰에 보답하고자 정성을 다하여 지도하겠습니다.
@@ -924,19 +1294,17 @@ ${finalCalculatedTuitionText}
         document.getElementById('smsTextPreviewArea').innerText = templateText;
     }
 
+    /* ── 복사 ── */
     function executeTextCopySystem() {
         const textToCopy = document.getElementById('smsTextPreviewArea').innerText;
         if (!textToCopy || textToCopy.includes("[학부 및 반명 선택 필요]")) {
             alert("⚠️ 복사할 안내문 내용이 올바르지 않거나 비어있습니다.");
             return;
         }
-        
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textToCopy).then(() => {
                 alert("📋 입학 안내문 전송 텍스트가 클립보드에 복사되었습니다!");
-            }).catch(err => {
-                fallbackCopyTextProcess(textToCopy);
-            });
+            }).catch(() => fallbackCopyTextProcess(textToCopy));
         } else {
             fallbackCopyTextProcess(textToCopy);
         }
@@ -945,7 +1313,7 @@ ${finalCalculatedTuitionText}
     function fallbackCopyTextProcess(text) {
         const textArea = document.createElement("textarea");
         textArea.value = text;
-        textArea.style.position = "fixed"; 
+        textArea.style.position = "fixed";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
