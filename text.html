@@ -761,22 +761,45 @@ function openSettingsModal() {
     const GUIDELINE_KEYS = ['guideline_class'];
 
 
-    function saveGuidelinesData() {
-        GUIDELINE_KEYS.forEach(key => {
-            const val = document.getElementById(key).value;
-            localStorage.setItem(key, val);
-        });
-        showSettingsToast();
-    }
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzRDu6w4975Aqo7k8pDNAnh4b47RdmTZ3NOt61yYFMNVX0_LbyM6ay_g44kJCXhvb7/exec';
 
-    function loadGuidelinesData() {
-        GUIDELINE_KEYS.forEach(key => {
-            const saved = localStorage.getItem(key);
-            if (saved !== null) {
-                document.getElementById(key).value = saved;
+function saveGuidelinesData() {
+    const val = document.getElementById('guideline_class').value;
+    localStorage.setItem('guideline_class', val);
+
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: val,
+        headers: { 'Content-Type': 'text/plain' }
+    }).then(() => {
+        showSettingsToast();
+    }).catch(() => {
+        alert('⚠️ 구글 독스 저장에 실패했습니다. 로컬에만 저장되었습니다.');
+        showSettingsToast();
+    });
+}
+
+function loadGuidelinesData() {
+    // 먼저 구글 독스에서 불러오기
+    fetch(APPS_SCRIPT_URL)
+        .then(res => res.text())
+        .then(text => {
+            if (text && text.trim() !== '') {
+                document.getElementById('guideline_class').value = text;
+                localStorage.setItem('guideline_class', text);
+            } else {
+                // 구글 독스가 비어있으면 localStorage 사용
+                const saved = localStorage.getItem('guideline_class');
+                if (saved) document.getElementById('guideline_class').value = saved;
             }
+        })
+        .catch(() => {
+            // 네트워크 오류 시 localStorage 사용
+            const saved = localStorage.getItem('guideline_class');
+            if (saved) document.getElementById('guideline_class').value = saved;
         });
-    }
+}
+
 
     function showSettingsToast() {
         const toast = document.getElementById('settingsToast');
