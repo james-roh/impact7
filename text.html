@@ -393,6 +393,20 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+.calendar-notice-box {
+    display: none;
+    background-color: #FFF3CD;
+    border: 1px solid #FFCA2C;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #856404;
+    line-height: 1.6;
+    text-align: center;
+}
+
     </style>
 </head>
 <body>
@@ -592,13 +606,16 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
                     <div class="calendar-board-box">
                         <div class="calendar-grid" id="calendarGridBox"></div>
 
-                        <!-- 달력 하단 버튼 행 -->
-                        <div class="calendar-bottom-btn-row">
-                            <button class="save-lock-btn" onclick="executeSettingSaveAlert()">설정 및 수정하기</button>
-                            <button class="settings-open-btn" onclick="openSettingsModal()">
-                                <i class="fas fa-cog"></i> 설정
-                            </button>
-                        </div>
+<div class="calendar-bottom-btn-row">
+    <button class="save-lock-btn" onclick="executeSettingSaveAlert()">설정 및 수정하기</button>
+    <button class="settings-open-btn" onclick="openSettingsModal()">
+        <i class="fas fa-cog"></i> 설정
+    </button>
+</div>
+<div class="calendar-notice-box" id="calendarNoticeBox">
+    📢 22일 이후의 등원생은 다음달 수강료가 합산이 되어 미리보기에 표시 됩니다.
+</div>
+
 
                         <div class="editor-tracker-line">
                             최종 수정자: <span id="lastEditorDisplay">roh</span>
@@ -1065,8 +1082,16 @@ function handleClassNameInput() {
             btn.onclick = function () {
                 if (this.classList.contains('academy-holiday') || this.classList.contains('weekend-disabled')) return;
                 selectedStartDate = parseInt(this.dataset.date);
+                const noticeBox = document.getElementById('calendarNoticeBox');
+                if (selectedStartDate >= 22) {
+                    noticeBox.style.display = 'block';
+                } else {
+                    noticeBox.style.display = 'none';
+                }
+
                 calculateMainSystemLogic();
             };
+
             gridBox.appendChild(btn);
         }
         calculateMainSystemLogic();
@@ -1271,7 +1296,22 @@ const activeDays = parseActiveTargetDays(lessonDaysText);
             totalPriceCalculated = Math.floor(totalPriceCalculated / 1000) * 1000;
         }
 
-        let finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원)${testFeeOption === 'deduct' ? ' - 진단평가 응시료(20,000원)' : ''} = ${totalPriceCalculated.toLocaleString()}원`;
+let finalCalculatedTuitionText = '';
+
+if (selectedStartDate !== null && selectedStartDate >= 22) {
+    // 다음달 계산
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextMonthPrice = rawPrice || 0;
+
+    let totalPriceNext = finalAttendedPrice + nextMonthPrice + totalBookPrice;
+    if (testFeeOption === 'deduct') totalPriceNext -= 20000;
+    if (totalPriceNext > 0) totalPriceNext = Math.floor(totalPriceNext / 1000) * 1000;
+
+    finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 수업료 ${nextMonth}월 (${nextMonthPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원)${testFeeOption === 'deduct' ? ' - 진단평가 응시료(20,000원)' : ''} = ${totalPriceNext.toLocaleString()}원`;
+} else {
+    finalCalculatedTuitionText = `▶ 수업료 ${month}월 (${finalAttendedPrice.toLocaleString()}원) + 자체교재비(${totalBookPrice.toLocaleString()}원)${testFeeOption === 'deduct' ? ' - 진단평가 응시료(20,000원)' : ''} = ${totalPriceCalculated.toLocaleString()}원`;
+}
+
 
         const templateText = `■ 임팩트7 영어학원 입학 안내 ■ 
   
