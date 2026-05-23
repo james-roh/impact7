@@ -3,30 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>입학문자 생성기</title>
+    <title>행정업무 MATE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
-            background-color: #F2EFE9;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif, 'Malgun Gothic';
-            color: #333333;
-            margin: 0;
-            padding: 25px;
-        }
+
+    background-color: #EDEAE3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif, 'Malgun Gothic';
+    color: #333333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
 
         .main-container {
-            width: 100%;
-            max-width: 1250px;
-            margin: 0;
-        }
+    width: 100%;
+    max-width: 1250px;
+    margin: 0;
+    padding: 25px;
+    box-sizing: border-box;
+}
 
-        .main-system-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: #111111;
-            margin-bottom: 25px;
-            letter-spacing: -0.5px;
-        }
+
+.main-system-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111111;
+    margin-bottom: 25px;
+    letter-spacing: -0.5px;
+}
+
+/* ───── 사이드바 ───── */
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    min-height: 100vh;
+    background-color: #D6D2C8;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+}
+
+
+.sidebar-logo {
+    padding: 28px 20px 20px 20px;
+    letter-spacing: -0.3px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    line-height: 1.4;
+}
+
+.sidebar-logo-sub {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1B1B1B;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.sidebar-logo-main {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1B6B45;
+    letter-spacing: -0.5px;
+}
+
+
+
+.sidebar-logo span {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(0,0,0,0.4);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+}
+
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 4px;
+}
+
+.sidebar-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: background-color 0.18s, color 0.18s;
+    user-select: none;
+}
+
+.sidebar-menu-item:hover {
+    background-color: rgba(0,0,0,0.07);
+    color: #2C2C2C;
+}
+
+.sidebar-menu-item.active {
+    background-color: #D4BC96;
+    color: #1B1B1B;
+    font-weight: 700;
+}
+
+
+
+.sidebar-menu-item i {
+    width: 18px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 100vh;
+    background-color: #EDEAE3;
+    min-width: 0;
+}
+
+
+/* 준비중 안내 */
+.coming-soon-wrap {
+    display: none;
+    padding: 60px 25px;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+.coming-soon-wrap.active {
+    display: flex;
+}
+
+.coming-soon-box {
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 50px 40px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.coming-soon-box i {
+    font-size: 48px;
+    color: #DCD9D2;
+    margin-bottom: 16px;
+}
+
+.coming-soon-box h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.coming-soon-box p {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+}
+
 
         .app-layout-grid {
             display: flex;
@@ -408,84 +555,39 @@
 }
 
     </style>
+    <script src="sidebar.js"></script>
 </head>
+
 <body>
+<body>
+
+<!-- 사이드바 -->
+
+
+<!-- 콘텐츠 영역 -->
+<div class="content-area">
+
+
 
 <!-- 로그인 오버레이 -->
 <div id="loginOverlay">
-    <div class="login-card">
-        <h1>임팩트세븐 통합관리</h1>
-        <p>회사 계정으로 로그인해주세요</p>
-        <button class="google-login-btn" onclick="openGoogleAccountChooser()">
-            <div class="btn-user-profile">
-                <div class="profile-circle">
-                    <img src="https://lh3.googleusercontent.com/a/default-user=s88-c" id="currentBtnAvatar" alt="profile">
-                </div>
-                <div class="btn-user-info">
-                    <span class="btn-user-name" id="currentBtnName">jaewon(으)로 로그인</span>
-                    <span class="btn-user-email" id="currentBtnEmail">roh@impact7.kr <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 3px;"></i></span>
-                </div>
-            </div>
-            <div class="google-icon-wrapper">
-                <svg class="google-icon-svg" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c1.47-1.35 2.31-3.33 2.31-5.32z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1.01.67-2.28 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.1c-.22-.67-.35-1.39-.35-2.1s.13-1.43.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-            </div>
-        </button>
+<div class="login-card">
+    <h1>임팩트세븐 통합관리</h1>
+    <p>회사 계정으로 로그인해주세요</p>
+    <input type="email" id="loginEmailInput" placeholder="이메일 입력 (예: hong@impact7.kr)"
+        style="width:100%; padding:12px 16px; border:1px solid #dadce0; border-radius:8px; font-size:15px; box-sizing:border-box; margin-bottom:12px; outline:none;"
+        onkeydown="if(event.key==='Enter') executeEmailLogin()">
+    <button onclick="executeEmailLogin()"
+        style="width:100%; padding:13px; background-color:#2D6A4F; color:#FFFFFF; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer;">
+        로그인
+    </button>
+    <div id="loginErrorMsg" style="color:#D32F2F; font-size:13px; margin-top:10px; display:none;">
+        ⚠️ @impact7.kr 이메일만 로그인 가능합니다.
     </div>
 </div>
 
-<!-- Google 계정 선택 모달 -->
-<div class="google-modal-overlay" id="googleLoginModal">
-    <div class="google-account-card">
-        <button class="google-card-close-btn" onclick="closeGoogleModalWithWarning()">✕</button>
-        <div class="google-admin-email" id="modalTopEmail">roh@impact7.kr</div>
-        <div class="google-admin-subtext">impact7.kr에서 관리함</div>
-        <div class="google-main-avatar-wrapper">
-            <div class="google-main-avatar">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-            </div>
-        </div>
-        <div class="google-welcome-title" id="modalWelcomeTitle">안녕하세요.</div>
-        <div class="google-manage-btn" onclick="closeGoogleModalWithWarning()">Google 계정 관리</div>
-        <div class="google-account-list-container">
-            <div class="google-list-toggle-header">
-                <span>계정 선택</span><span>▼</span>
-            </div>
-            <div class="google-dynamic-scroll-area" id="accountListBody">
-                <div class="google-account-item" onclick="verifyAndLogin('노재원', 'webnjw01@gmail.com')">
-                    <div class="google-item-avatar" style="background-color: #673AB7;">재원</div>
-                    <div class="google-item-info"><span class="google-item-name">노재원</span><span class="google-item-email">webnjw01@gmail.com</span></div>
-                </div>
-                <div class="google-account-item" onclick="verifyAndLogin('임팩트', 'admin@impact7.kr')">
-                    <div class="google-item-avatar" style="background-color: #009688;">임</div>
-                    <div class="google-item-info"><span class="google-item-name">임팩트</span><span class="google-item-email">admin@impact7.kr</span></div>
-                </div>
-                <div class="google-account-item" onclick="verifyAndLogin('임팩트7', 'impact7eng@gmail.com')">
-                    <div class="google-item-avatar" style="background-color: #FF5722;">임7</div>
-                    <div class="google-item-info"><span class="google-item-name">임팩트7</span><span class="google-item-email">impact7eng@gmail.com</span></div>
-                </div>
-                <div class="google-account-item" onclick="verifyAndLogin('Jae Won Roh', 'webnjw@gmail.com')">
-                    <div class="google-item-avatar" style="background-color: #3F51B5;">J</div>
-                    <div class="google-item-info"><span class="google-item-name">Jae Won Roh</span><span class="google-item-email">webnjw@gmail.com</span></div>
-                </div>
-                <div class="google-account-item" onclick="verifyAndLogin('impact7 aca', 'impact7tax@gmail.com')">
-                    <div class="google-item-avatar" style="background-color: #E91E63;">i</div>
-                    <div class="google-item-info"><span class="google-item-name">impact7 aca</span><span class="google-item-email">impact7tax@gmail.com</span></div>
-                </div>
-            </div>
-        </div>
-        <div class="google-footer-action-item" onclick="promptCustomUserWithoutName()">
-            <div class="google-footer-icon">＋</div><span>다른 계정 추가</span>
-        </div>
-        <div class="google-footer-action-item" onclick="executeClearSession()">
-            <div class="google-footer-icon">➔</div><span>모든 계정에서 로그아웃</span>
-        </div>
-    </div>
 </div>
+
 
 <!-- ───── 설정 모달 ───── -->
 <div class="settings-modal-overlay" id="settingsModal">
@@ -664,52 +766,75 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
     let lastActiveEmail   = "roh@impact7.kr";
 
     /* ── 초기화 ── */
-    window.onload = function () {
-        loadSavedCustomAccounts();
-        checkLoginState();
-        renderCalendarCoreSystem();
-        loadGuidelinesData();   // 저장된 지침 불러오기
-    };
+function switchMenu(menu) {
+    // 모든 메뉴 active 해제
+    document.querySelectorAll('.sidebar-menu-item').forEach(el => el.classList.remove('active'));
+
+    // 모든 콘텐츠 숨기기
+    document.querySelector('.main-container').style.display = 'none';
+    document.getElementById('comingSoonWrap').classList.remove('active');
+
+    if (menu === 'admission') {
+        document.getElementById('menu-admission').classList.add('active');
+        document.querySelector('.main-container').style.display = 'block';
+    } else if (menu === 'refund') {
+        document.getElementById('menu-refund').classList.add('active');
+        document.getElementById('comingSoonWrap').classList.add('active');
+    } else if (menu === 'coming1') {
+        document.getElementById('menu-coming1').classList.add('active');
+        document.getElementById('comingSoonWrap').classList.add('active');
+    } else if (menu === 'coming2') {
+        document.getElementById('menu-coming2').classList.add('active');
+        document.getElementById('comingSoonWrap').classList.add('active');
+    } else if (menu === 'coming3') {
+        document.getElementById('menu-coming3').classList.add('active');
+        document.getElementById('comingSoonWrap').classList.add('active');
+    }
+}
+
+window.onload = function () {
+    checkLoginState();
+    renderCalendarCoreSystem();
+    loadGuidelinesData();
+};
+
+;
 
     /* ── 로그인 관련 ── */
-    function loadSavedCustomAccounts() {
-        const storedList = localStorage.getItem('customImpactAccounts');
-        if (!storedList) return;
-        const accounts  = JSON.parse(storedList);
-        const container = document.getElementById('accountListBody');
-        accounts.forEach(acc => {
-            if ([...container.querySelectorAll('.google-item-email')].some(el => el.innerText === acc.email)) return;
-            const div = document.createElement('div');
-            div.className = 'google-account-item';
-            div.setAttribute('onclick', `verifyAndLogin('${acc.name}', '${acc.email}')`);
-            div.innerHTML = `
-                <div class="google-item-avatar" style="background-color: #673AB7;">${acc.name.charAt(0)}</div>
-                <div class="google-item-info">
-                    <span class="google-item-name">${acc.name}</span>
-                    <span class="google-item-email">${acc.email}</span>
-                </div>`;
-            container.appendChild(div);
-        });
-    }
+    
 
-    function checkLoginState() {
-        const savedUser  = localStorage.getItem('refundSystemUser');
-        const savedEmail = localStorage.getItem('refundSystemEmail') || "roh@impact7.kr";
-        lastActiveEmail  = savedEmail;
-        currentLoggedId  = savedUser || savedEmail.split('@')[0];
-        document.getElementById('currentBtnName').innerText  = `${currentLoggedId}(으)로 로그인`;
-        document.getElementById('currentBtnEmail').innerHTML = `${lastActiveEmail} <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 3px;"></i>`;
-        document.getElementById('modalTopEmail').innerText   = lastActiveEmail;
-        document.getElementById('modalWelcomeTitle').innerText = `안녕하세요, ${currentLoggedId}님.`;
-        if (savedUser) {
-            document.getElementById('lastEditorDisplay').innerText = savedUser;
-            document.getElementById('loginOverlay').style.display  = 'none';
-        } else {
-            document.getElementById('loginOverlay').style.display  = 'flex';
-        }
+function checkLoginState() {
+    const savedUser  = localStorage.getItem('admissionSystemUser');
+    const savedEmail = localStorage.getItem('admissionSystemEmail') || "";
+    lastActiveEmail  = savedEmail;
+    currentLoggedId  = savedUser || "";
+    if (savedUser) {
+        document.getElementById('lastEditorDisplay').innerText = savedUser;
+        document.getElementById('loginOverlay').style.display  = 'none';
+    } else {
+        document.getElementById('loginOverlay').style.display  = 'flex';
     }
+}
+function executeEmailLogin() {
+    const email = document.getElementById('loginEmailInput').value.trim();
+    const errorMsg = document.getElementById('loginErrorMsg');
+    if (!email.endsWith('@impact7.kr')) {
+        errorMsg.style.display = 'block';
+        return;
+    }
+    errorMsg.style.display = 'none';
+    const userName = email.split('@')[0];
+    localStorage.setItem('admissionSystemUser', userName);
+    localStorage.setItem('admissionSystemEmail', email);
+    currentLoggedId = userName;
+    lastActiveEmail = email;
+    document.getElementById('lastEditorDisplay').innerText = currentLoggedId;
+    document.getElementById('loginOverlay').style.display = 'none';
+    checkLoginState();
+}
 
-    function openGoogleAccountChooser() { document.getElementById('googleLoginModal').style.display = 'flex'; }
+
+    
 
     function verifyAndLogin(userName, userEmail) {
         if (!userEmail.endsWith('@impact7.kr')) {
@@ -744,7 +869,7 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
         verifyAndLogin(extractedName, customEmail);
     }
 
-    function closeGoogleModalWithWarning() { document.getElementById('googleLoginModal').style.display = 'none'; }
+  
 
     function executeClearSession() {
         localStorage.removeItem('refundSystemUser');
@@ -1393,5 +1518,17 @@ ${finalCalculatedTuitionText}
         alert(`설정 사항이 [최종 수정자: ${currentLoggedId}] 명의로 저장 및 수정 완료되었습니다.`);
     }
 </script>
+<!-- 준비중 화면 -->
+<div class="coming-soon-wrap" id="comingSoonWrap">
+    <div class="coming-soon-box">
+        <i class="fas fa-tools"></i>
+        <h2>준비중입니다</h2>
+        <p>해당 기능은 현재 개발 중입니다.<br>조금만 기다려 주세요!</p>
+    </div>
+</div>
+
+</div><!-- content-area 닫기 -->
+
+
 </body>
 </html>
