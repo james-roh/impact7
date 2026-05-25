@@ -348,6 +348,15 @@
       </div>
     </div>
   </div>
+ <!-- 처리 중 오버레이 -->
+<div id="processingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:16px;padding:40px 48px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+    <div style="margin-bottom:16px;"><span class="spinner" style="width:36px;height:36px;border-width:4px;"></span></div>
+    <div style="font-size:1.1rem;font-weight:800;color:#111;">처리 중...</div>
+    <div style="font-size:.85rem;color:var(--gray-500);margin-top:8px;">잠시만 기다려주세요</div>
+  </div>
+</div>
+
 <!-- 출고 확인 모달 -->
 <div id="confirmModal" style="
   display:none; position:fixed; top:0; left:0;
@@ -539,10 +548,11 @@ function doCheckout() {
 
 function executeCheckout(processor) {
   console.log('처리자:', processor);
-
   const btn = document.getElementById('checkoutBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 처리 중...';
+  document.getElementById('processingOverlay').style.display = 'flex';
+
 
   const url = API_URL 
     + '?action=checkout'
@@ -555,8 +565,10 @@ function executeCheckout(processor) {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
       console.log('API 응답:', JSON.stringify(result));
+      document.getElementById('processingOverlay').style.display = 'none';
       if(result.successCount > 0){
         showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
+
         parsedItems = [];
         clearAll();
         loadRecords();
@@ -566,9 +578,11 @@ function executeCheckout(processor) {
         showToast('처리 결과: ' + JSON.stringify(result), 'error');
       }
     })
-    .catch(err => {
+       .catch(err => {
+      document.getElementById('processingOverlay').style.display = 'none';
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
+
       showToast('오류: ' + err.message, 'error');
     });
 }
