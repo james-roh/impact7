@@ -553,18 +553,23 @@ function executeCheckout(processor) {
 
   fetch(API_URL + '?data=' + params)
     .then(r => r.json())
-    .then(result => {
+  .then(result => {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
-      if(result.success){
+      // 응답 내용 확인용
+      console.log('API 응답:', JSON.stringify(result));
+      if(result.successCount > 0){
         showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
         parsedItems = [];
         clearAll();
         loadRecords();
+      } else if(result.failList && result.failList.length > 0){
+        showToast('오류: ' + result.failList[0].error, 'error');
       } else {
-        showToast('오류: ' + result.message, 'error');
+        showToast('오류: ' + JSON.stringify(result), 'error');
       }
     })
+
     .catch(err => {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
