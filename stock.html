@@ -829,9 +829,9 @@ function handleCredentialResponse(response) {
 
 
 window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('impact7_user');
+    const saved = localStorage.getItem('impact7_user');
   if (saved) {
-    window._userId = saved;
+    window._userId = saved.split('@')[0];
     document.getElementById('processorDisplay').textContent = saved;
     document.getElementById('loginOverlay').style.display = 'none';
     loadInventory();
