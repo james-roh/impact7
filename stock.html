@@ -636,6 +636,21 @@ function closeConfirm() {
 }
 
 function confirmCheckout() {
+  const checkedItems = [];
+  const checkboxes = document.querySelectorAll('#confirmList input[type=checkbox]');
+  
+  parsedItems.forEach((item, idx) => {
+    const tbCheck = checkboxes[idx * 2];
+    const wbCheck = checkboxes[idx * 2 + 1];
+    if(tbCheck && tbCheck.checked){
+      checkedItems.push({...item, bookType: 'TEXTBOOK'});
+    }
+    if(wbCheck && wbCheck.checked){
+      checkedItems.push({...item, bookType: 'WORKBOOK'});
+    }
+  });
+  
+  parsedItems = checkedItems;
   closeConfirm();
   const processor = window._userId || '관리자';
   executeCheckout(processor);
@@ -766,10 +781,16 @@ function getCurrentStock(bookName, campus) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const menuItem = document.getElementById('menu-inventory');
-  if (menuItem) menuItem.classList.add('active');
-  loadRecords();
+  // 접속자 아이디 미리 가져오기
+  fetch(API_URL + '?action=getUserId')
+    .then(r => r.json())
+    .then(data => { 
+      window._userId = data.userId || '관리자';
+      console.log('접속자:', window._userId);
+    })
+    .catch(() => { window._userId = '관리자'; });
 });
+
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
