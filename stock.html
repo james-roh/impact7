@@ -410,7 +410,6 @@ function checkDuplicateAndCheckout(processor) {
       executeCheckout(processor);
     });
 }
-</script>
 function cancelDuplicate() {
   document.getElementById('duplicateOverlay').style.display = 'none';
   window._pendingProcessor = null;
@@ -423,7 +422,7 @@ function proceedDuplicate() {
   window._pendingProcessor = null;
   executeCheckout(processor);
 }
-
+</script>
 <!-- 출고 확인 모달 -->
 <div id="confirmModal" style="
   display:none; position:fixed; top:0; left:0;
