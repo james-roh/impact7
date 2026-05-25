@@ -544,19 +544,16 @@ function executeCheckout(processor) {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 처리 중...';
 
-  // POST 대신 GET 방식으로 변경
-  const params = encodeURIComponent(JSON.stringify({
-    action: 'checkout',
-    items: parsedItems,
-    processor: processor
-  }));
+  const url = API_URL 
+    + '?action=checkout'
+    + '&items=' + encodeURIComponent(JSON.stringify(parsedItems))
+    + '&processor=' + encodeURIComponent(processor);
 
-  fetch(API_URL + '?data=' + params)
+  fetch(url)
     .then(r => r.json())
-  .then(result => {
+    .then(result => {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
-      // 응답 내용 확인용
       console.log('API 응답:', JSON.stringify(result));
       if(result.successCount > 0){
         showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
@@ -566,16 +563,16 @@ function executeCheckout(processor) {
       } else if(result.failList && result.failList.length > 0){
         showToast('오류: ' + result.failList[0].error, 'error');
       } else {
-        showToast('오류: ' + JSON.stringify(result), 'error');
+        showToast('처리 결과: ' + JSON.stringify(result), 'error');
       }
     })
-
     .catch(err => {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
       showToast('오류: ' + err.message, 'error');
     });
 }
+
 
 
 // ── 초기화 ──
