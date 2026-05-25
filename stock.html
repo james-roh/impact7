@@ -544,6 +544,8 @@ function doCheckout() {
 
 
 function executeCheckout(processor) {
+  console.log('처리자:', processor);
+
   const btn = document.getElementById('checkoutBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 처리 중...';
