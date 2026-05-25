@@ -794,20 +794,6 @@ function getCurrentStock(bookName, campus) {
   return `<span class="${isLow ? 'stock-num-low' : ''}">${stock}</span>`;
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  // 접속자 아이디 미리 가져오기
-  fetch(API_URL + '?action=getUserId')
-    .then(r => r.json())
-    .then(data => { 
-      window._userId = data.userId || '관리자';
-      console.log('접속자:', window._userId);
-      document.getElementById('processorDisplay').textContent = window._userId;
-    })
-    .catch(() => { 
-      window._userId = '관리자';
-      document.getElementById('processorDisplay').textContent = '관리자';
-    });
-});
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -853,7 +839,16 @@ window.addEventListener('DOMContentLoaded', () => {
     window._userId = saved;
     document.getElementById('processorDisplay').textContent = saved;
     document.getElementById('loginOverlay').style.display = 'none';
+  } else {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+      hosted_domain: 'impact7.kr'
+    });
+    google.accounts.id.prompt();
   }
+  loadInventory();
+  loadRecords();
 });
 
 </script>
