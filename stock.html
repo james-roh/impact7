@@ -717,14 +717,26 @@ function renderInventoryTable(filter) {
     return;
   }
 
-    tbody.innerHTML = rows.map(r => `
-    <tr class="${r['부족여부'] ? 'stock-low' : ''}">
-      <td><strong>${r['교재명']}</strong></td>
-      <td><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
-      <td>${r['양지5']}</td>
-      <td>${r['양지10']}</td>
-      <td>${r['10단지']}</td>
-    </tr>`).join('');
+  let html = '';
+  let lastBook = '';
+  rows.forEach((r, idx) => {
+    const isNewBook = r['교재명'] !== lastBook;
+    const nextRow = rows[idx + 1];
+    const isLastOfBook = !nextRow || nextRow['교재명'] !== r['교재명'];
+    const bookCell = isNewBook
+      ? `<td rowspan="2" style="text-align:center;vertical-align:middle;font-weight:700;border-bottom:2px solid var(--gray-300);">${r['교재명']}</td>`
+      : '';
+    const borderStyle = isLastOfBook ? 'border-bottom:2px solid var(--gray-300);' : '';
+    html += `<tr style="background:white;${borderStyle}">
+      ${bookCell}
+      <td style="${borderStyle}"><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
+      <td style="${borderStyle}">${r['양지5']}</td>
+      <td style="${borderStyle}">${r['양지10']}</td>
+      <td style="${borderStyle}">${r['10단지']}</td>
+    </tr>`;
+    lastBook = r['교재명'];
+  });
+  tbody.innerHTML = html;
 
 }
 
