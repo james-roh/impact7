@@ -357,8 +357,10 @@
     <div style="font-size:.85rem;color:var(--gray-500);margin-top:8px;">잠시만 기다려주세요</div>
   </div>
 </div>
+<script>
 // 중복 체크 후 출고 처리
 function checkDuplicateAndCheckout(processor) {
+
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -408,7 +410,7 @@ function checkDuplicateAndCheckout(processor) {
       executeCheckout(processor);
     });
 }
-
+</script>
 function cancelDuplicate() {
   document.getElementById('duplicateOverlay').style.display = 'none';
   window._pendingProcessor = null;
