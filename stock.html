@@ -511,13 +511,7 @@ function doCheckout() {
   const text = document.getElementById('inputText').value.trim();
   if (!text) { showToast('출고 목록을 입력하세요.', 'error'); return; }
 
-  // 접속자 아이디 먼저 가져오기
-  fetch(API_URL + '?action=getUserId')
-    .then(r => r.json())
-    .then(data => {
-      window._userId = data.userId || '관리자';
-    })
-    .catch(() => { window._userId = '관리자'; });
+ 
 
   const url = API_URL + '?action=preview&text=' + encodeURIComponent(text);
 
