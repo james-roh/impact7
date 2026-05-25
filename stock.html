@@ -296,8 +296,9 @@
       <table>
         <thead>
           <tr>
-            <th>교재명</th><th>종류</th><th>권장수량</th>
-            <th>양지5</th><th>양지10</th><th>10단지</th><th>차이</th>
+<th>교재명</th><th>종류</th>
+<th>양지5</th><th>양지10</th><th>10단지</th>
+
           </tr>
         </thead>
         <tbody id="inventoryBody">
@@ -712,21 +713,19 @@ function renderInventoryTable(filter) {
 
   const tbody = document.getElementById('inventoryBody');
   if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--gray-600);">해당 조건의 교재가 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">해당 조건의 교재가 없습니다.</td></tr>';
     return;
   }
 
-  const nc = (n, ref) => n < ref ? 'stock-num-low' : (n < ref * 1.2 ? 'stock-num-warn' : '');
-  tbody.innerHTML = rows.map(r => `
+    tbody.innerHTML = rows.map(r => `
     <tr class="${r['부족여부'] ? 'stock-low' : ''}">
       <td><strong>${r['교재명']}</strong></td>
       <td><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
-      <td>${r['권장수량']}</td>
-      <td class="${nc(r['양지5'],r['권장수량'])}">${r['양지5']}</td>
-      <td class="${nc(r['양지10'],r['권장수량'])}">${r['양지10']}</td>
-      <td class="${nc(r['10단지'],r['권장수량'])}">${r['10단지']}</td>
-      <td>${r['차이']}</td>
+      <td>${r['양지5']}</td>
+      <td>${r['양지10']}</td>
+      <td>${r['10단지']}</td>
     </tr>`).join('');
+
 }
 
 // ── 출고 내역 ──
@@ -748,7 +747,7 @@ function onRecordsLoaded(data) {
   if (data.error) { showToast(data.error, 'error'); return; }
   const tbody = document.getElementById('recordsBody');
   if (!data.rows || data.rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--gray-600);">출고 내역이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">출고 내역이 없습니다.</td></tr>';
     return;
   }
   const cb = { '양지5':'badge-blue','양지10':'badge-green','10단지':'badge-purple' };
