@@ -680,27 +680,9 @@ function onInventoryLoaded(data) {
   if (data.error) { showToast(data.error, 'error'); return; }
   inventoryData = data.rows || [];
   document.getElementById('invUpdatedAt').textContent = '갱신: ' + (data.updatedAt || '');
-
-  const total    = inventoryData.length;
-  const lowCount = inventoryData.filter(r => r['부족여부']).length;
-  document.getElementById('summaryGrid').innerHTML = `
-    <div class="summary-card ${lowCount > 0 ? 'danger' : 'success'}">
-      <div class="s-label">재고 부족</div>
-      <div class="s-value" style="color:${lowCount>0?'var(--danger)':'var(--success)'};">
-        ${lowCount}<span style="font-size:.85rem;font-weight:400;">종</span></div>
-    </div>
-    <div class="summary-card success">
-      <div class="s-label">재고 정상</div>
-      <div class="s-value" style="color:var(--success);">
-        ${total-lowCount}<span style="font-size:.85rem;font-weight:400;">종</span></div>
-    </div>
-    <div class="summary-card">
-      <div class="s-label">전체 교재</div>
-      <div class="s-value">${total}<span style="font-size:.85rem;font-weight:400;">종</span></div>
-    </div>`;
-
   renderInventoryTable(currentFilter);
 }
+
 
 function filterInventory(filter, btn) {
   currentFilter = filter;
