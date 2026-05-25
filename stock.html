@@ -230,8 +230,16 @@
 
  
 
-          <label>출고 목록 입력</label>
-          <textarea id="inputText" rows="9"
+<div style="display:none;">
+  <strong id="processorDisplay"></strong>
+</div>
+
+
+
+<textarea id="inputText" rows="9" style="resize: none;"
+
+
+
             placeholder="아래와 같이 붙혀넣기 후 출고처리를 누르세요&#10;&#10;&#10;I202 임승아 숙어 Fundamental&#10;A201 이서하 보카4&#10;HA131 김민준 ISC3"></textarea>
 
 
@@ -652,9 +660,12 @@ function confirmCheckout() {
   
   parsedItems = checkedItems;
   closeConfirm();
-  const processor = window._userId || '관리자';
+
+  // 처리자 입력창에서 가져오기
+  const processor = document.getElementById('processorInput').value.trim() || '관리자';
   executeCheckout(processor);
 }
+
 
 
 // ── 재고 현황 ──
@@ -787,8 +798,12 @@ window.addEventListener('DOMContentLoaded', () => {
     .then(data => { 
       window._userId = data.userId || '관리자';
       console.log('접속자:', window._userId);
+      document.getElementById('processorDisplay').textContent = window._userId;
     })
-    .catch(() => { window._userId = '관리자'; });
+    .catch(() => { 
+      window._userId = '관리자';
+      document.getElementById('processorDisplay').textContent = '관리자';
+    });
 });
 
 function formatDate(dateStr) {
