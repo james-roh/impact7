@@ -300,7 +300,7 @@
           </tr>
         </thead>
         <tbody id="inventoryBody">
-          <tr><td colspan="7" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
+          <tr><td colspan="6" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
         </tbody>
       </table>
     </div>
@@ -330,13 +330,14 @@
       <div class="table-wrap">
         <table>
                     <thead>
-            <tr>
-              <th>날짜</th><th>대상</th><th>교재명</th>
-              <th>수량</th><th>처리자</th><th>현재 재고</th><th>비고</th>
-            </tr>
+        <tr>
+  <th>날짜</th><th>대상</th><th>교재명</th>
+  <th>수량</th><th>처리자</th><th>비고</th>
+</tr>
+
           </thead>
           <tbody id="recordsBody">
-            <tr><td colspan="7" style="text-align:center;padding:36px;color:var(--gray-600);">
+            <tr><td colspan="6" style="text-align:center;padding:36px;color:var(--gray-600);">
               새로고침 버튼을 눌러주세요.
             </td></tr>
           </tbody>
@@ -663,7 +664,7 @@ function confirmCheckout() {
 // ── 재고 현황 ──
 function loadInventory() {
   document.getElementById('inventoryBody').innerHTML =
-    '<tr><td colspan="7" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
+    '<tr><td colspan="6" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
 
   const url = API_URL + '?action=getInventory';
   fetch(url)
@@ -672,7 +673,7 @@ function loadInventory() {
     .catch(err => {
       showToast('재고 로드 오류: ' + err.message, 'error');
       document.getElementById('inventoryBody').innerHTML =
-        '<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--danger);">❌ 데이터 로드 실패</td></tr>';
+        '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--danger);">❌ 데이터 로드 실패</td></tr>';
     });
 }
 
@@ -699,7 +700,7 @@ function renderInventoryTable(filter) {
 
   const tbody = document.getElementById('inventoryBody');
   if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--gray-600);">해당 조건의 교재가 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--gray-600);">해당 조건의 교재가 없습니다.</td></tr>';
     return;
   }
 
@@ -719,7 +720,7 @@ function renderInventoryTable(filter) {
 // ── 출고 내역 ──
 function loadRecords() {
   document.getElementById('recordsBody').innerHTML =
-    '<tr><td colspan="7" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
+    '<tr><td colspan="6" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
 
   const recordsPromise   = callAPI({ action: 'getRecords' });
   const inventoryPromise = inventoryData.length === 0
@@ -735,19 +736,19 @@ function onRecordsLoaded(data) {
   if (data.error) { showToast(data.error, 'error'); return; }
   const tbody = document.getElementById('recordsBody');
   if (!data.rows || data.rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--gray-600);">출고 내역이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--gray-600);">출고 내역이 없습니다.</td></tr>';
     return;
   }
   const cb = { '양지5':'badge-blue','양지10':'badge-green','10단지':'badge-purple' };
-  tbody.innerHTML = data.rows.map(r => `<tr>
-<td>${formatDate(r['날짜'])}</td>
+   tbody.innerHTML = data.rows.map(r => `<tr>
+    <td>${formatDate(r['날짜'])}</td>
     <td><strong>${r['반코드']}</strong> ${r['학생명']}</td>
     <td>${r['교재명']}</td>
     <td>${r['수량']}</td>
     <td>${r['처리자']}</td>
-    <td>${getCurrentStock(r['교재명'], r['캠퍼스'])}</td>
     <td></td>
   </tr>`).join('');
+
 }
 
 function getCurrentStock(bookName, campus) {
