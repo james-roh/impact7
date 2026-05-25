@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>교재 재고 관리</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="sidebar.js"></script>
+<script src="sidebar.js">
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -205,6 +206,8 @@
     padding: 2px 6px; border-radius: 4px;
   }
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 </head>
 <body>
 
@@ -815,7 +818,59 @@ function formatDate(dateStr) {
     hour: '2-digit', minute: '2-digit', hour12: false
   });
 }
+const GOOGLE_CLIENT_ID = '497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com';
+
+function googleLogin() {
+  google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'email profile',
+    callback: (response) => {
+      if (response.access_token) {
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: 'Bearer ' + response.access_token }
+        })
+        .then(r => r.json())
+        .then(info => {
+          const email = info.email || '';
+          if (!email.endsWith('@impact7.kr')) {
+            alert('학원 공식 계정(@impact7.kr)으로 로그인해주세요!');
+            return;
+          }
+          const userId = email.split('@')[0];
+          localStorage.setItem('impact7_user', userId);
+          window._userId = userId;
+          document.getElementById('processorDisplay').textContent = userId;
+          document.getElementById('loginOverlay').style.display = 'none';
+        });
+      }
+    }
+  }).requestAccessToken();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('impact7_user');
+  if (saved) {
+    window._userId = saved;
+    document.getElementById('processorDisplay').textContent = saved;
+    document.getElementById('loginOverlay').style.display = 'none';
+  }
+});
 
 </script>
 </body>
+<!-- 로그인 오버레이 -->
+<div id="loginOverlay" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#f0f4f8;z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:20px;padding:48px 40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);max-width:360px;width:90%;">
+    <div style="width:72px;height:72px;background:#4F46E5;border-radius:18px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;">
+      <span style="font-size:36px;">🎓</span>
+    </div>
+    <h1 style="font-size:1.5rem;font-weight:800;color:#1a1a2e;margin-bottom:8px;">IMPACT7</h1>
+    <p style="font-size:.9rem;color:#6b7280;margin-bottom:32px;">학원 공식 계정(@impact7.kr) 필수</p>
+    <button onclick="googleLogin()" style="width:100%;padding:14px;background:#1a1a2e;color:white;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <img src="https://www.google.com/favicon.ico" width="20" height="20">
+      구글 계정으로 로그인하기
+    </button>
+  </div>
+</div>
+
 </html>
