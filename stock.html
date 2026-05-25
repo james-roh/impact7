@@ -206,7 +206,8 @@
     padding: 2px 6px; border-radius: 4px;
   }
 </style>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" onload="if(window.onGoogleLibraryLoad) window.onGoogleLibraryLoad();" defer></script>
+
 
 </head>
 <body>
@@ -796,8 +797,11 @@ function googleLogin() {
             alert('학원 공식 계정(@impact7.kr)으로 로그인해주세요!');
             return;
           }
-          const userId = email.split('@')[0];
-          localStorage.setItem('impact7_user', userId);
+  const userId = email.split('@')[0];
+  localStorage.setItem('impact7_user', userId);
+  localStorage.removeItem('impact7_user');
+  localStorage.setItem('impact7_user', userId);
+
           window._userId = userId;
           document.getElementById('processorDisplay').textContent = userId;
           document.getElementById('loginOverlay').style.display = 'none';
@@ -830,17 +834,22 @@ window.addEventListener('DOMContentLoaded', () => {
     window._userId = saved;
     document.getElementById('processorDisplay').textContent = saved;
     document.getElementById('loginOverlay').style.display = 'none';
+    loadInventory();
+    loadRecords();
   } else {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-      hosted_domain: 'impact7.kr'
-    });
-    google.accounts.id.prompt();
+    window.onGoogleLibraryLoad = function() {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        hosted_domain: 'impact7.kr'
+      });
+      google.accounts.id.prompt();
+    };
+    loadInventory();
+    loadRecords();
   }
-  loadInventory();
-  loadRecords();
 });
+
 
 </script>
 </body>
