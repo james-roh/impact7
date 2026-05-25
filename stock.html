@@ -663,11 +663,10 @@ function confirmCheckout() {
   
   parsedItems = checkedItems;
   closeConfirm();
-
-  // 처리자 입력창에서 가져오기
-  const processor = document.getElementById('processorInput').value.trim() || '관리자';
+  const processor = window._userId || '관리자';
   executeCheckout(processor);
 }
+
 
 
 
