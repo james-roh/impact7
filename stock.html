@@ -507,7 +507,17 @@ function doCheckout() {
   const text = document.getElementById('inputText').value.trim();
   if (!text) { showToast('출고 목록을 입력하세요.', 'error'); return; }
 
+  // 접속자 아이디 먼저 가져오기
+  fetch(API_URL + '?action=getUserId')
+    .then(r => r.json())
+    .then(data => {
+      window._userId = data.userId || '관리자';
+    })
+    .catch(() => { window._userId = '관리자'; });
+
   const url = API_URL + '?action=preview&text=' + encodeURIComponent(text);
+
+
   fetch(url)
     .then(r => r.json())
     .then(result => {
@@ -534,25 +544,32 @@ function executeCheckout(processor) {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 처리 중...';
 
-  fetch(API_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'checkout', items: parsedItems, processor }),
-  })
-  .then(() => {
-    btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
-    btn.disabled  = false;
-    showToast(`🎉 ${parsedItems.length}건 출고 처리 완료!`, 'success', 4000);
-    parsedItems = [];
-    clearAll();
-    loadRecords();
-  })
+  // POST 대신 GET 방식으로 변경
+  const params = encodeURIComponent(JSON.stringify({
+    action: 'checkout',
+    items: parsedItems,
+    processor: processor
+  }));
+
+  fetch(API_URL + '?data=' + params)
+    .then(r => r.json())
+    .then(result => {
+      btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
+      btn.disabled = false;
+      if(result.success){
+        showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
+        parsedItems = [];
+        clearAll();
+        loadRecords();
+      } else {
+        showToast('오류: ' + result.message, 'error');
+      }
+    })
     .catch(err => {
-    btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
-    btn.disabled  = false;
-    showToast('오류: ' + err.message, 'error');
-  });
+      btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
+      btn.disabled = false;
+      showToast('오류: ' + err.message, 'error');
+    });
 }
 
 
@@ -618,7 +635,8 @@ function closeConfirm() {
 
 function confirmCheckout() {
   closeConfirm();
-  executeCheckout('관리자');
+  const processor = window._userId || '관리자';
+  executeCheckout(processor);
 }
 
 
@@ -720,7 +738,7 @@ function onRecordsLoaded(data) {
   }
   const cb = { '양지5':'badge-blue','양지10':'badge-green','10단지':'badge-purple' };
   tbody.innerHTML = data.rows.map(r => `<tr>
-    <td>${r['날짜']}</td>
+<td>${formatDate(r['날짜'])}</td>
     <td><strong>${r['반코드']}</strong> ${r['학생명']}</td>
     <td>${r['교재명']}</td>
     <td>${r['수량']}</td>
@@ -750,6 +768,16 @@ window.addEventListener('DOMContentLoaded', () => {
   if (menuItem) menuItem.classList.add('active');
   loadRecords();
 });
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleString('ko-KR', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  });
+}
+
 </script>
 </body>
 </html>
