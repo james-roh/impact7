@@ -358,71 +358,6 @@
   </div>
 </div>
 
-  console.log('중복체크 시작, parsedItems:', JSON.stringify(parsedItems));
-  const oneWeekAgo = new Date();
-
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-  fetch(API_URL + '?action=getRecords')
-    .then(r => r.json())
-    .then(data => {
-      const recentRows = (data.rows || []).filter(r => {
-        const d = new Date(r['날짜']);
-        return d >= oneWeekAgo;
-      });
-
-      const duplicates = [];
-      parsedItems.forEach(item => {
-        recentRows.forEach(rec => {
-          if (
-            rec['학생명'] === item.studentName &&
-            rec['교재명'] === item.bookName
-          ) {
-            duplicates.push({
-              date: rec['날짜'],
-              student: rec['학생명'],
-              classCode: rec['반코드'],
-              book: rec['교재명'],
-              type: rec['종류'] || ''
-            });
-          }
-        });
-      });
-
-      // 중복 제거
-      const uniqueDuplicates = duplicates.filter((d, i, arr) =>
-        arr.findIndex(x => x.student === d.student && x.book === d.book && x.date === d.date) === i
-      );
-
-      if (uniqueDuplicates.length > 0) {
-        const listHtml = uniqueDuplicates.map(d =>
-          `• ${formatDate(d.date)} | ${d.classCode} ${d.student} | ${d.book} ${d.type ? '('+d.type+')' : ''}`
-        ).join('<br>');
-        document.getElementById('duplicateList').innerHTML = listHtml;
-        document.getElementById('duplicateOverlay').style.display = 'flex';
-        window._pendingProcessor = processor;
-      } else {
-        executeCheckout(processor);
-      }
-    })
-    .catch(() => {
-      executeCheckout(processor);
-    });
-}
-
-function cancelDuplicate() {
-  document.getElementById('duplicateOverlay').style.display = 'none';
-  window._pendingProcessor = null;
-  showToast('출고가 취소되었습니다.', 'warning');
-}
-
-function proceedDuplicate() {
-  document.getElementById('duplicateOverlay').style.display = 'none';
-  const processor = window._pendingProcessor || window._userId || '관리자';
-  window._pendingProcessor = null;
-  executeCheckout(processor);
-}
-</script>
 <!-- 중복 경고 모달 -->
 <div id="duplicateOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:16px;padding:32px 28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
@@ -681,9 +616,8 @@ function clearAll() {
   textarea.value = '';
   textarea.focus();
   parsedItems = [];
-  showToast('출고 처리 완료!', 'success');
-
 }
+
 function showGuideError(errors) {
   const modal = document.getElementById('guideErrorModal');
   const list  = document.getElementById('guideErrorList');
