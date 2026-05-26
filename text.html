@@ -559,7 +559,6 @@
 </head>
 
 <body>
-<body>
 
 <!-- 사이드바 -->
 
@@ -880,15 +879,14 @@ function executeEmailLogin() {
 
     /* ── 설정 모달 ── */
 function openSettingsModal() {
-    const currentEmail = localStorage.getItem('refundSystemEmail') || lastActiveEmail || "";
+    const currentEmail = localStorage.getItem('admissionSystemEmail') || lastActiveEmail || "";
     if (currentEmail !== SETTINGS_ADMIN_EMAIL) {
-        // 권한 없으면 → Google 계정 선택창 열어서 roh@impact7.kr 로 로그인 유도
-        alert(`⛔ 접근 권한 없음\n설정 메뉴는 관리자 계정(${SETTINGS_ADMIN_EMAIL})으로만 접근할 수 있습니다.\n\n현재 계정: ${currentEmail || "미로그인"}\n\n확인을 누르면 계정 선택 창이 열립니다.`);
-        openGoogleAccountChooser();
+        alert(`⛔ 접근 권한 없음\n설정 메뉴는 관리자 계정(${SETTINGS_ADMIN_EMAIL})으로만 접근할 수 있습니다.\n\n현재 계정: ${currentEmail || "미로그인"}`);
         return;
     }
     document.getElementById('settingsModal').classList.add('active');
 }
+
 
     function closeSettingsModal() {
         document.getElementById('settingsModal').classList.remove('active');
@@ -1088,6 +1086,14 @@ function parseGuidelineRules() {
             currentCode = null; isElemMid = true; bookLines = [];
             return;
         }
+
+        // "고등" 단독 줄 무시
+        if (trimmed === '고등') {
+            saveCurrentSection();
+            currentCode = null; isElemMid = false; bookLines = [];
+            return;
+        }
+
 
         // "HA", "HX", "HS" 등 코드 단독 줄
         const codeOnly = trimmed.match(/^([A-Z]{1,3})$/);
@@ -1391,8 +1397,13 @@ const activeDays = parseActiveTargetDays(lessonDaysText);
         let perLessonAmount     = 0;
         let finalAttendedPrice  = 0;
         if (rawPrice && !isNaN(rawPrice)) {
-            perLessonAmount    = Math.round(rawPrice / totalMonthLessonsCount);
-            finalAttendedPrice = perLessonAmount * actualAttendanceCount;
+perLessonAmount = Math.floor(rawPrice / totalMonthLessonsCount);
+if (actualAttendanceCount >= totalMonthLessonsCount) {
+    finalAttendedPrice = rawPrice;
+} else {
+    finalAttendedPrice = Math.floor((perLessonAmount * actualAttendanceCount) / 1000) * 1000;
+}
+
         }
 
         document.getElementById('perLessonPriceDisplay').value   = `${perLessonAmount.toLocaleString()} 원 (${totalMonthLessonsCount}회 기준)`;
