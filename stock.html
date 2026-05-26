@@ -745,7 +745,8 @@ function checkDuplicateAndCheckout(processor) {
       const duplicates = [];
       parsedItems.forEach(item => {
         recentRows.forEach(rec => {
-          if (rec['학생명'] === item.studentName && rec['교재명'] === item.bookName) {
+         if (rec['학생명'] === item.studentName && rec['교재명'].includes(item.bookName)) {
+
             duplicates.push({
               date: rec['날짜'],
               student: rec['학생명'],
