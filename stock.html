@@ -360,7 +360,9 @@
 <script>
 // 중복 체크 후 출고 처리
 function checkDuplicateAndCheckout(processor) {
+  console.log('중복체크 시작, parsedItems:', JSON.stringify(parsedItems));
   const oneWeekAgo = new Date();
+
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   fetch(API_URL + '?action=getRecords')
