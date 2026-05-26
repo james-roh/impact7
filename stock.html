@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>교재 재고 관리</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script src="sidebar.js">
-</script>
+<script src="sidebar.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -32,31 +31,24 @@
     background: var(--bg);
     color: var(--gray-800);
   }
-
-  /* ── 메인 컨테이너 ── */
   .main-container { padding: 25px; max-width: 760px; }
   .main-system-title {
     font-size: 22px; font-weight: 800;
     color: #111; margin-bottom: 20px; letter-spacing: -0.5px;
   }
-
-  /* ── 탭 바 ── */
   .tab-bar {
     display: flex; gap: 0;
     border-bottom: 2px solid var(--gray-200);
     margin-bottom: 20px;
   }
-    .tab-btn {
+  .tab-btn {
     padding: 11px 20px; border: none; background: transparent;
     font-size: 1rem; font-weight: 800; color: #111;
     cursor: pointer; border-bottom: 3px solid transparent;
     margin-bottom: -2px; transition: all .2s;
   }
-
   .tab-btn:hover { color: var(--primary); }
   .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-  /* ── 카드 ── */
   .card {
     background: var(--card); border-radius: var(--radius);
     box-shadow: var(--shadow); padding: 22px; margin-bottom: 18px;
@@ -65,11 +57,8 @@
     font-size: .95rem; font-weight: 700; color: var(--gray-800);
     margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
   }
-
-  /* ── 입력 폼 ── */
   .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   @media(max-width:768px){ .input-grid{ grid-template-columns:1fr; } }
-
   label { display: block; font-size: .83rem; font-weight: 700;
     color: var(--gray-700); margin-bottom: 5px; }
   textarea, input[type=text] {
@@ -79,7 +68,6 @@
     transition: border .2s; resize: none;
     background: #FAFAFA;
   }
-
   textarea:focus, input[type=text]:focus {
     outline: none; border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(27,107,69,.1);
@@ -89,8 +77,6 @@
     font-size: .76rem; color: var(--gray-600);
     margin-top: 6px; line-height: 1.6;
   }
-
-  /* ── 버튼 ── */
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 10px 18px; border-radius: 10px; border: none;
@@ -106,8 +92,6 @@
   .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
   .btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
   .btn-group { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-
-  /* ── 테이블 ── */
   .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--gray-200); }
   table { width: 100%; border-collapse: collapse; font-size: .84rem; }
   thead tr { background: #F9FAFB; }
@@ -118,8 +102,6 @@
   td { padding: 9px 13px; border-bottom: 1px solid #F3F4F6; white-space: nowrap; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #F9FAFB; }
-
-  /* ── 배지 ── */
   .badge {
     display: inline-block; padding: 2px 9px;
     border-radius: 20px; font-size: .73rem; font-weight: 700;
@@ -130,8 +112,6 @@
   .badge-purple { background:#F3E8FF; color:#6B21A8; }
   .badge-red    { background:#FEE2E2; color:#991B1B; }
   .badge-gray   { background:#F3F4F6; color:#4B5563; }
-
-  /* ── 요약 카드 ── */
   .summary-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
     gap: 12px; margin-bottom: 18px;
@@ -145,21 +125,15 @@
   .summary-card.success { border-left-color: var(--success); }
   .s-label { font-size: .75rem; color: var(--gray-600); font-weight: 700; }
   .s-value { font-size: 1.5rem; font-weight: 800; margin-top: 3px; }
-
-  /* ── 재고 부족 강조 ── */
   .stock-low td { background: #FFF7ED !important; }
   .stock-num-low  { color: var(--danger);  font-weight: 800; }
   .stock-num-warn { color: var(--warning); font-weight: 700; }
-
-  /* ── 오류 박스 ── */
   .error-item {
     background: #FEF2F2; border: 1px solid #FECACA;
     border-radius: 8px; padding: 9px 13px;
     font-size: .83rem; color: var(--danger); margin-bottom: 6px;
   }
   .error-item strong { display: block; margin-bottom: 2px; }
-
-  /* ── 필터 버튼 ── */
   .filter-wrap { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
   .filter-btn {
     padding: 5px 13px; border-radius: 20px;
@@ -170,16 +144,12 @@
   .filter-btn:hover, .filter-btn.active {
     border-color: var(--primary); color: var(--primary); background: #ECFDF5;
   }
-
-  /* ── 로딩 스피너 ── */
   .spinner {
     display: inline-block; width: 16px; height: 16px;
     border: 2px solid var(--gray-200); border-top-color: var(--primary);
     border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── 토스트 ── */
   #toast {
     position: fixed; bottom: 28px; right: 28px;
     background: var(--gray-800); color: #fff;
@@ -193,7 +163,6 @@
   #toast.success{ background: var(--success); }
   #toast.error  { background: var(--danger); }
   #toast.warning{ background: var(--warning); }
-
   .tab-content { display: none; }
   .tab-content.active { display: block; }
   .refresh-row {
@@ -207,66 +176,38 @@
   }
 </style>
 <script src="https://accounts.google.com/gsi/client" onload="if(window.onGoogleLibraryLoad) window.onGoogleLibraryLoad();" defer></script>
-
-
 </head>
 <body>
 
 <div class="main-container">
   <div class="main-system-title">교재 재고 관리</div>
 
-  <!-- 탭 바 -->
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('input', this)">출고 입력</button>
-  <button class="tab-btn" onclick="switchTab('receiving', this)">입고 작업</button>
-</div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('input', this)">출고 입력</button>
+    <button class="tab-btn" onclick="switchTab('receiving', this)">입고 작업</button>
+  </div>
 
-
-
-  <!-- ===== 출고 입력 탭 ===== -->
   <div id="tab-input" class="tab-content active">
-     <div>
-
-
-      <!-- 입력 영역 -->
+    <div>
       <div>
-                <div class="card">
+        <div class="card">
           <div class="card-title" style="font-size:1rem;font-weight:800;color:#111;">출고 정보 입력</div>
-
- 
-
-<div style="display:none;">
-  <strong id="processorDisplay"></strong>
-</div>
-
-
-
-<textarea id="inputText" rows="9" style="resize: none;"
-
-
-
+          <div style="display:none;">
+            <strong id="processorDisplay"></strong>
+          </div>
+          <textarea id="inputText" rows="9" style="resize: none;"
             placeholder="아래와 같이 붙혀넣기 후 출고처리를 누르세요&#10;&#10;&#10;I202 임승아 숙어 Fundamental&#10;A201 이서하 보카4&#10;HA131 김민준 ISC3"></textarea>
-
-
-
-
           <div class="btn-group">
-            <button class="btn btn-primary" id="checkoutBtn"
-              onclick="doCheckout()">
+            <button class="btn btn-primary" id="checkoutBtn" onclick="doCheckout()">
               <i class="fas fa-check"></i> 출고 처리
             </button>
             <button class="btn btn-outline" onclick="clearAll()">
               <i class="fas fa-trash"></i> 초기화
             </button>
           </div>
-
         </div>
       </div>
-
- 
     </div>
-
-    <!-- 미리보기 결과 -->
     <div id="previewSection" class="card" style="display:none;">
       <div class="card-title"><i class="fas fa-list-check"></i> 파싱 미리보기</div>
       <div id="previewTableWrap"></div>
@@ -274,82 +215,67 @@
     </div>
   </div>
 
-<!-- ===== 재고 현황 (탭 밖 고정 영역) ===== -->
-<div style="margin-top:32px;">
-  <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">재고 현황</div>
-  <div class="card">
-    <div class="refresh-row">
-      <div class="card-title" style="margin-bottom:0;"><i class="fas fa-boxes-stacked"></i> 교재별 재고 현황</div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="updated-at" id="invUpdatedAt"></span>
-        <button class="btn btn-outline" onclick="loadInventory()" style="padding:6px 12px;font-size:.8rem;"><i class="fas fa-rotate-right"></i> 새로고침</button>
-      </div>
-    </div>
-    <div class="filter-wrap">
-      <span style="font-size:.8rem;font-weight:700;color:var(--gray-600);">필터:</span>
-      <button class="filter-btn active" onclick="filterInventory('all',this)">전체</button>
-      <button class="filter-btn" onclick="filterInventory('low',this)">⚠️ 재고부족</button>
-      <button class="filter-btn" onclick="filterInventory('TEXTBOOK',this)">TEXTBOOK</button>
-      <button class="filter-btn" onclick="filterInventory('WORKBOOK',this)">WORKBOOK</button>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-<th>교재명</th><th>종류</th>
-<th>양지5</th><th>양지10</th><th>10단지</th>
-
-          </tr>
-        </thead>
-        <tbody id="inventoryBody">
-          <tr><td colspan="6" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-  <!-- ===== 출고 내역 (탭 밖 고정 영역) ===== -->
-
-    <!-- 탭 밖 고정 영역 -->
+  <!-- 재고 현황 -->
   <div style="margin-top:32px;">
-    <div style="font-size:1.1rem;font-weight:800;color:#111;
-      margin-bottom:12px;padding-bottom:10px;
-      border-bottom:2px solid var(--gray-200);">
-      출고 내역
-    </div>
-
+    <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">재고 현황</div>
     <div class="card">
       <div class="refresh-row">
-        <div class="card-title" style="margin-bottom:0;">
-          출고 내역 (최근 100건)
+        <div class="card-title" style="margin-bottom:0;"><i class="fas fa-boxes-stacked"></i> 교재별 재고 현황</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="updated-at" id="invUpdatedAt"></span>
+          <button class="btn btn-outline" onclick="loadInventory()" style="padding:6px 12px;font-size:.8rem;"><i class="fas fa-rotate-right"></i> 새로고침</button>
         </div>
-        <button class="btn btn-outline" onclick="loadRecords()"
-          style="padding:6px 12px;font-size:.8rem;">
+      </div>
+      <div class="filter-wrap">
+        <span style="font-size:.8rem;font-weight:700;color:var(--gray-600);">필터:</span>
+        <button class="filter-btn active" onclick="filterInventory('all',this)">전체</button>
+        <button class="filter-btn" onclick="filterInventory('low',this)">⚠️ 재고부족</button>
+        <button class="filter-btn" onclick="filterInventory('TEXTBOOK',this)">TEXTBOOK</button>
+        <button class="filter-btn" onclick="filterInventory('WORKBOOK',this)">WORKBOOK</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>교재명</th><th>종류</th><th>양지5</th><th>양지10</th><th>10단지</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody">
+            <tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 출고 내역 -->
+  <div style="margin-top:32px;">
+    <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">출고 내역</div>
+    <div class="card">
+      <div class="refresh-row">
+        <div class="card-title" style="margin-bottom:0;">출고 내역 (최근 100건)</div>
+        <button class="btn btn-outline" onclick="loadRecords()" style="padding:6px 12px;font-size:.8rem;">
           <i class="fas fa-rotate-right"></i> 새로고침
         </button>
       </div>
       <div class="table-wrap">
         <table>
-                    <thead>
-        <tr>
-  <th>날짜</th><th>대상</th><th>교재명</th>
- <th>수량</th><th>처리자</th>
-
-</tr>
-
+          <thead>
+            <tr>
+              <th>날짜</th><th>대상</th><th>교재명</th><th>수량</th><th>처리자</th>
+            </tr>
           </thead>
           <tbody id="recordsBody">
-            <tr><td colspan="6" style="text-align:center;padding:36px;color:var(--gray-600);">
-              새로고침 버튼을 눌러주세요.
-            </td></tr>
+            <tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">새로고침 버튼을 눌러주세요.</td></tr>
           </tbody>
-
         </table>
       </div>
     </div>
   </div>
- <!-- 처리 중 오버레이 -->
+
+</div><!-- /main-container -->
+
+<!-- 처리 중 오버레이 -->
 <div id="processingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;">
   <div style="background:white;border-radius:16px;padding:40px 48px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
     <div style="margin-bottom:16px;"><span class="spinner" style="width:36px;height:36px;border-width:4px;"></span></div>
@@ -371,21 +297,10 @@
   </div>
 </div>
 
-
- <!-- 출고 확인 모달 -->
-<div id="confirmModal" style="
-  display:none; position:fixed; top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.4);
-  z-index:9999;
-  align-items:center; justify-content:center;">
-  <div style="
-    background:#fff; border-radius:16px;
-    padding:28px; width:90%; max-width:420px;
-    box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-    <div style="font-size:1rem;font-weight:800;color:#111;margin-bottom:16px;">
-      출고 확인
-    </div>
+<!-- 출고 확인 모달 -->
+<div id="confirmModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <div style="font-size:1rem;font-weight:800;color:#111;margin-bottom:16px;">출고 확인</div>
     <div id="confirmList" style="margin-bottom:20px;"></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button class="btn btn-outline" onclick="closeConfirm()">취소</button>
@@ -393,20 +308,11 @@
     </div>
   </div>
 </div>
+
 <!-- 지침 오류 모달 -->
-<div id="guideErrorModal" style="
-  display:none; position:fixed; top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.4);
-  z-index:9999;
-  align-items:center; justify-content:center;">
-  <div style="
-    background:#fff; border-radius:16px;
-    padding:28px; width:90%; max-width:420px;
-    box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-    <div style="font-size:1rem;font-weight:800;color:var(--danger);margin-bottom:16px;">
-      ⚠️ 지침오류
-    </div>
+<div id="guideErrorModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+    <div style="font-size:1rem;font-weight:800;color:var(--danger);margin-bottom:16px;">⚠️ 지침오류</div>
     <div id="guideErrorList" style="margin-bottom:20px;font-size:.9rem;line-height:1.8;"></div>
     <div style="display:flex;justify-content:flex-end;">
       <button class="btn btn-outline" onclick="closeGuideError()">확인</button>
@@ -414,11 +320,23 @@
   </div>
 </div>
 
-
-</div><!-- /main-container -->
-
 <!-- 토스트 -->
 <div id="toast"></div>
+
+<!-- 로그인 오버레이 -->
+<div id="loginOverlay" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#f0f4f8;z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:20px;padding:48px 40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);max-width:360px;width:90%;">
+    <div style="width:72px;height:72px;background:#4F46E5;border-radius:18px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;">
+      <span style="font-size:36px;">🎓</span>
+    </div>
+    <h1 style="font-size:1.5rem;font-weight:800;color:#1a1a2e;margin-bottom:8px;">IMPACT7</h1>
+    <p style="font-size:.9rem;color:#6b7280;margin-bottom:32px;">학원 공식 계정(@impact7.kr) 필수</p>
+    <button onclick="googleLogin()" style="width:100%;padding:14px;background:#1a1a2e;color:white;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <img src="https://www.google.com/favicon.ico" width="20" height="20">
+      구글 계정으로 로그인하기
+    </button>
+  </div>
+</div>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbxJsPJINJgwVOIeEYaK9EQtrNydRFETcneUkNhaKlTWc3p9HZ2DyFjLpUmMOc5_bPmDIg/exec';
@@ -429,7 +347,6 @@ let currentFilter = 'all';
 
 function callAPI(params) {
   if (params.text || params.items || params.processor) {
-    // 텍스트나 데이터가 있으면 POST 방식으로 전송
     return fetch(API_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -439,12 +356,9 @@ function callAPI(params) {
     .then(() => fetch(API_URL + '?action=preview&_=' + Date.now()))
     .then(r => r.json());
   }
-  // 데이터 없으면 GET 방식
   const url = API_URL + '?' + new URLSearchParams(params).toString();
-  return fetch(url, { method: 'GET' })
-    .then(r => r.json());
+  return fetch(url, { method: 'GET' }).then(r => r.json());
 }
-
 
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -461,7 +375,6 @@ function showToast(msg, type = '', duration = 3000) {
   setTimeout(() => { t.className = ''; }, duration);
 }
 
-// ── 미리보기 ──
 function doParse() {
   const text = document.getElementById('inputText').value.trim();
   if (!text) { showToast('입력 내용이 없습니다.', 'error'); return; }
@@ -477,7 +390,6 @@ function onParseSuccess(result) {
   parsedItems = result.results || [];
   const section = document.getElementById('previewSection');
   section.style.display = 'block';
-
   const wrap = document.getElementById('previewTableWrap');
   if (parsedItems.length > 0) {
     const campusBadge = { '양지5':'badge-blue', '양지10':'badge-green', '10단지':'badge-purple' };
@@ -507,7 +419,6 @@ function onParseSuccess(result) {
   } else {
     wrap.innerHTML = '';
   }
-
   const errDiv = document.getElementById('previewErrors');
   const errors = result.errors || [];
   if (errors.length > 0) {
@@ -520,37 +431,23 @@ function onParseSuccess(result) {
   } else {
     errDiv.innerHTML = '';
   }
-
-  const btn = document.getElementById('checkoutBtn');
-  btn.disabled = false;
-
+  document.getElementById('checkoutBtn').disabled = false;
   if (parsedItems.length > 0)
     showToast(`${parsedItems.length}건 인식 완료! 출고 처리 버튼을 눌러주세요.`, 'success');
   else
     showToast('인식된 항목이 없습니다.', 'warning');
 }
 
-// ── 출고 처리 ──
 function doCheckout() {
   const text = document.getElementById('inputText').value.trim();
   if (!text) { showToast('출고 목록을 입력하세요.', 'error'); return; }
-
- 
-
   const url = API_URL + '?action=preview&text=' + encodeURIComponent(text);
-
-
   fetch(url)
     .then(r => r.json())
     .then(result => {
       parsedItems = result.results || [];
       const errors = result.errors || [];
-
-      if (errors.length > 0) {
-        showGuideError(errors);
-        return;
-      }
-
+      if (errors.length > 0) { showGuideError(errors); return; }
       if (parsedItems.length === 0) {
         showToast('인식된 항목이 없습니다. 입력 형식을 확인하세요.', 'warning');
         return;
@@ -560,63 +457,46 @@ function doCheckout() {
     .catch(err => showToast('오류: ' + err.message, 'error'));
 }
 
-
 function executeCheckout(processor) {
-  console.log('처리자:', processor);
   const btn = document.getElementById('checkoutBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 처리 중...';
   document.getElementById('processingOverlay').style.display = 'flex';
-
-
-  const url = API_URL 
+  const url = API_URL
     + '?action=checkout'
     + '&items=' + encodeURIComponent(JSON.stringify(parsedItems))
     + '&processor=' + encodeURIComponent(processor);
-
   fetch(url)
     .then(r => r.json())
     .then(result => {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
-      console.log('API 응답:', JSON.stringify(result));
       document.getElementById('processingOverlay').style.display = 'none';
-      if(result.successCount > 0){
+      if (result.successCount > 0) {
         showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
-
         parsedItems = [];
-     const textarea = document.getElementById('inputText');
-textarea.value = '';
-textarea.focus();
-parsedItems = [];
-
+        document.getElementById('inputText').value = '';
         loadRecords();
-      } else if(result.failList && result.failList.length > 0){
+      } else if (result.failList && result.failList.length > 0) {
         showToast('오류: ' + result.failList[0].error, 'error');
       } else {
         showToast('처리 결과: ' + JSON.stringify(result), 'error');
       }
     })
-       .catch(err => {
+    .catch(err => {
       document.getElementById('processingOverlay').style.display = 'none';
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
-
       showToast('오류: ' + err.message, 'error');
     });
 }
 
-
-
-// ── 초기화 ──
 function clearAll() {
-  const textarea = document.getElementById('inputText');
-  textarea.value = '';
-  textarea.focus();
+  document.getElementById('inputText').value = '';
+  document.getElementById('inputText').focus();
   parsedItems = [];
   showToast('초기화 완료!', 'success');
 }
-
 
 function showGuideError(errors) {
   const modal = document.getElementById('guideErrorModal');
@@ -640,7 +520,6 @@ function closeGuideError() {
 function showConfirm() {
   const modal = document.getElementById('confirmModal');
   const list  = document.getElementById('confirmList');
-
   let html = '';
   parsedItems.forEach(item => {
     html += `
@@ -661,7 +540,6 @@ function showConfirm() {
         </div>
       </div>`;
   });
-
   list.innerHTML = html;
   modal.style.display = 'flex';
 }
@@ -672,10 +550,7 @@ function closeConfirm() {
 
 function checkDuplicateAndCheckout(processor, checkedItems) {
   parsedItems = checkedItems;
-
-  console.log('parsedItems in check:', JSON.stringify(parsedItems));
   const oneWeekAgo = new Date();
-
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   fetch(API_URL + '?action=getRecords')
     .then(r => r.json())
@@ -687,8 +562,7 @@ function checkDuplicateAndCheckout(processor, checkedItems) {
       const duplicates = [];
       parsedItems.forEach(item => {
         recentRows.forEach(rec => {
-         if (rec['학생명'] === item.studentName && rec['교재명'].includes(item.bookName)) {
-
+          if (rec['학생명'] === item.studentName && rec['교재명'].includes(item.bookName)) {
             duplicates.push({
               date: rec['날짜'],
               student: rec['학생명'],
@@ -730,44 +604,29 @@ function proceedDuplicate() {
 }
 
 function confirmCheckout() {
-
   const checkedItems = [];
   const checkboxes = document.querySelectorAll('#confirmList input[type=checkbox]');
-  
   parsedItems.forEach((item, idx) => {
     const tbCheck = checkboxes[idx * 2];
     const wbCheck = checkboxes[idx * 2 + 1];
-    if(tbCheck && tbCheck.checked){
-      checkedItems.push({...item, bookType: 'TEXTBOOK'});
-    }
-    if(wbCheck && wbCheck.checked){
-      checkedItems.push({...item, bookType: 'WORKBOOK'});
-    }
+    if (tbCheck && tbCheck.checked) checkedItems.push({...item, bookType: 'TEXTBOOK'});
+    if (wbCheck && wbCheck.checked) checkedItems.push({...item, bookType: 'WORKBOOK'});
   });
-  
-closeConfirm();
-const processor = window._userId || '관리자';
-checkDuplicateAndCheckout(processor, checkedItems);
-
-
+  closeConfirm();
+  const processor = window._userId || '관리자';
+  checkDuplicateAndCheckout(processor, checkedItems);
 }
 
-
-
-
-// ── 재고 현황 ──
 function loadInventory() {
   document.getElementById('inventoryBody').innerHTML =
-    '<tr><td colspan="6" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
-
-  const url = API_URL + '?action=getInventory';
-  fetch(url)
+    '<tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
+  fetch(API_URL + '?action=getInventory')
     .then(r => r.json())
     .then(onInventoryLoaded)
     .catch(err => {
       showToast('재고 로드 오류: ' + err.message, 'error');
       document.getElementById('inventoryBody').innerHTML =
-        '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--danger);">❌ 데이터 로드 실패</td></tr>';
+        '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--danger);">❌ 데이터 로드 실패</td></tr>';
     });
 }
 
@@ -777,7 +636,6 @@ function onInventoryLoaded(data) {
   document.getElementById('invUpdatedAt').textContent = '갱신: ' + (data.updatedAt || '');
   renderInventoryTable(currentFilter);
 }
-
 
 function filterInventory(filter, btn) {
   currentFilter = filter;
@@ -791,62 +649,39 @@ function renderInventoryTable(filter) {
   if (filter === 'low')           rows = rows.filter(r => r['부족여부']);
   else if (filter === 'TEXTBOOK') rows = rows.filter(r => r['종류'] === 'TEXTBOOK');
   else if (filter === 'WORKBOOK') rows = rows.filter(r => r['종류'] === 'WORKBOOK');
-
   const tbody = document.getElementById('inventoryBody');
   if (rows.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">해당 조건의 교재가 없습니다.</td></tr>';
     return;
   }
-
-  // 교재명 기준으로 그룹화
   const groups = [];
   rows.forEach(r => {
     const last = groups[groups.length - 1];
-    if (last && last.name === r['교재명']) {
-      last.items.push(r);
-    } else {
-      groups.push({ name: r['교재명'], items: [r] });
-    }
+    if (last && last.name === r['교재명']) last.items.push(r);
+    else groups.push({ name: r['교재명'], items: [r] });
   });
-
   let html = '';
   groups.forEach(g => {
     const count = g.items.length;
-
     if (count === 1) {
-      // 단일 행 - rowspan 없이 일반 행으로 처리
       const r = g.items[0];
       html += `<tr style="background:#fff;border-bottom:2px solid #e5e7eb;">
         <td style="text-align:left;vertical-align:middle;font-weight:700;padding-left:12px;background:#fff;">${r['교재명']}</td>
-        <td style="text-align:center;background:#fff;">
-          <span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span>
-        </td>
+        <td style="text-align:center;background:#fff;"><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
         <td style="text-align:center;background:#fff;">${r['양지5']}</td>
         <td style="text-align:center;background:#fff;">${r['양지10']}</td>
         <td style="text-align:center;background:#fff;">${r['10단지']}</td>
       </tr>`;
     } else {
-      // 복수 행 - rowspan 적용
       g.items.forEach((r, i) => {
         const isLast = i === count - 1;
         const borderStyle = isLast ? 'border-bottom:2px solid #e5e7eb;' : '';
         html += `<tr style="background:#fff;">`;
-
         if (i === 0) {
-          html += `<td rowspan="${count}" style="
-            text-align:left;
-            vertical-align:middle;
-            font-weight:700;
-            padding-left:12px;
-            background:#fff;
-            border-bottom:2px solid #e5e7eb;
-          ">${r['교재명']}</td>`;
+          html += `<td rowspan="${count}" style="text-align:left;vertical-align:middle;font-weight:700;padding-left:12px;background:#fff;border-bottom:2px solid #e5e7eb;">${r['교재명']}</td>`;
         }
-
         html += `
-          <td style="text-align:center;${borderStyle}background:#fff;">
-            <span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span>
-          </td>
+          <td style="text-align:center;${borderStyle}background:#fff;"><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
           <td style="text-align:center;${borderStyle}background:#fff;">${r['양지5']}</td>
           <td style="text-align:center;${borderStyle}background:#fff;">${r['양지10']}</td>
           <td style="text-align:center;${borderStyle}background:#fff;">${r['10단지']}</td>
@@ -854,21 +689,16 @@ function renderInventoryTable(filter) {
       });
     }
   });
-
   tbody.innerHTML = html;
 }
 
-
-// ── 출고 내역 ──
 function loadRecords() {
   document.getElementById('recordsBody').innerHTML =
-    '<tr><td colspan="6" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
-
-  const recordsPromise   = callAPI({ action: 'getRecords' });
+    '<tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
+  const recordsPromise = callAPI({ action: 'getRecords' });
   const inventoryPromise = inventoryData.length === 0
     ? callAPI({ action: 'getInventory' }).then(data => { inventoryData = data.rows || []; })
     : Promise.resolve();
-
   Promise.all([recordsPromise, inventoryPromise])
     .then(([recordsData]) => onRecordsLoaded(recordsData))
     .catch(err => showToast('내역 로드 오류: ' + err.message, 'error'));
@@ -881,22 +711,18 @@ function onRecordsLoaded(data) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">출고 내역이 없습니다.</td></tr>';
     return;
   }
-  const cb = { '양지5':'badge-blue','양지10':'badge-green','10단지':'badge-purple' };
-   tbody.innerHTML = data.rows.map(r => `<tr>
+  tbody.innerHTML = data.rows.map(r => `<tr>
     <td>${formatDate(r['날짜'])}</td>
     <td><strong>${r['반코드']}</strong> ${r['학생명']}</td>
-       <td>${r['교재명']} <span style="font-size:.75rem;color:var(--gray-500);">${r['종류']||''}</span></td>
-
+    <td>${r['교재명']} <span style="font-size:.75rem;color:var(--gray-500);">${r['종류']||''}</span></td>
     <td>${r['수량']}</td>
     <td>${r['처리자']}</td>
-
   </tr>`).join('');
-
 }
 
 function getCurrentStock(bookName, campus) {
   if (!inventoryData || inventoryData.length === 0) return '-';
-  const norm    = bookName.replace(/\s/g, '').toLowerCase();
+  const norm = bookName.replace(/\s/g, '').toLowerCase();
   const matched = inventoryData.find(r =>
     r['교재명'].replace(/\s/g, '').toLowerCase() === norm && r['종류'] === 'TEXTBOOK'
   ) || inventoryData.find(r =>
@@ -909,7 +735,6 @@ function getCurrentStock(bookName, campus) {
   return `<span class="${isLow ? 'stock-num-low' : ''}">${stock}</span>`;
 }
 
-
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -919,6 +744,7 @@ function formatDate(dateStr) {
     hour: '2-digit', minute: '2-digit', hour12: false
   });
 }
+
 const GOOGLE_CLIENT_ID = '497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com';
 
 function googleLogin() {
@@ -937,11 +763,8 @@ function googleLogin() {
             alert('학원 공식 계정(@impact7.kr)으로 로그인해주세요!');
             return;
           }
-  const userId = email.split('@')[0];
-  localStorage.setItem('impact7_user', userId);
-  localStorage.removeItem('impact7_user');
-  localStorage.setItem('impact7_user', userId);
-
+          const userId = email.split('@')[0];
+          localStorage.setItem('impact7_user', userId);
           window._userId = userId;
           document.getElementById('processorDisplay').textContent = userId;
           document.getElementById('loginOverlay').style.display = 'none';
@@ -950,8 +773,6 @@ function googleLogin() {
     }
   }).requestAccessToken();
 }
-
-
 
 function handleCredentialResponse(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
@@ -967,9 +788,8 @@ function handleCredentialResponse(response) {
   document.getElementById('loginOverlay').style.display = 'none';
 }
 
-
 window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('impact7_user');
+  const saved = localStorage.getItem('impact7_user');
   if (saved) {
     window._userId = saved.split('@')[0];
     document.getElementById('processorDisplay').textContent = saved;
@@ -989,23 +809,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadRecords();
   }
 });
-
-
 </script>
 </body>
-<!-- 로그인 오버레이 -->
-<div id="loginOverlay" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#f0f4f8;z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:white;border-radius:20px;padding:48px 40px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);max-width:360px;width:90%;">
-    <div style="width:72px;height:72px;background:#4F46E5;border-radius:18px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:36px;">🎓</span>
-    </div>
-    <h1 style="font-size:1.5rem;font-weight:800;color:#1a1a2e;margin-bottom:8px;">IMPACT7</h1>
-    <p style="font-size:.9rem;color:#6b7280;margin-bottom:32px;">학원 공식 계정(@impact7.kr) 필수</p>
-    <button onclick="googleLogin()" style="width:100%;padding:14px;background:#1a1a2e;color:white;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
-      <img src="https://www.google.com/favicon.ico" width="20" height="20">
-      구글 계정으로 로그인하기
-    </button>
-  </div>
-</div>
-
 </html>
