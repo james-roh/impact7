@@ -357,9 +357,7 @@
     <div style="font-size:.85rem;color:var(--gray-500);margin-top:8px;">잠시만 기다려주세요</div>
   </div>
 </div>
-<script>
-// 중복 체크 후 출고 처리
-function checkDuplicateAndCheckout(processor) {
+
   console.log('중복체크 시작, parsedItems:', JSON.stringify(parsedItems));
   const oneWeekAgo = new Date();
 
@@ -734,7 +732,62 @@ function closeConfirm() {
   document.getElementById('confirmModal').style.display = 'none';
 }
 
+function checkDuplicateAndCheckout(processor) {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  fetch(API_URL + '?action=getRecords')
+    .then(r => r.json())
+    .then(data => {
+      const recentRows = (data.rows || []).filter(r => {
+        const d = new Date(r['날짜']);
+        return d >= oneWeekAgo;
+      });
+      const duplicates = [];
+      parsedItems.forEach(item => {
+        recentRows.forEach(rec => {
+          if (rec['학생명'] === item.studentName && rec['교재명'] === item.bookName) {
+            duplicates.push({
+              date: rec['날짜'],
+              student: rec['학생명'],
+              classCode: rec['반코드'],
+              book: rec['교재명'],
+              type: rec['종류'] || ''
+            });
+          }
+        });
+      });
+      const uniqueDuplicates = duplicates.filter((d, i, arr) =>
+        arr.findIndex(x => x.student === d.student && x.book === d.book && x.date === d.date) === i
+      );
+      if (uniqueDuplicates.length > 0) {
+        const listHtml = uniqueDuplicates.map(d =>
+          `• ${formatDate(d.date)} | ${d.classCode} ${d.student} | ${d.book} ${d.type ? '('+d.type+')' : ''}`
+        ).join('<br>');
+        document.getElementById('duplicateList').innerHTML = listHtml;
+        document.getElementById('duplicateOverlay').style.display = 'flex';
+        window._pendingProcessor = processor;
+      } else {
+        executeCheckout(processor);
+      }
+    })
+    .catch(() => { executeCheckout(processor); });
+}
+
+function cancelDuplicate() {
+  document.getElementById('duplicateOverlay').style.display = 'none';
+  window._pendingProcessor = null;
+  showToast('출고가 취소되었습니다.', 'warning');
+}
+
+function proceedDuplicate() {
+  document.getElementById('duplicateOverlay').style.display = 'none';
+  const processor = window._pendingProcessor || window._userId || '관리자';
+  window._pendingProcessor = null;
+  executeCheckout(processor);
+}
+
 function confirmCheckout() {
+
   const checkedItems = [];
   const checkboxes = document.querySelectorAll('#confirmList input[type=checkbox]');
   
