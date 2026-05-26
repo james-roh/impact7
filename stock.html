@@ -652,7 +652,11 @@ function executeCheckout(processor) {
         showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
 
         parsedItems = [];
-        clearAll();
+     const textarea = document.getElementById('inputText');
+textarea.value = '';
+textarea.focus();
+parsedItems = [];
+
         loadRecords();
       } else if(result.failList && result.failList.length > 0){
         showToast('오류: ' + result.failList[0].error, 'error');
