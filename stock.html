@@ -683,9 +683,10 @@ function renderInventoryTable(filter) {
         }
         html += `
           <td style="text-align:center;${borderStyle}background:#fff;"><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
-          <td style="text-align:center;${borderStyle}background:#fff;">${r['양지5']}</td>
-          <td style="text-align:center;${borderStyle}background:#fff;">${r['양지10']}</td>
-          <td style="text-align:center;${borderStyle}background:#fff;">${r['10단지']}</td>
+<td style="text-align:center;${borderStyle}background:#fff;${r['양지5']<=5?'color:#EF4444;font-weight:800;':''}">${r['양지5']}</td>
+<td style="text-align:center;${borderStyle}background:#fff;${r['양지10']<=5?'color:#EF4444;font-weight:800;':''}">${r['양지10']}</td>
+<td style="text-align:center;${borderStyle}background:#fff;${r['10단지']<=5?'color:#EF4444;font-weight:800;':''}">${r['10단지']}</td>
+
         </tr>`;
       });
     }
