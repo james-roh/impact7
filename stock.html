@@ -732,7 +732,9 @@ function closeConfirm() {
   document.getElementById('confirmModal').style.display = 'none';
 }
 
-function checkDuplicateAndCheckout(processor) {
+function checkDuplicateAndCheckout(processor, checkedItems) {
+  parsedItems = checkedItems;
+
   console.log('parsedItems in check:', JSON.stringify(parsedItems));
   const oneWeekAgo = new Date();
 
@@ -805,10 +807,10 @@ function confirmCheckout() {
     }
   });
   
-  parsedItems = checkedItems;
-  closeConfirm();
-  const processor = window._userId || '관리자';
-  checkDuplicateAndCheckout(processor);
+closeConfirm();
+const processor = window._userId || '관리자';
+checkDuplicateAndCheckout(processor, checkedItems);
+
 
 }
 
