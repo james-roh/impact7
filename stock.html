@@ -733,7 +733,9 @@ function closeConfirm() {
 }
 
 function checkDuplicateAndCheckout(processor) {
+  console.log('parsedItems in check:', JSON.stringify(parsedItems));
   const oneWeekAgo = new Date();
+
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   fetch(API_URL + '?action=getRecords')
     .then(r => r.json())
