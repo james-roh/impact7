@@ -371,8 +371,6 @@
   </div>
 </div>
 
-<!-- 출고 확인 모달 -->
-<div id="confirmModal"
 
  <!-- 출고 확인 모달 -->
 <div id="confirmModal" style="
@@ -616,7 +614,9 @@ function clearAll() {
   textarea.value = '';
   textarea.focus();
   parsedItems = [];
+  showToast('초기화 완료!', 'success');
 }
+
 
 function showGuideError(errors) {
   const modal = document.getElementById('guideErrorModal');
