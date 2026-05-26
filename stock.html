@@ -523,8 +523,9 @@ function showConfirm() {
   let html = '';
   parsedItems.forEach(item => {
     const rawLower = (item.raw || '').toLowerCase().replace(/\s/g,'');
-    const onlyWB = rawLower.includes('workbook만') || rawLower.includes('워크북만');
-    const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트북만');
+const onlyWB = rawLower.includes('workbook만') || rawLower.includes('워크북만') || rawLower.includes('반복');
+const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트북만');
+
     html += `
       <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--gray-200);">
         <div style="font-size:.92rem;font-weight:700;color:#111;margin-bottom:8px;">
