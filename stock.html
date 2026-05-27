@@ -576,7 +576,15 @@ const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트�
 
 function closeConfirm() {
   document.getElementById('confirmModal').style.display = 'none';
+  const primaryBtn = document.querySelector('#confirmModal .btn-primary');
+  const outlineBtn = document.querySelector('#confirmModal .btn-outline');
+  if(primaryBtn) primaryBtn.style.display = '';
+  if(outlineBtn) {
+    outlineBtn.textContent = '취소';
+    outlineBtn.onclick = closeConfirm;
+  }
 }
+
 
 function checkDuplicateAndCheckout(processor, checkedItems) {
   parsedItems = checkedItems;
