@@ -237,14 +237,13 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
         <button class="filter-btn" onclick="filterInventory('WORKBOOK',this)">WORKBOOK</button>
       </div>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-         <th style="width:35%;">교재명</th><th style="text-align:center;width:25%;">종류</th><th style="text-align:center;width:13%;">양지5</th><th style="text-align:center;width:13%;">양지10</th><th style="text-align:center;width:14%;">10단지</th>
+<table style="table-layout:fixed;">
+  <thead>
+    <tr>
+ <th style="width:35%;">교재명</th><th style="text-align:center;width:25%;">종류</th><th style="text-align:center;width:13%;">양지5</th><th style="text-align:center;width:13%;">양지10</th><th style="text-align:center;width:14%;">10단지</th>
+    </tr>
+  </thead>
 
-
-            </tr>
-          </thead>
           <tbody id="inventoryBody">
             <tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
           </tbody>
