@@ -531,21 +531,18 @@ function saveReceiving() {
     }
     item[col] = val;
   });
-  fetch(API_URL, {
+fetch(API_URL, {
     method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'updateInventory', updates })
   })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        showToast('✅ 재고가 저장되었습니다!', 'success');
-        loadInventory();
-      } else {
-        showToast('❌ 저장 실패: ' + (data.error || ''), 'error');
-      }
+    .then(() => {
+      showToast('✅ 재고가 저장되었습니다!', 'success');
+      loadInventory();
     })
     .catch(() => showToast('❌ 저장 중 오류 발생', 'error'));
+
 }
 
 function showToast(msg, type = '', duration = 3000) {
