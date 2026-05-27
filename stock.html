@@ -242,7 +242,10 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
     <tr>
  <th style="width:30%;">교재명</th><th style="text-align:center;width:25%;">종류</th>
 
-    <th style="text-align:center;width:15%;">양지5</th><th style="text-align:center;width:15%;">양지10</th><th style="text-align:center;width:15%;">10단지</th>
+<th style="text-align:center;width:15%;padding-left:0;padding-right:0;">양지5</th>
+<th style="text-align:center;width:15%;padding-left:0;padding-right:0;">양지10</th>
+<th style="text-align:center;width:15%;padding-left:0;padding-right:0;">10단지</th>
+
 
     </tr>
   </thead>
@@ -711,9 +714,12 @@ const r = g.items[0];
 html += `<tr style="background:#fff;border-bottom:2px solid #e5e7eb;">
   <td style="text-align:left;vertical-align:middle;font-weight:700;padding-left:12px;background:#fff;width:35%;">${r['교재명']}</td>
   <td style="text-align:center;background:#fff;"><span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span></td>
-  <td style="text-align:center;background:#fff;${Number(r['양지5'])<=5?'color:#EF4444;font-weight:800;':''}">${r['양지5']}</td>
-  <td style="text-align:center;background:#fff;${Number(r['양지10'])>0&&Number(r['양지10'])<=5?'color:#EF4444;font-weight:800;':''}">${Number(r['양지10'])===0?'':r['양지10']}</td>
-  <td style="text-align:center;background:#fff;${Number(r['10단지'])<=5?'color:#EF4444;font-weight:800;':''}">${r['10단지']}</td>
+<td style="text-align:center;padding-left:0;padding-right:0;background:#fff;${Number(r['양지5'])<=5?'color:#EF4444;font-weight:800;':''}">${r['양지5']}</td>
+
+  <td style="text-align:center;padding-left:0;padding-right:0;background:#fff;${Number(r['양지10'])>0&&Number(r['양지10'])<=5?'color:#EF4444;font-weight:800;':''}">${Number(r['양지10'])===0?'':r['양지10']}</td>
+
+<td style="text-align:center;padding-left:0;padding-right:0;background:#fff;${Number(r['10단지'])<=5?'color:#EF4444;font-weight:800;':''}">${r['10단지']}</td>
+
 </tr>`;
 
     } else {
