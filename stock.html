@@ -475,20 +475,33 @@ function executeCheckout(processor) {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
       document.getElementById('processingOverlay').style.display = 'none';
-   if (result.successCount > 0) {
+if (result.successCount > 0) {
   parsedItems = [];
   document.getElementById('inputText').value = '';
   loadRecords();
+  loadInventory();
   document.getElementById('confirmList').innerHTML = `
     <div style="text-align:center;padding:16px 0;">
       <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
       <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:8px;">${result.successCount}건이 출고 처리되었습니다.</div>
     </div>`;
-  document.querySelector('#confirmModal .card-title, #confirmModal div[style*="font-weight:800"]').textContent = '출고 처리 완료';
-  document.querySelector('#confirmModal .btn-primary').style.display = 'none';
-  document.querySelector('#confirmModal .btn-outline').textContent = '확인';
+  const confirmTitle = document.querySelector('#confirmModal div[style*="font-weight:800"][style*="color:#111"]');
+  if(confirmTitle) confirmTitle.textContent = '출고 처리 완료';
+  const primaryBtn = document.querySelector('#confirmModal .btn-primary');
+  const outlineBtn = document.querySelector('#confirmModal .btn-outline');
+  if(primaryBtn) primaryBtn.style.display = 'none';
+  if(outlineBtn) {
+    outlineBtn.textContent = '확인';
+    outlineBtn.onclick = function() {
+      closeConfirm();
+      if(primaryBtn) primaryBtn.style.display = '';
+      if(outlineBtn) outlineBtn.textContent = '취소';
+      outlineBtn.onclick = closeConfirm;
+    };
+  }
   document.getElementById('confirmModal').style.display = 'flex';
 }
+
  else if (result.failList && result.failList.length > 0) {
         showToast('오류: ' + result.failList[0].error, 'error');
       } else {
