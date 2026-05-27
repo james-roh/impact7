@@ -185,10 +185,27 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
 <div class="main-container">
   <div class="main-system-title">교재 재고 관리</div>
 
-  <div class="tab-bar">
+<div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('input', this)">출고 입력</button>
+    <button class="tab-btn" onclick="switchTab('search', this)">학생 검색</button>
     <button class="tab-btn" onclick="switchTab('receiving', this)">입고 작업</button>
   </div>
+
+<div id="tab-search" class="tab-content">
+  <div class="card">
+    <div class="card-title"><i class="fas fa-magnifying-glass"></i> 학생 출고 이력 검색</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <input type="text" id="searchStudentName" placeholder="학생 이름 입력" 
+        style="flex:1;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:.95rem;"
+        onkeydown="if(event.key==='Enter') searchStudent()">
+      <button class="btn btn-primary" onclick="searchStudent()">
+        <i class="fas fa-search"></i> 검색
+      </button>
+    </div>
+    <div id="searchResult"></div>
+  </div>
+</div>
+
 
   <div id="tab-input" class="tab-content active">
     <div>
@@ -371,6 +388,58 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
   if (tab === 'inventory') loadInventory();
+}
+function searchStudent() {
+  const name = document.getElementById('searchStudentName').value.trim();
+  if (!name) {
+    document.getElementById('searchResult').innerHTML = 
+      '<div style="color:var(--gray-400);text-align:center;padding:24px;">학생 이름을 입력해주세요.</div>';
+    return;
+  }
+  document.getElementById('searchResult').innerHTML = 
+    '<div style="text-align:center;padding:24px;"><span class="spinner"></span> 검색 중...</div>';
+  fetch(API_URL + '?action=getRecords')
+    .then(r => r.json())
+    .then(data => {
+      const rows = (data.rows || []).filter(r => r['학생명'] && r['학생명'].includes(name));
+      if (rows.length === 0) {
+        document.getElementById('searchResult').innerHTML = 
+          '<div style="color:var(--gray-400);text-align:center;padding:24px;">검색 결과가 없습니다.</div>';
+        return;
+      }
+      rows.sort((a, b) => new Date(b['날짜']) - new Date(a['날짜']));
+      let html = `<div style="font-size:.85rem;color:var(--gray-500);margin-bottom:8px;">총 ${rows.length}건</div>`;
+      html += `<table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--gray-50);font-size:.85rem;">
+            <th style="padding:8px;text-align:center;border-bottom:2px solid var(--gray-200);">날짜</th>
+            <th style="padding:8px;text-align:left;border-bottom:2px solid var(--gray-200);">반코드</th>
+            <th style="padding:8px;text-align:left;border-bottom:2px solid var(--gray-200);">학생명</th>
+            <th style="padding:8px;text-align:left;border-bottom:2px solid var(--gray-200);">교재명</th>
+            <th style="padding:8px;text-align:center;border-bottom:2px solid var(--gray-200);">종류</th>
+            <th style="padding:8px;text-align:center;border-bottom:2px solid var(--gray-200);">처리자</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      rows.forEach(r => {
+        html += `<tr style="border-bottom:1px solid var(--gray-100);font-size:.9rem;">
+          <td style="padding:8px;text-align:center;">${formatDate(r['날짜'])}</td>
+          <td style="padding:8px;">${r['반코드'] || ''}</td>
+          <td style="padding:8px;font-weight:700;">${r['학생명'] || ''}</td>
+          <td style="padding:8px;">${r['교재명'] || ''}</td>
+          <td style="padding:8px;text-align:center;">
+            <span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류'] || ''}</span>
+          </td>
+          <td style="padding:8px;text-align:center;">${r['처리자'] || ''}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('searchResult').innerHTML = html;
+    })
+    .catch(() => {
+      document.getElementById('searchResult').innerHTML = 
+        '<div style="color:var(--danger);text-align:center;padding:24px;">데이터 로드 실패</div>';
+    });
 }
 
 function showToast(msg, type = '', duration = 3000) {
