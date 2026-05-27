@@ -108,7 +108,8 @@
             <div class="sidebar-menu-item" id="menu-refund" onclick="window.location.href='refund.html'">
                 <i class="fas fa-calculator"></i> 수강료 환불 계산기
             </div>
-            <div class="sidebar-menu-item" id="menu-coming1" onclick="alert('준비중')">
+          <div class="sidebar-menu-item" id="menu-coming1" onclick="window.location.href='stock.html'">
+
                <i class="fas fa-boxes-stacked"></i> 교재 재고 관리
 
             </div>
@@ -121,13 +122,16 @@
         </div>
     `;
 
-    // 현재 페이지 메뉴 active 표시
-    const path = window.location.pathname;
-    if (path.includes('text.html')) {
-        sidebar.querySelector('#menu-admission').classList.add('active');
-    } else if (path.includes('refund.html')) {
-        sidebar.querySelector('#menu-refund').classList.add('active');
-    }
+// 현재 페이지 메뉴 active 표시
+const path = window.location.pathname;
+if (path.includes('text.html')) {
+    sidebar.querySelector('#menu-admission').classList.add('active');
+} else if (path.includes('refund.html')) {
+    sidebar.querySelector('#menu-refund').classList.add('active');
+} else if (path.includes('stock.html')) {
+    sidebar.querySelector('#menu-coming1').classList.add('active');
+}
+
 
     // body 첫 번째 자식으로 사이드바 삽입
        document.addEventListener('DOMContentLoaded', function () {
