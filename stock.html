@@ -254,9 +254,15 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
               <i class="fas fa-trash"></i> 초기화
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+<div id="bottomSection" style="display:none;">
 
 <!-- 재고 현황 -->
+
   <div style="margin-top:32px;">
 
 
@@ -1090,6 +1096,10 @@ function handleCredentialResponse(response) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // 초기 bottomSection 표시 (출고 입력 탭이 기본)
+  const bottomSection = document.getElementById('bottomSection');
+  if (bottomSection) bottomSection.style.display = '';
+
   const saved = localStorage.getItem('impact7_user');
   if (saved) {
     window._userId = saved.split('@')[0];
@@ -1110,6 +1120,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadRecords();
   }
 });
+
 </script>
 </body>
 </html>
