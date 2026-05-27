@@ -234,8 +234,7 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
 </div>
 
 
-
-  <div id="tab-input" class="tab-content active">
+<div id="tab-input" class="tab-content active">
     <div>
       <div>
         <div class="card">
@@ -253,6 +252,70 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
               <i class="fas fa-trash"></i> 초기화
             </button>
           </div>
+
+  <div id="bottomSection">
+<div id="bottomSection">
+<!-- 재고 현황 -->
+  <div style="margin-top:32px;">
+
+
+            <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">재고 현황</div>
+            <div class="card">
+              <div class="refresh-row">
+                <div class="card-title" style="margin-bottom:0;"><i class="fas fa-boxes-stacked"></i> 교재별 재고 현황</div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span class="updated-at" id="invUpdatedAt"></span>
+                  <button class="btn btn-outline" onclick="loadInventory()" style="padding:6px 12px;font-size:.8rem;"><i class="fas fa-rotate-right"></i> 새로고침</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table style="table-layout:fixed;width:100%;border-collapse:collapse;border-spacing:0;">
+                  <thead>
+                    <tr>
+                      <th style="width:30%;padding:8px 4px;">교재명</th>
+                      <th style="text-align:center;width:25%;padding:8px 4px;">종류</th>
+                      <th style="text-align:center;width:15%;padding:8px 0;">양지5</th>
+                      <th style="text-align:center;width:15%;padding:8px 0;">양지10</th>
+                      <th style="text-align:center;width:15%;padding:8px 0;">10단지</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventoryBody">
+                    <tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 출고 내역 -->
+          <div style="margin-top:32px;">
+            <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">출고 내역</div>
+            <div class="card">
+              <div class="refresh-row">
+                <div class="card-title" style="margin-bottom:0;">출고 내역 (최근 100건)</div>
+                <button class="btn btn-outline" onclick="loadRecords()" style="padding:6px 12px;font-size:.8rem;">
+                  <i class="fas fa-rotate-right"></i> 새로고침
+                </button>
+              </div>
+              <div class="table-wrap" style="max-height:640px;overflow-y:auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="position:sticky;top:0;background:#fff;z-index:1;">날짜</th>
+                      <th style="position:sticky;top:0;background:#fff;z-index:1;">대상</th>
+                      <th style="position:sticky;top:0;background:#fff;z-index:1;">교재명</th>
+                      <th style="position:sticky;top:0;background:#fff;z-index:1;">수량</th>
+                      <th style="position:sticky;top:0;background:#fff;z-index:1;">처리자</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recordsBody">
+                    <tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">새로고침 버튼을 눌러주세요.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -298,7 +361,7 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
     </div>
   </div>
 
-  <!-- 출고 내역 -->
+<!-- 출고 내역 -->
   <div style="margin-top:32px;">
     <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gray-200);">출고 내역</div>
     <div class="card">
@@ -318,6 +381,7 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
               <th style="position:sticky;top:0;background:#fff;z-index:1;">수량</th>
               <th style="position:sticky;top:0;background:#fff;z-index:1;">처리자</th>
             </tr>
+
           </thead>
           <tbody id="recordsBody">
 
@@ -328,7 +392,10 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
     </div>
   </div>
 
+</div><!-- /bottomSection -->
 </div><!-- /main-container -->
+
+
 
 <!-- 처리 중 오버레이 -->
 <div id="processingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center;">
@@ -421,9 +488,12 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
   if (tab === 'inventory') loadInventory();
-if (tab === 'receiving') loadReceiving();
-
+  if (tab === 'receiving') loadReceiving();
+  // 입고 처리 탭일 때 재고현황/출고내역 숨기기
+  const bottomSection = document.getElementById('bottomSection');
+  if (bottomSection) bottomSection.style.display = tab === 'receiving' ? 'none' : '';
 }
+
 function searchStudent() {
   const name = document.getElementById('searchStudentName').value.trim();
   if (!name) {
