@@ -188,7 +188,7 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
 <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('input', this)">출고 입력</button>
     <button class="tab-btn" onclick="switchTab('search', this)">학생 검색</button>
-    <button class="tab-btn" onclick="switchTab('receiving', this)">입고 작업</button>
+    <button class="tab-btn" onclick="switchTab('receiving', this)">입고 처</button>
   </div>
 
 <div id="tab-search" class="tab-content">
@@ -205,6 +205,34 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
     <div id="searchResult"></div>
   </div>
 </div>
+
+<div id="tab-receiving" class="tab-content">
+  <div class="card">
+    <div class="card-title"><i class="fas fa-boxes-stacked"></i> 입고 처리</div>
+    <div style="font-size:.85rem;color:var(--gray-500);margin-bottom:16px;">수량을 직접 수정 후 저장 버튼을 눌러주세요.</div>
+    <div class="table-wrap">
+      <table style="table-layout:fixed;width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="width:30%;padding:8px 4px;">교재명</th>
+            <th style="text-align:center;width:20%;padding:8px 4px;">종류</th>
+            <th style="text-align:center;width:16%;padding:8px 0;">양지5</th>
+            <th style="text-align:center;width:16%;padding:8px 0;">양지10</th>
+            <th style="text-align:center;width:18%;padding:8px 0;">10단지</th>
+          </tr>
+        </thead>
+        <tbody id="receivingBody">
+          <tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-outline" onclick="loadReceiving()"><i class="fas fa-rotate-right"></i> 새로고침</button>
+      <button class="btn btn-primary" onclick="saveReceiving()"><i class="fas fa-floppy-disk"></i> 저장</button>
+    </div>
+  </div>
+</div>
+
 
 
   <div id="tab-input" class="tab-content active">
@@ -393,6 +421,8 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
   if (tab === 'inventory') loadInventory();
+if (tab === 'receiving') loadReceiving();
+
 }
 function searchStudent() {
   const name = document.getElementById('searchStudentName').value.trim();
@@ -445,6 +475,78 @@ function searchStudent() {
       document.getElementById('searchResult').innerHTML = 
         '<div style="color:var(--danger);text-align:center;padding:24px;">데이터 로드 실패</div>';
     });
+}
+let receivingData = [];
+
+function loadReceiving() {
+  document.getElementById('receivingBody').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;padding:36px;"><span class="spinner"></span> 로딩 중...</td></tr>';
+  fetch(API_URL + '?action=getInventory')
+    .then(r => r.json())
+    .then(data => {
+      receivingData = data.rows || [];
+      let html = '';
+      receivingData.forEach((r, idx) => {
+        html += `<tr style="border-bottom:1px solid var(--gray-100);">
+          <td style="padding:8px 4px;font-weight:700;">${r['교재명']}</td>
+          <td style="text-align:center;padding:8px 0;">
+            <span class="badge ${r['종류']==='TEXTBOOK'?'badge-blue':'badge-green'}">${r['종류']}</span>
+          </td>
+          <td style="text-align:center;padding:4px 2px;">
+            <input type="number" value="${r['양지5']||0}" min="0"
+              style="width:60px;text-align:center;border:1.5px solid var(--gray-200);border-radius:6px;padding:4px;"
+              data-idx="${idx}" data-col="양지5">
+          </td>
+          <td style="text-align:center;padding:4px 2px;">
+            <input type="number" value="${r['양지10']||0}" min="0"
+              style="width:60px;text-align:center;border:1.5px solid var(--gray-200);border-radius:6px;padding:4px;"
+              data-idx="${idx}" data-col="양지10">
+          </td>
+          <td style="text-align:center;padding:4px 2px;">
+            <input type="number" value="${r['10단지']||0}" min="0"
+              style="width:60px;text-align:center;border:1.5px solid var(--gray-200);border-radius:6px;padding:4px;"
+              data-idx="${idx}" data-col="10단지">
+          </td>
+        </tr>`;
+      });
+      document.getElementById('receivingBody').innerHTML = html || 
+        '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-400);">데이터 없음</td></tr>';
+    })
+    .catch(() => {
+      document.getElementById('receivingBody').innerHTML =
+        '<tr><td colspan="5" style="text-align:center;padding:36px;color:var(--danger);">❌ 로드 실패</td></tr>';
+    });
+}
+
+function saveReceiving() {
+  const inputs = document.querySelectorAll('#receivingBody input[type=number]');
+  const updates = [];
+  inputs.forEach(input => {
+    const idx = parseInt(input.dataset.idx);
+    const col = input.dataset.col;
+    const val = parseInt(input.value) || 0;
+    let item = updates.find(u => u.idx === idx);
+    if (!item) {
+      item = { idx, bookName: receivingData[idx]['교재명'], type: receivingData[idx]['종류'] };
+      updates.push(item);
+    }
+    item[col] = val;
+  });
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'updateInventory', updates })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showToast('✅ 재고가 저장되었습니다!', 'success');
+        loadInventory();
+      } else {
+        showToast('❌ 저장 실패: ' + (data.error || ''), 'error');
+      }
+    })
+    .catch(() => showToast('❌ 저장 중 오류 발생', 'error'));
 }
 
 function showToast(msg, type = '', duration = 3000) {
