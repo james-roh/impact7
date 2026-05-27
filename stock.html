@@ -280,14 +280,19 @@ position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50
           <i class="fas fa-rotate-right"></i> 새로고침
         </button>
       </div>
-      <div class="table-wrap">
+     <div class="table-wrap" style="max-height:640px;overflow-y:auto;">
         <table>
           <thead>
             <tr>
-              <th>날짜</th><th>대상</th><th>교재명</th><th>수량</th><th>처리자</th>
+              <th style="position:sticky;top:0;background:#fff;z-index:1;">날짜</th>
+              <th style="position:sticky;top:0;background:#fff;z-index:1;">대상</th>
+              <th style="position:sticky;top:0;background:#fff;z-index:1;">교재명</th>
+              <th style="position:sticky;top:0;background:#fff;z-index:1;">수량</th>
+              <th style="position:sticky;top:0;background:#fff;z-index:1;">처리자</th>
             </tr>
           </thead>
           <tbody id="recordsBody">
+
             <tr><td colspan="5" style="text-align:center;padding:36px;color:var(--gray-600);">새로고침 버튼을 눌러주세요.</td></tr>
           </tbody>
         </table>
