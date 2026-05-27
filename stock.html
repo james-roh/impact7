@@ -151,7 +151,8 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 #toast {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+position: fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);
+
 
     background: var(--gray-800); color: #fff;
     padding: 11px 20px; border-radius: 10px;
@@ -160,7 +161,8 @@
     opacity: 0; transform: translateY(10px);
     transition: all .3s; z-index: 9999; max-width: 320px;
   }
-  #toast.show   { opacity: 1; transform: translateY(0); }
+#toast.show   { opacity: 1; transform: translateX(-50%) translateY(-50%); }
+
   #toast.success{ background: var(--success); }
   #toast.error  { background: var(--danger); }
   #toast.warning{ background: var(--warning); }
