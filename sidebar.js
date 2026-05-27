@@ -109,7 +109,8 @@
                 <i class="fas fa-calculator"></i> 수강료 환불 계산기
             </div>
             <div class="sidebar-menu-item" id="menu-coming1" onclick="alert('준비중')">
-                <i class="fas fa-clock"></i> 준비중1
+               <i class="fas fa-boxes-stacked"></i> 교재 재고 관리
+
             </div>
             <div class="sidebar-menu-item" id="menu-coming2" onclick="alert('준비중')">
                 <i class="fas fa-clock"></i> 준비중2
