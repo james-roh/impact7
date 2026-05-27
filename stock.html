@@ -729,7 +729,8 @@ function showConfirm() {
   let html = '';
   parsedItems.forEach(item => {
     const rawLower = (item.raw || '').toLowerCase().replace(/\s/g,'');
-const onlyWB = rawLower.includes('workbook만') || rawLower.includes('워크북만') || rawLower.includes('반복');
+const onlyWB = rawLower.includes('workbook만') || rawLower.includes('워크북만') || rawLower.includes('반복') || rawLower.includes('복습') || rawLower.includes('다시') || rawLower.includes('한번더');
+
 const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트북만');
 
     html += `
