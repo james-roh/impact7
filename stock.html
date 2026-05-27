@@ -488,13 +488,13 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
-  if (tab === 'inventory') loadInventory();
+  if (tab === 'input') loadInventory();
   if (tab === 'receiving') loadReceiving();
-  // 입고 처리 탭일 때 재고현황/출고내역 숨기기
-const bottomSection = document.getElementById('bottomSection');
-if (bottomSection) bottomSection.style.display = (tab === 'receiving') ? 'none' : '';
-
+  // 출고 입력 탭일 때만 재고현황/출고내역 표시
+  const bottomSection = document.getElementById('bottomSection');
+  if (bottomSection) bottomSection.style.display = (tab === 'input') ? '' : 'none';
 }
+
 
 function searchStudent() {
   const name = document.getElementById('searchStudentName').value.trim();
