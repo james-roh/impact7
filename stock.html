@@ -734,9 +734,11 @@ function onRecordsLoaded(data) {
 
 function getCurrentStock(bookName, campus) {
   if (!inventoryData || inventoryData.length === 0) return '-';
-  const norm = bookName.replace(/\s/g, '').toLowerCase();
+const norm = bookName.trim().replace(/\s/g, '').toLowerCase();
+
   const matched = inventoryData.find(r =>
-    r['교재명'].replace(/\s/g, '').toLowerCase() === norm && r['종류'] === 'TEXTBOOK'
+r['교재명'].trim().replace(/\s/g, '').toLowerCase() === norm
+&& r['종류'] === 'TEXTBOOK'
   ) || inventoryData.find(r =>
     r['교재명'].replace(/\s/g, '').toLowerCase() === norm
   );
