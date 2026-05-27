@@ -782,7 +782,10 @@ return !isNaN(d) && d >= oneWeekAgo;
       const duplicates = [];
       parsedItems.forEach(item => {
         recentRows.forEach(rec => {
-          if (rec['학생명'] === item.studentName && rec['교재명'].includes(item.bookName)) {
+         const recBook = (rec['교재명'] || '').replace(/\s/g,'').toLowerCase();
+const itemBook = (item.bookName || '').replace(/\s/g,'').toLowerCase();
+if (rec['학생명'] === item.studentName && recBook.includes(itemBook)) {
+
             duplicates.push({
               date: rec['날짜'],
               student: rec['학생명'],
