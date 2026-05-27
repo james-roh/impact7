@@ -531,10 +531,11 @@ function saveReceiving() {
     }
     item[col] = val;
   });
-const params = new URLSearchParams();
-  params.append('action', 'updateInventory');
-  params.append('updates', JSON.stringify(updates));
-  fetch(API_URL + '?' + params.toString())
+fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'updateInventory', updates })
+  })
     .then(r => r.json())
     .then(data => {
       if (data.success) {
@@ -545,6 +546,7 @@ const params = new URLSearchParams();
       }
     })
     .catch(() => showToast('❌ 저장 중 오류 발생', 'error'));
+
 
 
 }
