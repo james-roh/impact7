@@ -475,12 +475,21 @@ function executeCheckout(processor) {
       btn.innerHTML = '<i class="fas fa-check"></i> 출고 처리';
       btn.disabled = false;
       document.getElementById('processingOverlay').style.display = 'none';
-      if (result.successCount > 0) {
-        showToast(`🎉 ${result.successCount}건 출고 처리 완료!`, 'success', 4000);
-        parsedItems = [];
-        document.getElementById('inputText').value = '';
-        loadRecords();
-      } else if (result.failList && result.failList.length > 0) {
+   if (result.successCount > 0) {
+  parsedItems = [];
+  document.getElementById('inputText').value = '';
+  loadRecords();
+  document.getElementById('confirmList').innerHTML = `
+    <div style="text-align:center;padding:16px 0;">
+      <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
+      <div style="font-size:1.1rem;font-weight:800;color:#111;margin-bottom:8px;">${result.successCount}건이 출고 처리되었습니다.</div>
+    </div>`;
+  document.querySelector('#confirmModal .card-title, #confirmModal div[style*="font-weight:800"]').textContent = '출고 처리 완료';
+  document.querySelector('#confirmModal .btn-primary').style.display = 'none';
+  document.querySelector('#confirmModal .btn-outline').textContent = '확인';
+  document.getElementById('confirmModal').style.display = 'flex';
+}
+ else if (result.failList && result.failList.length > 0) {
         showToast('오류: ' + result.failList[0].error, 'error');
       } else {
         showToast('처리 결과: ' + JSON.stringify(result), 'error');
