@@ -1105,10 +1105,11 @@ function parseGuidelineRules() {
             return;
         }
 
-        // 교재 내용 줄 수집
+               // 교재 내용 줄 수집
         if ((currentCode || isElemMid) && trimmed !== '') {
-            bookLines.push(line);
+            bookLines.push(trimmed);
         }
+
     });
 
     saveCurrentSection();
