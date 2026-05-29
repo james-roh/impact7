@@ -846,8 +846,9 @@ function confirmCheckout() {
     if (isSingleCheck) {
       const cb = checkboxes[checkIdx];
       if (cb && cb.checked) {
-        const bookType = item.bookType || 'WORKBOOK';
+const bookType = item.bookType || '';
         checkedItems.push({...item, bookType});
+
       }
       checkIdx += 1;
     } else {
