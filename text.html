@@ -689,17 +689,28 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>진단평가 응시료 설정</label>
-                <div class="radio-group-wrap">
-                    <label class="radio-option-label">
-                        <input type="radio" name="testFeeOption" value="deduct" checked onchange="calculateMainSystemLogic()"> 진단평가 응시료 차감 (-20,000원)
-                    </label>
-                    <label class="radio-option-label">
-                        <input type="radio" name="testFeeOption" value="none" onchange="calculateMainSystemLogic()"> 차감 없음
-                    </label>
-                </div>
-            </div>
+<div class="form-group">
+    <label>할인 유형</label>
+    <select id="discountType" class="input-control" onchange="calculateMainSystemLogic()">
+        <option value="none">없음</option>
+        <option value="sibling">형제할인 (선택 수강료의 10% 할인)</option>
+        <option value="longterm_mid">장기수강할인 중1 (-10,000원)</option>
+        <option value="longterm_high">장기수강할인 고1 (-20,000원)</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>진단평가 응시료 설정</label>
+    <div class="radio-group-wrap">
+        <label class="radio-option-label">
+            <input type="radio" name="testFeeOption" value="deduct" checked onchange="calculateMainSystemLogic()"> 진단평가 응시료 차감 (-20,000원)
+        </label>
+        <label class="radio-option-label">
+            <input type="radio" name="testFeeOption" value="none" onchange="calculateMainSystemLogic()"> 차감 없음
+        </label>
+    </div>
+</div>
+
 
             <div class="calendar-section-wrap">
                 <div class="panel-top-title calendar-title">최초 등원일 설정 (마우스로 등원일 선택)</div>
@@ -741,16 +752,22 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
 
 <script>
     const fixedHolidaysDB = { "2026-05": [1, 2, 5, 25], "2026-06": [6] };
-    const tuitionFeeDB = {
-        elem: [{ text: "350,000 원", value: "350000" }, { text: "315,000 원 (형제할인)", value: "315000" }, { text: "직접 입력", value: "custom" }],
-        mid:  [{ text: "400,000 원", value: "400000" }, { text: "360,000 원 (형제할인)", value: "360000" }, { text: "직접 입력", value: "custom" }],
-        high: [{ text: "420,000 원", value: "420000" }, { text: "378,000 원 (형제할인1)", value: "378000" }, { text: "400,000 원 (장기수강할인)", value: "400000" }, { text: "360,000 원 (형제할인2)", value: "360000" }, { text: "직접 입력", value: "custom" }]
-    };
-    const classTimeDB = {
-        elem: [{ text: "3:00", value: "3:00" }, { text: "직접 입력", value: "custom" }],
-        mid:  [{ text: "4:50", value: "4:50" }, { text: "7:30", value: "7:30" }, { text: "직접 입력", value: "custom" }],
-        high: [{ text: "5:10", value: "5:10" }, { text: "7:10", value: "7:10" }, { text: "직접 입력", value: "custom" }]
-    };
+const tuitionFeeDB = {
+    elem: [{ text: "350,000 원", value: "350000" }, { text: "직접 입력", value: "custom" }],
+    mid:  [{ text: "400,000 원", value: "400000" }, { text: "직접 입력", value: "custom" }],
+    high: [{ text: "420,000 원", value: "420000" }, { text: "직접 입력", value: "custom" }],
+    ks:   [{ text: "280,000 원", value: "280000" }, { text: "직접 입력", value: "custom" }]
+};
+
+
+const classTimeDB = {
+    elem:  [{ text: "3:00", value: "3:00" }, { text: "직접 입력", value: "custom" }],
+    mid:   [{ text: "4:50", value: "4:50" }, { text: "7:30", value: "7:30" }, { text: "직접 입력", value: "custom" }],
+    high:  [{ text: "5:10", value: "5:10" }, { text: "7:10", value: "7:10" }, { text: "직접 입력", value: "custom" }],
+    ks131: [{ text: "6:00", value: "6:00" }, { text: "직접 입력", value: "custom" }],
+    ks132: [{ text: "1:00", value: "1:00" }, { text: "직접 입력", value: "custom" }]
+};
+
     const lessonDaysDB = {
         elem: [{ text: "월금", value: "mon-fri" }, { text: "화목", value: "tue-thu" }],
         mid:  [{ text: "월금", value: "mon-fri" }, { text: "화목", value: "tue-thu" }, { text: "직접 입력", value: "custom" }],
@@ -974,11 +991,16 @@ function updateAttendanceTimeOptions(school) {
     const timeSelect  = document.getElementById('attendanceTimeSelect');
     const timeInput   = document.getElementById('attendanceTimeInput');
     timeSelect.style.display = 'block'; timeInput.style.display = 'none'; timeSelect.innerHTML = '';
-    if (!school || !classTimeDB[school]) {
+
+    // ks131, ks132 키 직접 매핑
+    const timeKey = school === 'ks131' ? 'ks131' :
+                    school === 'ks132' ? 'ks132' : school;
+
+    if (!timeKey || !classTimeDB[timeKey]) {
         const opt = document.createElement('option'); opt.value = ""; opt.innerText = "반명을 먼저 입력하세요";
         timeSelect.appendChild(opt); return;
     }
-    classTimeDB[school].forEach((item, idx) => {
+    classTimeDB[timeKey].forEach((item, idx) => {
         const opt = document.createElement('option'); opt.value = item.value; opt.innerText = item.text;
         if (idx === 0) opt.selected = true;
         timeSelect.appendChild(opt);
@@ -1105,7 +1127,7 @@ function parseGuidelineRules() {
             return;
         }
 
-               // 교재 내용 줄 수집
+                // 교재 내용 줄 수집
         if ((currentCode || isElemMid) && trimmed !== '') {
             bookLines.push(trimmed);
         }
@@ -1128,7 +1150,27 @@ function calcBookPrice(bookText) {
 
 function parseClassInfo(rawClassName) {
     const className = rawClassName.split('/')[0].trim().toUpperCase();
-const codeMatch = className.match(/^([A-Z]+)(\d{3})/);
+
+    // KS131, KS132 특수 처리
+    if (className === 'KS131') {
+        return {
+            school: 'ks',
+            campusKey: 'yangji10',
+            lessonDays: '수',
+            code: 'KS131'
+        };
+    }
+    if (className === 'KS132') {
+        return {
+            school: 'ks',
+            campusKey: 'yangji10',
+            lessonDays: '토',
+            code: 'KS132'
+        };
+    }
+
+    const codeMatch = className.match(/^([A-Z]+)(\d{3})/);
+
 
     if (!codeMatch) return null;
 
@@ -1171,8 +1213,12 @@ function handleClassNameInput() {
     const rawClassName = document.getElementById('classNameInput').value || "";
     const classInfo = parseClassInfo(rawClassName);
     if (classInfo) {
-        updateAttendanceTimeOptions(classInfo.school);
-        updateTuitionDropdownOptions(classInfo.school);
+        const timeKey = classInfo.code === 'KS131' ? 'ks131' :
+                        classInfo.code === 'KS132' ? 'ks132' : classInfo.school;
+        updateAttendanceTimeOptions(timeKey);
+        const tuitionKey = (classInfo.code === 'KS131' || classInfo.code === 'KS132') ? 'ks' : classInfo.school;
+        updateTuitionDropdownOptions(tuitionKey);
+
         const vocaWrap = document.getElementById('vocaGroupWrap');
         vocaWrap.style.display = (classInfo.school === 'mid') ? 'block' : 'none';
     }
@@ -1292,14 +1338,15 @@ const finalLocationAddress = addressMap[campusKey];
         };
         const finalAccountInfo = accountMap[campusKey];
 
-           let bookStoreSectionText = "";
-        if (school !== 'high') {
-            if (campusKey === 'yangji5') {
-                bookStoreSectionText = `※교재구입처: \`칸트의 시간\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 칸트의 시간 : 02-2646-1242 (현대월드타워 지하 1층)\n`;
-            } else if (campusKey === 'danji10') {
-                bookStoreSectionText = `※교재구입처: \`목동문고\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 목동문고 : 0507-1389-3070  (목동 10단지아파트 A상가 지하 )\n`;
-            }
-        }
+let bookStoreSectionText = "";
+if (campusKey === 'yangji5') {
+    bookStoreSectionText = `※교재구입처: \`칸트의 시간\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 칸트의 시간 : 02-2646-1242 (현대월드타워 지하 1층)\n`;
+} else if (campusKey === 'yangji10') {
+    bookStoreSectionText = `※교재구입처: \`칸트의 시간\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 칸트의 시간 : 02-2646-1242 (현대월드타워 지하 1층)\n`;
+} else if (campusKey === 'danji10') {
+    bookStoreSectionText = `※교재구입처: \`목동문고\`에서는 임팩트7 모든 교재를 할인 가격으로 구입 가능합니다.\n* 목동문고 : 0507-1389-3070  (목동 10단지아파트 A상가 지하 )\n`;
+}
+
 
 
         let customBookListText = "";
@@ -1307,7 +1354,14 @@ const finalLocationAddress = addressMap[campusKey];
 
                 const guidelineRules = parseGuidelineRules();
         const classCode = classInfo?.code || "";
-        const ruleForBook = guidelineRules[classCode] || null;
+      // KS131, KS132 교재 하드코딩
+const ksBookMap = {
+    'KS131': { bookText: '*독해 : 고난도 독해 (임팩트7) : 10,000원\n*어휘: 싹쓰리 (임팩트7)\n    Text Book : 10,000원\n    Work Book : 6,000원', bookPrice: 26000 },
+    'KS132': { bookText: '*독해 : 고난도 독해 (임팩트7) : 10,000원\n*어휘: 싹쓰리 (임팩트7)\n    Text Book : 10,000원\n    Work Book : 6,000원', bookPrice: 26000 }
+};
+
+const ruleForBook = ksBookMap[classCode] || guidelineRules[classCode] || null;
+
 
               if (ruleForBook?.bookText) {
             let bookText = ruleForBook.bookText;
@@ -1342,18 +1396,38 @@ const activeDays = parseActiveTargetDays(lessonDaysText);
 
         const tuitionSelect  = document.getElementById('tuitionType');
         const isTuitionCustom = (tuitionSelect.value === 'custom');
-        let rawPrice       = 0;
-        let baseTuitionText = "0 원";
+let rawPrice       = 0;
+let baseTuitionText = "0 원";
 
-        if (isTuitionCustom) {
-            rawPrice = parseFloat(document.getElementById('tuitionInput').value);
-            const customName     = document.getElementById('tuitionNameInput').value.trim();
-            const formattedPrice = rawPrice ? `${rawPrice.toLocaleString()} 원` : "0 원";
-            baseTuitionText = customName ? `${formattedPrice} (${customName})` : formattedPrice;
-        } else {
-            rawPrice        = parseFloat(tuitionSelect.value);
-            baseTuitionText = tuitionSelect.options[tuitionSelect.selectedIndex]?.text || "0 원";
-        }
+if (isTuitionCustom) {
+    rawPrice = parseFloat(document.getElementById('tuitionInput').value);
+    const customName     = document.getElementById('tuitionNameInput').value.trim();
+    const formattedPrice = rawPrice ? `${rawPrice.toLocaleString()} 원` : "0 원";
+    baseTuitionText = customName ? `${formattedPrice} (${customName})` : formattedPrice;
+} else {
+    rawPrice        = parseFloat(tuitionSelect.value);
+    baseTuitionText = tuitionSelect.options[tuitionSelect.selectedIndex]?.text || "0 원";
+}
+
+// 할인 유형 적용
+const discountType = document.getElementById('discountType')?.value || 'none';
+let discountAmount = 0;
+let discountLabel = '';
+if (discountType === 'sibling') {
+    discountAmount = Math.round(rawPrice * 0.1);
+    discountLabel = ' (형제할인 10%)';
+} else if (discountType === 'longterm_mid') {
+    discountAmount = 10000;
+    discountLabel = ' (장기수강할인 중1)';
+} else if (discountType === 'longterm_high') {
+    discountAmount = 20000;
+    discountLabel = ' (장기수강할인 고1)';
+}
+rawPrice = rawPrice - discountAmount;
+if (discountAmount > 0) {
+    baseTuitionText = `${rawPrice.toLocaleString()} 원${discountLabel}`;
+}
+
 
         const cells = document.querySelectorAll('.calendar-cell:not(.empty)');
         cells.forEach(c => { c.classList.remove('start-day'); });
