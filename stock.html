@@ -740,6 +740,11 @@ const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트�
           <span class="badge badge-blue">${item.campus}</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;">
+          ${item.bookType ? `
+          <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
+            <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--primary);">
+            ${item.bookName} ${item.bookType}
+          </label>` : `
           <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
             <input type="checkbox" ${onlyWB ? '' : 'checked'} style="width:16px;height:16px;accent-color:var(--primary);">
             ${item.bookName} TEXTBOOK
@@ -747,8 +752,9 @@ const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트�
           <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
             <input type="checkbox" ${onlyTB ? '' : 'checked'} style="width:16px;height:16px;accent-color:var(--primary);">
             ${item.bookName} WORKBOOK
-          </label>
+          </label>`}
         </div>
+
       </div>`;
   });
 
