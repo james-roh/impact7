@@ -748,12 +748,6 @@ const isSummary = (item.bookName || '').includes('써머리');
             <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--primary);">
             ${item.bookName}
           </label>` : `
-
-          <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
-            <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--primary);">
-            ${item.bookName}${item.bookName.includes('써머리') ? '' : ' ' + item.bookType}
-          </label>` : `
-
           <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
             <input type="checkbox" ${onlyWB ? '' : 'checked'} style="width:16px;height:16px;accent-color:var(--primary);">
             ${item.bookName} TEXTBOOK
@@ -763,6 +757,7 @@ const isSummary = (item.bookName || '').includes('써머리');
             ${item.bookName} WORKBOOK
           </label>`}
         </div>
+
 
       </div>`;
   });
