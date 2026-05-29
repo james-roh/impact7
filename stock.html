@@ -743,8 +743,9 @@ const onlyTB = rawLower.includes('textbook만') || rawLower.includes('텍스트�
           ${item.bookType ? `
           <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
             <input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--primary);">
-            ${item.bookName} ${item.bookType}
+            ${item.bookName}${item.bookName.includes('써머리') ? '' : ' ' + item.bookType}
           </label>` : `
+
           <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;">
             <input type="checkbox" ${onlyWB ? '' : 'checked'} style="width:16px;height:16px;accent-color:var(--primary);">
             ${item.bookName} TEXTBOOK
