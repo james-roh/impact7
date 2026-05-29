@@ -997,6 +997,13 @@ r['교재명'].trim().replace(/\s/g, '').toLowerCase() === norm
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
+  // 이미 KST 문자열이므로 변환 없이 그대로 표시
+  if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/)) {
+    const [datePart, timePart] = dateStr.split(' ');
+    const [y, m, d] = datePart.split('-');
+    const [hh, mm] = timePart.split(':');
+    return `${y}. ${m}. ${d}. ${hh}:${mm}`;
+  }
   const d = new Date(dateStr);
   if (isNaN(d)) return dateStr;
   return d.toLocaleString('ko-KR', {
