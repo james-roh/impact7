@@ -840,12 +840,25 @@ function proceedDuplicate() {
 function confirmCheckout() {
   const checkedItems = [];
   const checkboxes = document.querySelectorAll('#confirmList input[type=checkbox]');
-  parsedItems.forEach((item, idx) => {
-    const tbCheck = checkboxes[idx * 2];
-    const wbCheck = checkboxes[idx * 2 + 1];
-    if (tbCheck && tbCheck.checked) checkedItems.push({...item, bookType: 'TEXTBOOK'});
-    if (wbCheck && wbCheck.checked) checkedItems.push({...item, bookType: 'WORKBOOK'});
+  let checkIdx = 0;
+  parsedItems.forEach((item) => {
+    const isSingleCheck = item.bookType || (item.bookName || '').includes('써머리');
+    if (isSingleCheck) {
+      const cb = checkboxes[checkIdx];
+      if (cb && cb.checked) {
+        const bookType = item.bookType || 'WORKBOOK';
+        checkedItems.push({...item, bookType});
+      }
+      checkIdx += 1;
+    } else {
+      const tbCheck = checkboxes[checkIdx];
+      const wbCheck = checkboxes[checkIdx + 1];
+      if (tbCheck && tbCheck.checked) checkedItems.push({...item, bookType: 'TEXTBOOK'});
+      if (wbCheck && wbCheck.checked) checkedItems.push({...item, bookType: 'WORKBOOK'});
+      checkIdx += 2;
+    }
   });
+
   closeConfirm();
   const processor = window._userId || '관리자';
   checkDuplicateAndCheckout(processor, checkedItems);
