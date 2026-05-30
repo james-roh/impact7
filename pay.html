@@ -4,38 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>급여청구서 | Impact7</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
-
-    /* 로그인 오버레이 */
-    #loginOverlay {
-      position: fixed; inset: 0;
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 999;
-    }
-    .login-box {
-      background: #fff; border-radius: 16px;
-      padding: 48px 40px; text-align: center;
-      width: 100%; max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    }
-    .login-box h1 { font-size: 1.5rem; margin-bottom: 8px; color: #1a1a2e; }
-    .login-box p  { color: #888; margin-bottom: 28px; font-size: .95rem; }
-    .btn-google {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 12px 24px; border-radius: 8px;
-      border: 2px solid #ddd; background: #fff;
-      font-size: 1rem; cursor: pointer;
-      transition: box-shadow .2s;
-    }
-    .btn-google:hover { box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-    #loginError {
-      color: #EA4335; font-size: .85rem;
-      margin-top: 14px; display: none;
-    }
 
     /* 헤더 */
     .header {
@@ -44,16 +15,112 @@
       display: flex; justify-content: space-between; align-items: center;
     }
     .header h2 { font-size: 1.1rem; }
-    .user-info  { display: flex; align-items: center; gap: 10px; font-size: .9rem; }
+    .user-info { display: flex; align-items: center; gap: 10px; font-size: .9rem; }
     .btn-logout {
       background: rgba(255,255,255,.15); border: none;
       color: #fff; padding: 6px 14px; border-radius: 6px;
       cursor: pointer; font-size: .85rem;
     }
-    .btn-logout:hover { background: rgba(255,255,255,.25); }
 
     /* 컨텐츠 */
     .container { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+
+    /* ── 근무자 현황 섹션 ── */
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .section-header h3 { font-size: 1rem; color: #333; }
+    .btn-setting {
+      background: #fff; border: 1.5px solid #ddd;
+      padding: 6px 14px; border-radius: 6px;
+      cursor: pointer; font-size: .85rem; color: #555;
+      transition: all .2s;
+    }
+    .btn-setting:hover { border-color: #4285F4; color: #4285F4; }
+
+    /* 근무자 테이블 */
+    .staff-wrap {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      overflow: auto; margin-bottom: 28px;
+    }
+    .staff-table { width: 100%; border-collapse: collapse; }
+    .staff-table th,
+    .staff-table td {
+      border: 1px solid #e0e0e0;
+      padding: 10px 16px; text-align: center;
+      font-size: .9rem;
+    }
+    .staff-table th {
+      background: #f0f4ff; color: #4285F4;
+      font-weight: 700;
+    }
+.staff-table td:first-child {
+  background: #fafafa; font-weight: 600;
+  color: #555;
+}
+.staff-table td:not(:first-child) {
+  background: #fff !important;
+}
+
+
+   .staff-table td { color: #333; text-align: center; vertical-align: middle; }
+
+
+    /* ── 설정 모달 ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      display: none; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 16px;
+      padding: 32px; width: 100%; max-width: 560px;
+      max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal h3 { font-size: 1.1rem; margin-bottom: 20px; color: #1a1a2e; }
+    .modal-section { margin-bottom: 24px; }
+    .modal-section h4 {
+      font-size: .9rem; color: #4285F4;
+      margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1px solid #e8f0fe;
+    }
+    .location-block { margin-bottom: 16px; }
+    .location-label {
+      font-size: .85rem; font-weight: 600;
+      color: #555; margin-bottom: 6px;
+    }
+    .day-block { margin-bottom: 10px; }
+    .day-label {
+      font-size: .8rem; color: #888;
+      margin-bottom: 4px;
+    }
+    .name-inputs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .name-input {
+      width: 120px; padding: 6px 10px;
+      border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: .9rem;
+    }
+    .name-input:focus { border-color: #4285F4; outline: none; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px;
+      margin-top: 24px;
+    }
+    .btn-cancel {
+      background: #f0f2f5; border: none;
+      padding: 10px 20px; border-radius: 8px;
+      cursor: pointer; font-size: .95rem;
+    }
+    .btn-save {
+      background: #4285F4; color: #fff; border: none;
+      padding: 10px 24px; border-radius: 8px;
+      cursor: pointer; font-size: .95rem; font-weight: 600;
+    }
+    .btn-save:hover { opacity: .85; }
 
     /* 요약 카드 */
     .cards {
@@ -67,7 +134,7 @@
     .card-label { font-size: .8rem; color: #888; margin-bottom: 6px; }
     .card-value { font-size: 1.5rem; font-weight: 700; color: #4285F4; }
 
-    /* 테이블 */
+    /* 청구서 테이블 */
     .table-wrap {
       background: #fff; border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,.06); overflow: auto;
@@ -84,56 +151,45 @@
       cursor: pointer; font-size: .85rem;
     }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f5f5f5; font-size: .9rem; }
+    th, td {
+      padding: 12px 16px; text-align: left;
+      border-bottom: 1px solid #f5f5f5; font-size: .9rem;
+    }
     th { background: #fafafa; color: #666; font-size: .8rem; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #fafbff; }
     .empty { text-align: center; padding: 48px; color: #bbb; }
-
-    /* 상태 뱃지 */
-    .badge {
-      display: inline-block; padding: 3px 10px;
-      border-radius: 20px; font-size: .78rem; font-weight: 600;
-    }
-    .badge-done { background: #D4EDDA; color: #155724; }
-
-    /* 로딩 */
-    #loading {
-      text-align: center; padding: 48px;
-      color: #888; display: none;
-    }
+    .amount { font-weight: 700; color: #4285F4; }
   </style>
 </head>
 <body>
-
-<!-- 로그인 오버레이 -->
-<div id="loginOverlay">
-  <div class="login-box">
-    <h1>💰 급여청구서 조회</h1>
-    <p>Impact7 공식 계정으로 로그인하세요</p>
-    <button class="btn-google" onclick="googleLogin()">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" />
-      Google 로그인
-    </button>
-    <div id="loginError"></div>
-  </div>
-</div>
 
 <!-- 헤더 -->
 <div class="header">
   <h2>💰 급여청구서 관리</h2>
   <div class="user-info">
-    <span id="headerUser"></span>
-    <button class="btn-logout" onclick="logout()">로그아웃</button>
+    <span>홍길동 님 (테스트모드)</span>
+    <button class="btn-logout">로그아웃</button>
   </div>
 </div>
 
 <!-- 메인 -->
 <div class="container">
+
+  <!-- 근무자 현황 -->
+  <div class="section-header">
+    <h3>👥 근무자 현황</h3>
+    <button class="btn-setting" onclick="openModal()">⚙️ 설정</button>
+  </div>
+  <div class="staff-wrap">
+    <table class="staff-table" id="staffTable"></table>
+  </div>
+
   <!-- 요약 카드 -->
   <div class="cards">
     <div class="card">
-      <div class="card-label">총 청구 건수</div>
+<div class="card-label">미제출 현황 (최근월)</div>
+
       <div class="card-value" id="cardCount">-</div>
     </div>
     <div class="card">
@@ -146,14 +202,31 @@
     </div>
   </div>
 
-  <!-- 테이블 -->
-  <div class="table-wrap">
+  <!-- 청구서 테이블 -->
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+  <div id="duplicateWrap" style="background:#fff5f5; border:1.5px solid #EA4335; border-radius:12px; padding:16px 20px;">
+    <h3 style="font-size:.95rem; color:#EA4335; margin-bottom:10px;">⚠️ 중복 청구 내역</h3>
+    <div id="duplicateList"><span style="color:#aaa; font-size:.9rem;">중복 없음 ✅</span></div>
+  </div>
+
+  <div id="summaryWrap" style="background:#f0f7ff; border:1.5px solid #4285F4; border-radius:12px; padding:16px 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="font-size:.95rem; color:#4285F4;">📋 청구 내역 정리 (최근월)</h3>
+      <button onclick="copySummary()" style="background:#4285F4; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:.85rem;">📋 복사</button>
+    </div>
+    <div id="summaryText" style="font-size:.9rem; line-height:1.8; color:#333; word-break:break-all;"></div>
+  </div>
+</div>
+
+
+<div class="table-wrap">
     <div class="table-header">
       <h3>📋 내 청구서 목록</h3>
+
+
       <button class="btn-refresh" onclick="loadData()">🔄 새로고침</button>
     </div>
-    <div id="loading">불러오는 중...</div>
-    <table id="claimTable">
+    <table>
       <thead>
         <tr>
           <th>제출일시</th>
@@ -164,93 +237,248 @@
           <th>청구서</th>
         </tr>
       </thead>
-      <tbody id="claimBody">
-        <tr><td colspan="6" class="empty">로그인 후 조회됩니다</td></tr>
-      </tbody>
+      <tbody id="claimBody"></tbody>
     </table>
+  </div>
+
+</div>
+
+<!-- 설정 모달 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>⚙️ 근무자 설정</h3>
+    <div id="modalContent"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveStaff()">저장</button>
+    </div>
   </div>
 </div>
 
 <script>
-  const CLIENT_ID      = '497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com';
-  const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbxTPuWng2G-iZE_02_j7r_oBC4NJAIvLt1Y233_xviLZhWOL_5gagAowNY6usETF9-Q5A/exec';
-  const ALLOWED_DOMAIN = '@impact7.kr';
-  const STORAGE_KEY    = 'impact7_user';
-
-  let _token = null;
-
-  // ── 자동 로그인 체크 ──────────────────────────
-  window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const user = JSON.parse(saved);
-      _token = user.token;
-      showApp(user);
+  // ── 기본 근무자 데이터 ────────────────────────
+  const DEFAULT_STAFF = {
+    locations: ['양지', '고등', '10단지'],
+    days: ['월금', '화목'],
+    members: {
+      '양지': { '월금': ['곽다연', '한지우'], '화목': ['정혜림', '부소영'] },
+      '고등': { '월금': ['백교원'],           '화목': ['김서인']           },
+      '10단지': { '월금': ['서예빈', '박서진'], '화목': ['김주아', '이지호'] }
     }
-  });
+  };
 
-  // ── 구글 로그인 ──────────────────────────────
-  function googleLogin() {
-    google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: 'email profile',
-      callback: async (res) => {
-        if (!res.access_token) return showLoginError('로그인 실패. 다시 시도해주세요.');
-        _token = res.access_token;
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTPuWng2G-iZE_02_j7r_oBC4NJAIvLt1Y233_xviLZhWOL_5gagAowNY6usETF9-Q5A/exec';
+const STAFF_KEY = 'impact7_staff';
 
-        const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: 'Bearer ' + _token }
-        }).then(r => r.json());
 
-        if (!info.email.endsWith(ALLOWED_DOMAIN)) {
-          return showLoginError('impact7.kr 계정으로만 로그인 가능합니다.');
-        }
-
-        const user = {
-          email : info.email,
-          name  : info.name,
-          userId: info.email.split('@')[0],
-          token : _token
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-        showApp(user);
+  // ── 저장된 데이터 불러오기 ─────────────────────
+async function getStaffFromSheet() {
+    try {
+      const res  = await fetch(`${SCRIPT_URL}?action=getStaff`, { redirect: 'follow' });
+      const data = await res.json();
+      if (data.success && data.data) {
+        localStorage.setItem(STAFF_KEY, JSON.stringify(data.data));
+        return data.data;
       }
-    }).requestAccessToken();
+    } catch(err) {}
+    return DEFAULT_STAFF;
   }
 
-  // ── 앱 표시 ──────────────────────────────────
-  function showApp(user) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('headerUser').textContent = user.name + ' 님';
-    loadData();
+  function getStaff() {
+    const saved = localStorage.getItem(STAFF_KEY);
+    return saved ? JSON.parse(saved) : DEFAULT_STAFF;
   }
 
-  // ── 데이터 불러오기 ───────────────────────────
-  async function loadData() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('claimBody').innerHTML = '';
+
+  // ── 근무자 테이블 렌더링 ───────────────────────
+  function renderStaffTable() {
+    const staff = getStaff();
+    const { locations, days, members } = staff;
+    const table = document.getElementById('staffTable');
+
+    let html = '<thead><tr>';
+    html += '<th>구분</th>';
+    locations.forEach(loc => html += `<th>${loc}</th>`);
+    html += '</tr></thead><tbody>';
+
+    days.forEach(day => {
+      // 각 근무지별 최대 인원수 계산
+      const maxCount = Math.max(...locations.map(loc =>
+        (members[loc]?.[day] || []).length
+      ));
+
+for (let i = 0; i < maxCount; i++) {
+  html += '<tr>';
+  if (i === 0) {
+    html += `<td rowspan="${maxCount}" style="background:#fafafa; font-weight:600; color:#555;">${day}</td>`;
+  }
+  locations.forEach(loc => {
+    const names = members[loc]?.[day] || [];
+    html += `<td style="background:#fff;">${names[i] || ''}</td>`;
+  });
+  html += '</tr>';
+}
+
+    });
+
+    html += '</tbody>';
+    table.innerHTML = html;
+  }
+
+  // ── 모달 열기 ─────────────────────────────────
+  function openModal() {
+    const staff = getStaff();
+    const { locations, days, members } = staff;
+    const modal = document.getElementById('modalContent');
+
+    let html = '';
+    locations.forEach(loc => {
+      html += `<div class="location-block">
+        <div class="location-label">📍 ${loc}</div>`;
+      days.forEach(day => {
+        const names = members[loc]?.[day] || ['', ''];
+        html += `<div class="day-block">
+          <div class="day-label">${day}</div>
+          <div class="name-inputs">`;
+        // 최대 4명까지 입력 가능
+        for (let i = 0; i < 4; i++) {
+          html += `<input class="name-input"
+            data-loc="${loc}" data-day="${day}" data-idx="${i}"
+            value="${names[i] || ''}"
+            placeholder="이름${i+1}" />`;
+        }
+        html += `</div></div>`;
+      });
+      html += `</div>`;
+    });
+
+    modal.innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  // ── 모달 닫기 ─────────────────────────────────
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  // ── 저장 ──────────────────────────────────────
+async function saveStaff() {
+    const staff = getStaff();
+    const inputs = document.querySelectorAll('.name-input');
+
+    staff.locations.forEach(loc => {
+      staff.members[loc] = {};
+      staff.days.forEach(day => {
+        staff.members[loc][day] = [];
+      });
+    });
+
+    inputs.forEach(input => {
+      const loc = input.dataset.loc;
+      const day = input.dataset.day;
+      const val = input.value.trim();
+      if (val) staff.members[loc][day].push(val);
+    });
+
+    localStorage.setItem(STAFF_KEY, JSON.stringify(staff));
 
     try {
-      const url = `${SCRIPT_URL}?action=getMyData&token=${_token}`;
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'saveStaff', json: JSON.stringify(staff) })
+      });
+    } catch(err) {}
+
+    renderStaffTable();
+    closeModal();
+  }
+
+
+  // ── 모달 외부 클릭시 닫기 ─────────────────────
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  });
+
+  // ── 더미 데이터 ───────────────────────────────
+  const DUMMY_DATA = [
+    {
+      '타임스탬프'              : '2025-04-01 09:00',
+      '이름'                   : '홍길동',
+      '근무지 선택'             : '강남점',
+      '근로 월 선택'            : '2025년 3월',
+      '청구 금액 (숫자만 입력)' : '1500000',
+      '청구서 업로드'           : 'https://drive.google.com'
+    },
+    {
+      '타임스탬프'              : '2025-05-01 10:30',
+      '이름'                   : '홍길동',
+      '근무지 선택'             : '강남점',
+      '근로 월 선택'            : '2025년 4월',
+      '청구 금액 (숫자만 입력)' : '1600000',
+      '청구서 업로드'           : ''
+    },
+    {
+      '타임스탬프'              : '2025-06-01 11:00',
+      '이름'                   : '홍길동',
+      '근무지 선택'             : '서초점',
+      '근로 월 선택'            : '2025년 5월',
+      '청구 금액 (숫자만 입력)' : '1700000',
+      '청구서 업로드'           : 'https://drive.google.com'
+    }
+  ];
+
+  // ── 데이터 로드 ───────────────────────────────
+async function loadData() {
+    document.getElementById('claimBody').innerHTML =
+      `<tr><td colspan="6" style="text-align:center; padding:40px; color:#aaa;">불러오는 중...</td></tr>`;
+    try {
+      const url = `${SCRIPT_URL}?action=getMyData&token=test`;
       const res = await fetch(url, { redirect: 'follow' });
       const data = await res.json();
 
-      document.getElementById('loading').style.display = 'none';
+if (data.success) {
+        const allData = data.data;
+        // 중복 제거된 데이터 (테이블/카드용)
+        const map = {};
+        allData.forEach(r => {
+          const key = r['이름'] + '_' + r['근로 월 선택'];
+          const amount = Number(r['청구 금액 (숫자만 입력)'] || 0);
+          if (!map[key] || amount < Number(map[key]['청구 금액 (숫자만 입력)'] || 0)) {
+            map[key] = r;
+          }
+        });
+        const filteredData = Object.values(map);
 
-      if (!data.success) {
+        renderDuplicates(allData);
+        renderSummary(filteredData);
+        renderTable(filteredData);
+        renderCards(filteredData);
+
+
+      } else {
         document.getElementById('claimBody').innerHTML =
-          `<tr><td colspan="6" class="empty">⚠️ ${data.error}</td></tr>`;
-        return;
+          `<tr><td colspan="6" style="text-align:center; padding:40px; color:#aaa;">⚠️ ${data.error}</td></tr>`;
       }
-
-      renderTable(data.data);
-      renderCards(data.data);
-
     } catch(err) {
-      document.getElementById('loading').style.display = 'none';
       document.getElementById('claimBody').innerHTML =
-        `<tr><td colspan="6" class="empty">⚠️ 서버 연결 실패</td></tr>`;
+        `<tr><td colspan="6" style="text-align:center; padding:40px; color:#aaa;">⚠️ ${err.message}</td></tr>`;
     }
+  }
+
+function formatDate(val) {
+    if (!val) return '-';
+    const d = new Date(val);
+    if (isNaN(d)) return val;
+    const yyyy = d.getFullYear();
+    const mm   = d.getMonth() + 1;
+    const dd   = d.getDate();
+    const hh   = d.getHours();
+    const min  = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hh < 12 ? '오전' : '오후';
+    const hour = hh % 12 || 12;
+    return `${yyyy}. ${mm}. ${dd} ${ampm} ${hour}:${min}`;
   }
 
   // ── 테이블 렌더링 ─────────────────────────────
@@ -262,37 +490,105 @@
     }
     tbody.innerHTML = rows.map(r => `
       <tr>
-        <td>${r['타임스탬프'] || '-'}</td>
+      <td>${formatDate(r['타임스탬프'])}</td>
+
         <td>${r['이름'] || '-'}</td>
         <td>${r['근무지 선택'] || '-'}</td>
         <td>${r['근로 월 선택'] || '-'}</td>
-        <td><b>${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원</b></td>
-        <td>${r['청구서 업로드'] ? `<a href="${r['청구서 업로드']}" target="_blank">보기</a>` : '-'}</td>
+        <td class="amount">${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원</td>
+        <td>${r['청구서 업로드']
+          ? `<a href="${r['청구서 업로드']}" target="_blank">보기</a>`
+          : '-'}</td>
       </tr>
     `).join('');
+  }
+function renderDuplicates(allRows) {
+    const map = {};
+    allRows.forEach(r => {
+      const key = r['이름'] + '_' + r['근로 월 선택'];
+      if (!map[key]) map[key] = [];
+      map[key].push(r);
+    });
+
+    const duplicates = Object.values(map).filter(group => group.length > 1);
+    const wrap = document.getElementById('duplicateWrap');
+    const list = document.getElementById('duplicateList');
+
+if (!duplicates.length) {
+      list.innerHTML = '<span style="color:#aaa; font-size:.9rem;">중복 없음 ✅</span>';
+      return;
+    }
+
+    list.innerHTML = duplicates.map(group => `
+      <div style="margin-bottom:8px; font-size:.9rem;">
+        <b>${group[0]['이름']}</b> (${group[0]['근로 월 선택']}) — 
+        ${group.map(r => Number(r['청구 금액 (숫자만 입력)']).toLocaleString() + '원').join(' / ')}
+      </div>
+    `).join('');
+  }
+function renderSummary(rows) {
+    const recentMonth = rows.length ? rows[0]['근로 월 선택'] : null;
+    if (!recentMonth) return;
+
+    const recentRows = rows.filter(r => r['근로 월 선택'] === recentMonth);
+    const wrap = document.getElementById('summaryWrap');
+    const text = document.getElementById('summaryText');
+
+    if (!recentRows.length) {
+      wrap.style.display = 'none';
+      return;
+    }
+
+const lines = recentRows.map(r =>
+      `${r['이름']}, ${r['급여계좌 선택']}, ${r['계좌번호 (숫자만 입력)']}, ${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원`
+    ).join('\n');
+
+
+    wrap.style.display = 'block';
+    text.innerText = lines;
+  }
+
+  function copySummary() {
+    const text = document.getElementById('summaryText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('복사되었습니다! ✅');
+    });
   }
 
   // ── 카드 렌더링 ───────────────────────────────
   function renderCards(rows) {
-    const total  = rows.reduce((s, r) => s + Number(r['청구 금액 (숫자만 입력)'] || 0), 0);
-    const recent = rows.length ? rows[rows.length - 1]['근로 월 선택'] : '-';
-    document.getElementById('cardCount').textContent  = rows.length + '건';
+    const recentMonth = rows.length ? rows[0]['근로 월 선택'] : '-';
+    const total = rows
+      .filter(r => r['근로 월 선택'] === recentMonth)
+      .reduce((s, r) => s + Number(r['청구 금액 (숫자만 입력)'] || 0), 0);
+    const notSubmitted = (() => {
+      const submitted = rows
+        .filter(r => r['근로 월 선택'] === recentMonth)
+        .map(r => r['이름']);
+      const staff = getStaff();
+      const allMembers = [];
+      staff.locations.forEach(loc => {
+        staff.days.forEach(day => {
+          (staff.members[loc]?.[day] || []).forEach(name => {
+            if (name && !allMembers.includes(name)) allMembers.push(name);
+          });
+        });
+      });
+      return allMembers.filter(name => !submitted.includes(name));
+    })();
+    document.getElementById('cardCount').textContent  = notSubmitted.length ? notSubmitted.join(', ') : '전원 제출 ✅';
     document.getElementById('cardTotal').textContent  = total.toLocaleString() + '원';
-    document.getElementById('cardRecent').textContent = recent || '-';
+    document.getElementById('cardRecent').textContent = recentMonth || '-';
   }
 
-  // ── 로그아웃 ──────────────────────────────────
-  function logout() {
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  }
 
-  // ── 로그인 에러 표시 ──────────────────────────
-  function showLoginError(msg) {
-    const el = document.getElementById('loginError');
-    el.textContent = msg;
-    el.style.display = 'block';
-  }
+  // ── 초기 실행 ─────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    renderStaffTable();
+    loadData();
+  });
+
+
 </script>
 </body>
 </html>
