@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>급여청구서 | Impact7</title>
+<title>급여청구서 | Impact7</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
@@ -164,12 +166,28 @@
 </head>
 <body>
 
+<!-- 로그인 오버레이 -->
+<div id="loginOverlay" style="position:fixed; inset:0; background:linear-gradient(135deg,#1a1a2e,#16213e); display:flex; align-items:center; justify-content:center; z-index:9999;">
+  <div style="background:#fff; border-radius:16px; padding:48px 40px; text-align:center; width:100%; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="font-size:48px; margin-bottom:16px;">💰</div>
+    <h1 style="font-size:1.5rem; margin-bottom:8px; color:#1a1a2e;">급여청구서 관리</h1>
+    <p style="color:#888; margin-bottom:28px; font-size:.95rem;">@impact7.kr 계정으로 로그인하세요</p>
+    <button onclick="googleLogin()" style="display:inline-flex; align-items:center; gap:10px; padding:12px 24px; border-radius:8px; border:2px solid #ddd; background:#fff; font-size:1rem; cursor:pointer;">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" />
+      Google 로그인
+    </button>
+    <div id="loginError" style="color:#EA4335; font-size:.85rem; margin-top:14px;"></div>
+  </div>
+</div>
+
 <!-- 헤더 -->
+
 <div class="header">
   <h2>💰 급여청구서 관리</h2>
   <div class="user-info">
-    <span>홍길동 님 (테스트모드)</span>
-    <button class="btn-logout">로그아웃</button>
+<span id="headerUser"></span>
+<button class="btn-logout" onclick="logout()">로그아웃</button>
+
   </div>
 </div>
 
@@ -259,6 +277,46 @@
 </div>
 
 <script>
+  const CLIENT_ID   = '497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com';
+  const STORAGE_KEY = 'impact7_user';
+  let _token = null;
+
+  function googleLogin() {
+    google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: 'email profile',
+      callback: async (res) => {
+        if (!res.access_token) return showLoginError('로그인 실패. 다시 시도해주세요.');
+        _token = res.access_token;
+        const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: 'Bearer ' + _token }
+        }).then(r => r.json());
+        if (!info.email.endsWith('@impact7.kr')) {
+          return showLoginError('impact7.kr 계정으로만 로그인 가능합니다.');
+        }
+        const user = { email: info.email, name: info.name, token: _token };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        showApp(user);
+      }
+    }).requestAccessToken();
+  }
+
+  function showApp(user) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('headerUser').textContent = user.name + ' 님';
+    renderStaffTable();
+    loadData();
+  }
+
+  function logout() {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+
+  function showLoginError(msg) {
+    document.getElementById('loginError').textContent = msg;
+  }
+
   // ── 기본 근무자 데이터 ────────────────────────
   const DEFAULT_STAFF = {
     locations: ['양지', '고등', '10단지'],
@@ -622,11 +680,6 @@ function filterByMonth() {
   }
 
 
-  // ── 초기 실행 ─────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-    renderStaffTable();
-    loadData();
-  });
 
 
 </script>
