@@ -31,36 +31,45 @@
     }
 
     /* 사이드바 */
-    .sidebar {
-      width: 200px;
-      min-width: 200px;
-      background: #1a1a2e;
-      padding: 24px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+.sidebar {
+  width: 200px;
+  min-width: 200px;
+  background: #f0f2f5;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-menu {
+  ...
+  color: #555;
+  ...
+}
     .sidebar-menu {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 24px;
-      color: rgba(255,255,255,.6);
-      font-size: .9rem;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      transition: all .2s;
-    }
-    .sidebar-menu:hover {
-      background: rgba(255,255,255,.07);
-      color: #fff;
-    }
-    .sidebar-menu.active {
-      background: rgba(66,133,244,.2);
-      color: #4285F4;
-      border-left: 3px solid #4285F4;
-      font-weight: 600;
-    }
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  color: #555;
+  font-size: .9rem;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all .2s;
+  text-decoration: none;
+}
+
+.sidebar-menu:hover {
+  background: rgba(0,0,0,.05);
+  color: #333;
+}
+.sidebar-menu.active {
+  background: rgba(66,133,244,.1);
+  color: #4285F4;
+  border-left: 3px solid #4285F4;
+  font-weight: 600;
+}
+
 
     /* 메인 콘텐츠 */
     .main-content {
@@ -241,8 +250,9 @@
   <!-- 사이드바 -->
   <div class="sidebar">
     <div class="sidebar-menu active" id="menu-claims" onclick="showPage('claims', this)">📋 급여청구서</div>
-    <div class="sidebar-menu" id="menu-clients" onclick="showPage('clients', this)">🏢 고정 거래처</div>
-    <div class="sidebar-menu" id="menu-expenses" onclick="showPage('expenses', this)">💳 임지원 비용</div>
+<a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1sH4zNITL1qNLrpti8CRWJTec2zL9W_OD/edit?gid=82225613#gid=82225613" target="_blank">🏢 고정 거래처</a>
+<a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1XwDXZTRDYVYm_avyNkGC0vkm4bSfCSmXoX6BPQemYuI/edit?gid=1170515617#gid=1170515617" target="_blank">💳 임직원 비용</a>
+
   </div>
 
   <!-- 메인 콘텐츠 -->
