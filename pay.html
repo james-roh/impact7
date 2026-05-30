@@ -315,9 +315,21 @@
     location.reload();
   }
 
-  function showLoginError(msg) {
+function showLoginError(msg) {
     document.getElementById('loginError').textContent = msg;
   }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const user = JSON.parse(saved);
+      _token = user.token;
+      showApp(user);
+    } else {
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+  });
+
 
   // ── 기본 근무자 데이터 ────────────────────────
   const DEFAULT_STAFF = {
