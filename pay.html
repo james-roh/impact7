@@ -354,15 +354,23 @@
         </div>`;
       return;
     }
-    if (page === 'expenses') {
-      container.innerHTML = `
-        <div class="coming-soon">
-          <div class="icon">💳</div>
-          <h3>임지원 비용</h3>
-          <p>준비 중입니다.</p>
-        </div>`;
-      return;
-    }
+if (page === 'expenses') {
+  container.innerHTML = `
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <div class="table-header">
+        <h3>💳 임직원 비용</h3>
+        <select id="empSheetFilter" onchange="loadEmpData()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;">
+          <option>불러오는 중...</option>
+        </select>
+      </div>
+      <div id="empTableWrap">
+        <table><tbody><tr><td style="text-align:center; padding:40px; color:#aaa;">탭을 선택하세요</td></tr></tbody></table>
+      </div>
+    </div>`;
+  loadEmpSheets();
+  return;
+}
+
   }
 
   // ── 급여청구서 HTML 템플릿 ────────────────────
@@ -737,6 +745,60 @@
   } else {
     body.style.display = 'none';
     btn.textContent = '▶';
+  }
+}
+// ── 임직원 비용 ───────────────────────────────
+async function loadEmpSheets() {
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getEmpSheets`, { redirect: 'follow' });
+    const data = await res.json();
+    if (data.success) {
+      const select = document.getElementById('empSheetFilter');
+      select.innerHTML = '';
+      data.data.forEach(name => {
+        select.innerHTML += `<option value="${name}">${name}</option>`;
+      });
+      loadEmpData();
+    }
+  } catch(err) {}
+}
+
+async function loadEmpData() {
+  const select = document.getElementById('empSheetFilter');
+  if (!select) return;
+  const sheetName = select.value;
+  const wrap = document.getElementById('empTableWrap');
+  wrap.innerHTML = `<table><tbody><tr><td style="text-align:center; padding:40px; color:#aaa;">불러오는 중...</td></tr></tbody></table>`;
+
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getEmpData&sheet=${encodeURIComponent(sheetName)}`, { redirect: 'follow' });
+    const data = await res.json();
+    if (data.success && data.headers) {
+      const headers = data.headers;
+      const rows    = data.data;
+
+      let html = '<table><thead><tr>';
+      headers.forEach(h => html += `<th>${h}</th>`);
+      html += '</tr></thead><tbody>';
+
+      if (!rows.length) {
+        html += `<tr><td colspan="${headers.length}" class="empty">데이터 없음</td></tr>`;
+      } else {
+        rows.forEach(row => {
+          html += '<tr>';
+          headers.forEach(h => {
+            const val = row[h];
+            const num = Number(val);
+            html += `<td>${(!isNaN(num) && val !== '') ? num.toLocaleString() : (val || '')}</td>`;
+          });
+          html += '</tr>';
+        });
+      }
+      html += '</tbody></table>';
+      wrap.innerHTML = html;
+    }
+  } catch(err) {
+    wrap.innerHTML = `<table><tbody><tr><td style="text-align:center; padding:40px; color:#aaa;">⚠️ ${err.message}</td></tr></tbody></table>`;
   }
 }
 
