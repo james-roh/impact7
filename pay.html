@@ -402,10 +402,15 @@
       </div>
 
       <div class="table-wrap">
-        <div class="table-header">
-          <h3>📋 청구서 목록</h3>
-          <select id="monthFilter" onchange="filterByMonth()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;"></select>
-        </div>
+  <div class="table-header">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <button id="toggleBtn" onclick="toggleTable()" style="background:none; border:1.5px solid #ddd; border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:.85rem;">▼</button>
+    <h3>📋 청구서 목록</h3>
+  </div>
+  <select id="monthFilter" onchange="filterByMonth()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;"></select>
+</div>
+<div id="tableBody">
+
         <table>
           <thead>
             <tr>
@@ -719,6 +724,18 @@
     if (cardTotal)  cardTotal.textContent  = total.toLocaleString() + '원';
     if (cardRecent) cardRecent.textContent = recentMonth || '-';
   }
+  function toggleTable() {
+  const body = document.getElementById('tableBody');
+  const btn  = document.getElementById('toggleBtn');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    btn.textContent = '▼';
+  } else {
+    body.style.display = 'none';
+    btn.textContent = '▶';
+  }
+}
+
 </script>
 </body>
 </html>
