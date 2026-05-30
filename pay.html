@@ -531,11 +531,12 @@ async function loadData() {
         // 드롭다운 월 목록 추출
         const months = [...new Set(allData.map(r => r['근로 월 선택']))].filter(m => m);
         const select = document.getElementById('monthFilter');
-        select.innerHTML = '<option value="all">전체 월</option>';
-        months.forEach(m => {
-          select.innerHTML += `<option value="${m}">${m}</option>`;
-        });
-        if (months.length) select.value = months[0];
+select.innerHTML = '';
+months.forEach(m => {
+  select.innerHTML += `<option value="${m}">${m}</option>`;
+});
+if (months.length) select.value = months[0];
+
 
         renderDuplicates(allData);
         renderSummary(filteredData);
@@ -647,9 +648,8 @@ function filterByMonth() {
     const selected = document.getElementById('monthFilter').value;
     const allData  = window._allData || [];
 
-    const filtered = selected === 'all'
-      ? allData
-      : allData.filter(r => r['근로 월 선택'] === selected);
+const filtered = allData.filter(r => r['근로 월 선택'] === selected);
+
 
     const map = {};
     filtered.forEach(r => {
