@@ -535,7 +535,14 @@ select.innerHTML = '';
 months.forEach(m => {
   select.innerHTML += `<option value="${m}">${m}</option>`;
 });
-if (months.length) select.value = months[0];
+if (months.length) {
+  select.value = months[0];
+  filterByMonth();
+}
+
+  filterByMonth(); // ← 초기 필터 즉시 적용
+}
+
 
 
         renderDuplicates(allData);
