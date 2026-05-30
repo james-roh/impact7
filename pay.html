@@ -518,13 +518,16 @@ if (!duplicates.length) {
       list.innerHTML = '<span style="color:#aaa; font-size:.9rem;">중복 없음 ✅</span>';
       return;
     }
-
-    list.innerHTML = duplicates.map(group => `
-      <div style="margin-bottom:8px; font-size:.9rem;">
-        <b>${group[0]['이름']}</b> (${group[0]['근로 월 선택']}) — 
-        ${group.map(r => Number(r['청구 금액 (숫자만 입력)']).toLocaleString() + '원').join(' / ')}
+list.innerHTML = duplicates.map(group => `
+      <div style="margin-bottom:12px; font-size:.9rem;">
+        <b>${group[0]['이름']}</b> (${group[0]['근로 월 선택']})<br>
+        ${group.map(r => `
+          &nbsp;&nbsp;• ${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원
+          ${r['청구서 업로드'] ? `<a href="${r['청구서 업로드']}" target="_blank" style="margin-left:8px; color:#4285F4; font-size:.8rem;">청구서 보기</a>` : ''}
+        `).join('<br>')}
       </div>
     `).join('');
+
   }
 function renderSummary(rows) {
     const recentMonth = rows.length ? rows[0]['근로 월 선택'] : null;
