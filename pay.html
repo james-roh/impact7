@@ -204,12 +204,14 @@
 
   <!-- 청구서 테이블 -->
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-  <div id="duplicateWrap" style="background:#fff5f5; border:1.5px solid #EA4335; border-radius:12px; padding:16px 20px;">
+<div id="duplicateWrap" style="background:transparent; border:1.5px solid #EA4335; border-radius:12px; padding:16px 20px;">
+
     <h3 style="font-size:.95rem; color:#EA4335; margin-bottom:10px;">⚠️ 중복 청구 내역</h3>
     <div id="duplicateList"><span style="color:#aaa; font-size:.9rem;">중복 없음 ✅</span></div>
   </div>
 
-  <div id="summaryWrap" style="background:#f0f7ff; border:1.5px solid #4285F4; border-radius:12px; padding:16px 20px;">
+<div id="summaryWrap" style="background:transparent; border:1.5px solid #4285F4; border-radius:12px; padding:16px 20px;">
+
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
       <h3 style="font-size:.95rem; color:#4285F4;">📋 청구 내역 정리 (최근월)</h3>
       <button onclick="copySummary()" style="background:#4285F4; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:.85rem;">📋 복사</button>
@@ -220,12 +222,13 @@
 
 
 <div class="table-wrap">
-    <div class="table-header">
-      <h3>📋 내 청구서 목록</h3>
-
-
-      <button class="btn-refresh" onclick="loadData()">🔄 새로고침</button>
+<div class="table-header">
+      <h3>📋 청구서 목록</h3>
+      <select id="monthFilter" onchange="filterByMonth()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;">
+        <option value="all">전체 월</option>
+      </select>
     </div>
+
     <table>
       <thead>
         <tr>
@@ -438,9 +441,11 @@ async function loadData() {
       const res = await fetch(url, { redirect: 'follow' });
       const data = await res.json();
 
-if (data.success) {
+      if (data.success) {
         const allData = data.data;
-        // 중복 제거된 데이터 (테이블/카드용)
+        window._allData = allData;
+
+        // 중복 제거
         const map = {};
         allData.forEach(r => {
           const key = r['이름'] + '_' + r['근로 월 선택'];
@@ -451,11 +456,19 @@ if (data.success) {
         });
         const filteredData = Object.values(map);
 
+        // 드롭다운 월 목록 추출
+        const months = [...new Set(allData.map(r => r['근로 월 선택']))].filter(m => m);
+        const select = document.getElementById('monthFilter');
+        select.innerHTML = '<option value="all">전체 월</option>';
+        months.forEach(m => {
+          select.innerHTML += `<option value="${m}">${m}</option>`;
+        });
+        if (months.length) select.value = months[0];
+
         renderDuplicates(allData);
         renderSummary(filteredData);
         renderTable(filteredData);
         renderCards(filteredData);
-
 
       } else {
         document.getElementById('claimBody').innerHTML =
@@ -466,6 +479,7 @@ if (data.success) {
         `<tr><td colspan="6" style="text-align:center; padding:40px; color:#aaa;">⚠️ ${err.message}</td></tr>`;
     }
   }
+
 
 function formatDate(val) {
     if (!val) return '-';
@@ -556,6 +570,29 @@ const lines = recentRows.map(r =>
     navigator.clipboard.writeText(text).then(() => {
       alert('복사되었습니다! ✅');
     });
+  }
+function filterByMonth() {
+    const selected = document.getElementById('monthFilter').value;
+    const allData  = window._allData || [];
+
+    const filtered = selected === 'all'
+      ? allData
+      : allData.filter(r => r['근로 월 선택'] === selected);
+
+    const map = {};
+    filtered.forEach(r => {
+      const key    = r['이름'] + '_' + r['근로 월 선택'];
+      const amount = Number(r['청구 금액 (숫자만 입력)'] || 0);
+      if (!map[key] || amount < Number(map[key]['청구 금액 (숫자만 입력)'] || 0)) {
+        map[key] = r;
+      }
+    });
+    const filteredData = Object.values(map);
+
+    renderDuplicates(filtered);
+    renderSummary(filteredData);
+    renderTable(filteredData);
+    renderCards(filteredData);
   }
 
   // ── 카드 렌더링 ───────────────────────────────
