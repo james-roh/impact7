@@ -303,12 +303,24 @@
     }).requestAccessToken();
   }
 
-  function showApp(user) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('headerUser').textContent = user.name + ' 님';
-    renderStaffTable();
-    loadData();
-  }
+function showApp(user) {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('headerUser').textContent = user.name + ' 님';
+  loadStaffAndRender();
+  loadData();
+}
+
+async function loadStaffAndRender() {
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getStaff`, { redirect: 'follow' });
+    const data = await res.json();
+    if (data.success && data.data) {
+      localStorage.setItem(STAFF_KEY, JSON.stringify(data.data));
+    }
+  } catch(err) {}
+  renderStaffTable();
+}
+
 
   function logout() {
     localStorage.removeItem(STORAGE_KEY);
@@ -540,15 +552,6 @@ if (months.length) {
   filterByMonth();
 }
 
-  filterByMonth(); // ← 초기 필터 즉시 적용
-}
-
-
-
-        renderDuplicates(allData);
-        renderSummary(filteredData);
-        renderTable(filteredData);
-        renderCards(filteredData);
 
       } else {
         document.getElementById('claimBody').innerHTML =
