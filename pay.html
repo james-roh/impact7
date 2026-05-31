@@ -407,13 +407,15 @@ function getClaimsHTML() {
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
         <div id="duplicateWrap" style="background:#fff; border:1.5px solid #EA4335; border-radius:12px; padding:16px 20px;">
-          <h3 style="font-size:.95rem; color:#EA4335; margin-bottom:10px;">⚠️ 중복 청구 내역</h3>
+          <h3 style="font-size:.95rem; color:#EA4335; margin-bottom:10px;"><i class="fa-solid fa-triangle-exclamation"></i> 중복 청구 내역</h3>
+
           <div id="duplicateList"><span style="color:#aaa; font-size:.9rem;">중복 없음 ✅</span></div>
         </div>
         <div id="summaryWrap" style="background:#fff; border:1.5px solid #4285F4; border-radius:12px; padding:16px 20px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="font-size:.95rem; color:#4285F4;">📋 청구 내역 정리 (최근월)</h3>
-            <button onclick="copySummary()" style="background:#4285F4; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:.85rem;">📋 복사</button>
+          <h3 style="font-size:.95rem; color:#4285F4;"><i class="fa-solid fa-list-check"></i> 청구 내역 정리 (최근월)</h3>
+
+            <button onclick="copySummary()" style="background:#4285F4; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:.85rem;"> 복사</button>
           </div>
           <div id="summaryText" style="font-size:.9rem; line-height:1.8; color:#333; word-break:break-all;"></div>
         </div>
@@ -425,7 +427,8 @@ function getClaimsHTML() {
   <div style="display:flex; align-items:center; gap:10px;">
     <button id="toggleBtn" onclick="toggleTable()" style="background:none; border:1.5px solid #ddd; border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:.85rem;">▶</button>
 
-<h3>📋 급여 청구서 목록</h3>
+<h3><i class="fa-solid fa-file-lines"></i> 급여 청구서 목록</h3>
+
 
   </div>
   <select id="monthFilter" onchange="filterByMonth()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;"></select>
@@ -451,7 +454,8 @@ function getClaimsHTML() {
 
     <div class="table-wrap" style="margin-top:16px;">
       <div class="table-header">
-      <h3>🧾 비용 청구 내역</h3>
+     <h3><i class="fa-solid fa-receipt"></i> 비용 청구 내역</h3>
+
 
         <select id="claimMonthFilter" onchange="filterClaimData()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;">
           <option>불러오는 중...</option>
