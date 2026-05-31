@@ -871,7 +871,7 @@ function filterClaimData() {
     html += `<tr>
       <td>${formatDate(r['타임스탬프'])}</td>
       <td>${r['이름 (한글 실명)'] || '-'}</td>
-      <td>${r['날짜 (영수증 기준)'] || '-'}</td>
+      <td>${formatDate(r['날짜 (영수증 기준)'])}</td>
       <td>${r['내용 (구체적)'] || '-'}</td>
       <td class="amount">${Number(r['청구 금액']).toLocaleString()}원</td>
       <td>${r['영수증 업로드'] ? `<a href="${r['영수증 업로드']}" target="_blank">보기</a>` : '-'}</td>
