@@ -374,49 +374,14 @@ if (page === 'expenses') {
   }
 
   // ── 급여청구서 HTML 템플릿 ────────────────────
-  function getClaimsHTML() {
+function getClaimsHTML() {
     return `
-      <div class="section-header">
-        <h3>👥 근무자 현황</h3>
-        <button class="btn-setting" onclick="openModal()">⚙️ 설정</button>
-      </div>
-      <div class="staff-wrap">
-        <table class="staff-table" id="staffTable"></table>
-      </div>
-
-      <div class="cards">
-        <div class="card">
-          <div class="card-label">미제출 현황 (최근월)</div>
-          <div class="card-value" id="cardCount">-</div>
-        </div>
-        <div class="card">
-          <div class="card-label">총 청구 금액</div>
-          <div class="card-value" id="cardTotal">-</div>
-        </div>
-        <div class="card">
-          <div class="card-label">최근 청구월</div>
-          <div class="card-value" id="cardRecent">-</div>
-        </div>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-        <div id="duplicateWrap" style="background:#fff; border:1.5px solid #EA4335; border-radius:12px; padding:16px 20px;">
-          <h3 style="font-size:.95rem; color:#EA4335; margin-bottom:10px;">⚠️ 중복 청구 내역</h3>
-          <div id="duplicateList"><span style="color:#aaa; font-size:.9rem;">중복 없음 ✅</span></div>
-        </div>
-        <div id="summaryWrap" style="background:#fff; border:1.5px solid #4285F4; border-radius:12px; padding:16px 20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="font-size:.95rem; color:#4285F4;">📋 청구 내역 정리 (최근월)</h3>
-            <button onclick="copySummary()" style="background:#4285F4; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:.85rem;">📋 복사</button>
-          </div>
-          <div id="summaryText" style="font-size:.9rem; line-height:1.8; color:#333; word-break:break-all;"></div>
-        </div>
-      </div>
-
+      ...
       <div class="table-wrap">
   <div class="table-header">
   <div style="display:flex; align-items:center; gap:10px;">
-    <button id="toggleBtn" onclick="toggleTable()" style="background:none; border:1.5px solid #ddd; border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:.85rem;">▼</button>
+    <button id="toggleBtn" onclick="toggleTable()" style="background:none; border:1.5px solid #ddd; border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:.85rem;">▶</button>
+
     <h3>📋 청구서 목록</h3>
   </div>
   <select id="monthFilter" onchange="filterByMonth()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;"></select>
