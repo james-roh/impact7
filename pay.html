@@ -437,8 +437,22 @@ if (page === 'expenses') {
           <tbody id="claimBody"></tbody>
         </table>
       </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:16px;">
+      <div class="table-header">
+        <h3>🧾 청구 내역</h3>
+        <select id="claimMonthFilter" onchange="filterClaimData()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;">
+          <option>불러오는 중...</option>
+        </select>
+      </div>
+      <div id="claimDataWrap">
+        <table><tbody><tr><td style="text-align:center; padding:40px; color:#aaa;">불러오는 중...</td></tr></tbody></table>
+      </div>
+    </div>
     `;
   }
+
 
   // ── 기본 근무자 데이터 ────────────────────────
   const DEFAULT_STAFF = {
@@ -594,7 +608,9 @@ if (page === 'expenses') {
       const claimBody2 = document.getElementById('claimBody');
       if (claimBody2) claimBody2.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#aaa;">⚠️ ${err.message}</td></tr>`;
     }
+    loadClaimData();
   }
+
 
   // ── 날짜 포맷 ─────────────────────────────────
   function formatDate(val) {
@@ -802,6 +818,71 @@ async function loadEmpData() {
   }
 }
 
+// ── 청구 내역 ─────────────────────────────────
+let _claimData = [];
+
+async function loadClaimData() {
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getClaimData`, { redirect: 'follow' });
+    const data = await res.json();
+    if (data.success) {
+      _claimData = data.data;
+      const months = [...new Set(data.data.map(r => {
+        const d = new Date(r['타임스탬프']);
+        return isNaN(d) ? null : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      }))].filter(m => m).sort().reverse();
+
+      const select = document.getElementById('claimMonthFilter');
+      if (!select) return;
+      select.innerHTML = '';
+      months.forEach(m => {
+        const label = `${m.split('-')[0]}년 ${Number(m.split('-')[1])}월`;
+        select.innerHTML += `<option value="${m}">${label}</option>`;
+      });
+      if (months.length) filterClaimData();
+    }
+  } catch(err) {}
+}
+
+function filterClaimData() {
+  const select = document.getElementById('claimMonthFilter');
+  if (!select) return;
+  const selected = select.value;
+  const filtered = _claimData.filter(r => {
+    const d = new Date(r['타임스탬프']);
+    if (isNaN(d)) return false;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    return key === selected;
+  });
+
+  const wrap = document.getElementById('claimDataWrap');
+  if (!wrap) return;
+
+  if (!filtered.length) {
+    wrap.innerHTML = `<table><tbody><tr><td style="text-align:center; padding:40px; color:#aaa;">데이터 없음</td></tr></tbody></table>`;
+    return;
+  }
+
+  let html = `<table><thead><tr>
+    <th>타임스탬프</th><th>이름</th><th>날짜</th><th>내용</th><th>청구금액</th><th>영수증</th>
+  </tr></thead><tbody>`;
+
+  filtered.forEach(r => {
+    html += `<tr>
+      <td>${formatDate(r['타임스탬프'])}</td>
+      <td>${r['이름 (한글 실명)'] || '-'}</td>
+      <td>${r['날짜 (영수증 기준)'] || '-'}</td>
+      <td>${r['내용 (구체적)'] || '-'}</td>
+      <td class="amount">${Number(r['청구 금액']).toLocaleString()}원</td>
+      <td>${r['영수증 업로드'] ? `<a href="${r['영수증 업로드']}" target="_blank">보기</a>` : '-'}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
 </script>
+
 </body>
 </html>
