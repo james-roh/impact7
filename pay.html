@@ -759,7 +759,7 @@ function getClaimsHTML() {
     const cardTotal  = document.getElementById('cardTotal');
     const cardRecent = document.getElementById('cardRecent');
 
-    if (cardCount)  cardCount.textContent  = notSubmitted.length ? notSubmitted.join(', ') : '전원 제출 ✅';
+    if (cardCount)  cardCount.textContent  = notSubmitted.length ? notSubmitted.join(', ') : '전원 제출';
     if (cardTotal)  cardTotal.textContent  = total.toLocaleString() + '원';
     if (cardRecent) cardRecent.textContent = recentMonth || '-';
   }
