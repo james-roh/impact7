@@ -7,8 +7,9 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+
 
     /* 헤더 */
     .header {
@@ -419,7 +420,8 @@ function getClaimsHTML() {
   <div style="display:flex; align-items:center; gap:10px;">
     <button id="toggleBtn" onclick="toggleTable()" style="background:none; border:1.5px solid #ddd; border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:.85rem;">▶</button>
 
-    <h3>📋 청구서 목록</h3>
+<h3>📋 급여 청구서 목록</h3>
+
   </div>
   <select id="monthFilter" onchange="filterByMonth()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;"></select>
 </div>
@@ -444,7 +446,8 @@ function getClaimsHTML() {
 
     <div class="table-wrap" style="margin-top:16px;">
       <div class="table-header">
-        <h3>🧾 청구 내역</h3>
+      <h3>🧾 비용 청구 내역</h3>
+
         <select id="claimMonthFilter" onchange="filterClaimData()" style="padding:6px 14px; border:1.5px solid #ddd; border-radius:6px; font-size:.85rem; cursor:pointer;">
           <option>불러오는 중...</option>
         </select>
