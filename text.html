@@ -645,7 +645,8 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
         <div class="left-form-panel">
             <div class="form-group">
                 <label>기준 월 선택</label>
-                <input type="month" id="targetMonth" class="input-control" value="2026-05" onchange="resetAndRenderCalendar()">
+<input type="month" id="targetMonth" class="input-control" onchange="resetAndRenderCalendar()">
+
             </div>
 
             <div class="form-group">
@@ -697,6 +698,17 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
         <option value="longterm_mid">장기수강할인 중1 (-10,000원)</option>
         <option value="longterm_high">장기수강할인 고1 (-20,000원)</option>
     </select>
+</div>
+<div class="form-group">
+    <label>교재 무상 제본 여부</label>
+<div class="radio-group-wrap">
+    <label class="radio-option-label">
+        <input type="radio" name="printOption" value="noprint" checked onchange="calculateMainSystemLogic()"> 제본 안함
+    </label>
+    <label class="radio-option-label">
+        <input type="radio" name="printOption" value="print" onchange="calculateMainSystemLogic()"> 무상 제본
+    </label>
+</div>
 </div>
 
 <div class="form-group">
@@ -809,10 +821,15 @@ function switchMenu(menu) {
 }
 
 window.onload = function () {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    document.getElementById('targetMonth').value = `${yyyy}-${mm}`;
     checkLoginState();
     renderCalendarCoreSystem();
     loadGuidelinesData();
 };
+
 
 ;
 
@@ -1218,9 +1235,11 @@ function handleClassNameInput() {
         updateAttendanceTimeOptions(timeKey);
         const tuitionKey = (classInfo.code === 'KS131' || classInfo.code === 'KS132') ? 'ks' : classInfo.school;
         updateTuitionDropdownOptions(tuitionKey);
-
         const vocaWrap = document.getElementById('vocaGroupWrap');
         vocaWrap.style.display = (classInfo.school === 'mid') ? 'block' : 'none';
+        // KS반은 제본 선택창 숨기기
+        const printWrap = document.getElementById('printOptionWrap');
+        printWrap.style.display = (classInfo.school === 'ks') ? 'none' : 'block';
     }
     calculateMainSystemLogic();
 }
@@ -1349,8 +1368,22 @@ if (campusKey === 'yangji5') {
 
 
 
-        let customBookListText = "";
-        let totalBookPrice     = 0;
+const printOption = document.querySelector('input[name="printOption"]:checked')?.value || 'noprint';
+
+const elemMidPrintText = `3-1 학원에서 제본하여 준비 합니다.\n문법 : 제본으로 진행\n독해 : 제본으로 진행\n실전 : 제본으로 진행\n듣기 : 제본으로 진행`;
+const highPrintText = `3-1 학원에서 제본하여 준비 합니다.\n*문법 : 제본으로 진행\n*실전 : 제본으로 진행\n*독해 : 제본으로 진행`;
+
+
+
+let printSectionText = '';
+if (printOption === 'print') {
+    if (school === 'elem' || school === 'mid') printSectionText = elemMidPrintText;
+    else if (school === 'high') printSectionText = highPrintText;
+}
+
+let customBookListText = "";
+let totalBookPrice     = 0;
+
 
                 const guidelineRules = parseGuidelineRules();
         const classCode = classInfo?.code || "";
@@ -1377,6 +1410,20 @@ const ruleForBook = ksBookMap[classCode] || guidelineRules[classCode] || null;
                 totalBookPrice = ruleForBook.bookPrice || 0;
             }
             customBookListText = bookText;
+// 무상 제본 시 고등 자체교재에서 문법/실전/독해 제거
+if (printOption === 'print' && school === 'high') {
+    customBookListText = customBookListText
+        .split('\n')
+        .filter(line => {
+            const t = line.replace(/\t/g, '').trim();
+            return !t.includes('문법') && !t.includes('실전') && !t.includes('독해');
+        })
+        .join('\n')
+        .trim();
+    totalBookPrice = calcBookPrice(customBookListText);
+}
+
+
         } else {
             customBookListText = `[설정 지침에 "${classCode}" 교재 내용을 입력해주세요]`;
             totalBookPrice = 0;
@@ -1588,10 +1635,10 @@ ${otVideoSectionText}
 ▶ 정규반: ${className || "[반명 입력 필요]"} 반
 
 ■ 3. 교재 
-3-1 교재 미리보기 : go.impact7.kr/book
-${bookStoreSectionText}
+${printOption === 'print' ? printSectionText + '\n' : '3-1 교재 미리보기 : go.impact7.kr/book\n' + bookStoreSectionText}
 3-2 자체교재
 ${customBookListText}
+
 
 ■ 4. 수강료
 4-1 수강료
