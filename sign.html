@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>근로계약서 작성 - 임팩트세븐학원</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Malgun Gothic', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 720px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    h1 { text-align: center; font-size: 20px; color: #333; margin-bottom: 24px; }
+
+    /* 단계 표시 */
+    .steps { display: flex; justify-content: center; align-items: center; gap: 0; margin-bottom: 30px; }
+    .step { width: 32px; height: 32px; border-radius: 50%; background: #ddd; color: #999; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+    .step.active { background: #4CAF50; color: #fff; }
+    .step.done   { background: #81C784; color: #fff; }
+    .step-line   { width: 40px; height: 2px; background: #ddd; }
+
+    /* 화면 전환 */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* 폼 */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: bold; font-size: 14px; color: #444; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-group input:focus { border-color: #4CAF50; }
+    .form-group input[readonly] { background: #f9f9f9; color: #666; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
+
+    /* 계약서 미리보기 */
+    .contract-box { background: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; white-space: pre-wrap; line-height: 1.9; font-size: 13px; color: #333; max-height: 400px; overflow-y: auto; }
+
+    /* 서명 캔버스 */
+    .sign-label { font-weight: bold; font-size: 14px; color: #444; margin-bottom: 8px; }
+    #signCanvas { border: 2px solid #333; border-radius: 6px; background: #fff; width: 100%; height: 160px; cursor: crosshair; touch-action: none; display: block; }
+
+    /* 버튼 */
+    .btn-wrap { display: flex; gap: 10px; margin-top: 16px; }
+    .btn-primary   { flex: 1; padding: 13px; background: #4CAF50; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-secondary { padding: 13px 20px; background: #aaa; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+    .btn-primary:hover   { background: #45a049; }
+    .btn-secondary:hover { background: #999; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* 완료 화면 */
+    .done-box { text-align: center; padding: 50px 20px; }
+    .done-box .icon { font-size: 60px; margin-bottom: 20px; }
+    .done-box h2 { color: #4CAF50; font-size: 22px; margin-bottom: 12px; }
+    .done-box p  { color: #666; font-size: 15px; line-height: 1.7; }
+
+    /* 로딩 */
+    .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+    .loading-overlay.show { display: flex; }
+    .spinner { width: 48px; height: 48px; border: 5px solid #ddd; border-top-color: #4CAF50; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 16px; color: #555; }
+
+    /* 오류 메시지 */
+    .error-msg { color: #e53935; font-size: 13px; margin-top: 6px; display: none; }
+  </style>
+</head>
+<body>
+
+<!-- 로딩 오버레이 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">처리 중입니다...</div>
+</div>
+
+<div class="container">
+  <h1>근로계약서 작성</h1>
+
+  <!-- 단계 표시 -->
+  <div class="steps">
+    <div class="step active" id="s1">1</div>
+    <div class="step-line"></div>
+    <div class="step" id="s2">2</div>
+    <div class="step-line"></div>
+    <div class="step" id="s3">3</div>
+  </div>
+
+  <!-- ======================== -->
+  <!-- 1단계 : 정보 입력        -->
+  <!-- ======================== -->
+  <div class="view active" id="view1">
+    <div class="form-row">
+      <div class="form-group">
+        <label>이름 *</label>
+        <input type="text" id="직원명" placeholder="홍길동">
+      </div>
+      <div class="form-group">
+        <label>연락처 *</label>
+        <input type="text" id="연락처" placeholder="010-0000-0000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>이메일 *</label>
+      <input type="email" id="이메일" placeholder="example@email.com">
+    </div>
+    <div class="form-group">
+      <label>주소 *</label>
+      <input type="text" id="주소" placeholder="서울시 강남구 ...">
+    </div>
+    <div class="form-group">
+      <label>주민번호 * <span style="font-weight:normal;color:#999;">(예: 000000-0000000)</span></label>
+      <input type="text" id="주민번호" placeholder="000000-0000000" maxlength="14">
+      <div class="error-msg" id="err주민번호">주민번호 형식이 올바르지 않습니다. (예: 000000-0000000)</div>
+    </div>
+    <div class="form-group">
+      <label>계약시작일 *</label>
+      <input type="date" id="계약시작일">
+    </div>
+    <div class="form-group">
+      <label>기본급 (시급)</label>
+      <input type="text" id="기본급" readonly placeholder="불러오는 중...">
+    </div>
+    <div class="btn-wrap">
+      <button class="btn-primary" onclick="goStep2()">계약서 확인 →</button>
+    </div>
+  </div>
+
+  <!-- ======================== -->
+  <!-- 2단계 : 계약서 확인      -->
+  <!-- ======================== -->
+  <div class="view" id="view2">
+    <div class="contract-box" id="contractContent"></div>
+    <div class="btn-wrap">
+      <button class="btn-secondary" onclick="goStep1()">← 수정</button>
+      <button class="btn-primary" onclick="goStep3()">서명하기 →</button>
+    </div>
+  </div>
+
+  <!-- ======================== -->
+  <!-- 3단계 : 서명             -->
+  <!-- ======================== -->
+  <div class="view" id="view3">
+    <p class="sign-label">아래 서명란에 서명해주세요</p>
+    <canvas id="signCanvas"></canvas>
+    <div class="btn-wrap">
+      <button class="btn-secondary" onclick="clearCanvas()">다시 그리기</button>
+      <button class="btn-primary" id="btnSubmit" onclick="submitSign()">서명 완료 및 제출</button>
+    </div>
+  </div>
+
+  <!-- ======================== -->
+  <!-- 4단계 : 완료             -->
+  <!-- ======================== -->
+  <div class="view" id="view4">
+    <div class="done-box">
+      <div class="icon">✅</div>
+      <h2>서명이 완료되었습니다</h2>
+      <p>근로계약서 PDF가<br>입력하신 이메일로 발송됩니다.</p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  // =============================================
+  // Apps Script 배포 URL
+  // =============================================
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycF38lIhLqSBDgxNVCJZK34HeBOcGmZXqUDzYR2bQ8dcx54XZUe0z5ip2j89K8dFuZ/exec';
+
+  // =============================================
+  // 전역 변수
+  // =============================================
+  let formData = {};
+  let 작성일   = '';
+
+  // =============================================
+  // 캔버스 설정
+  // =============================================
+  const canvas = document.getElementById('signCanvas');
+  const ctx    = canvas.getContext('2d');
+  let isDrawing = false;
+
+  function initCanvas() {
+    const rect  = canvas.getBoundingClientRect();
+    canvas.width  = rect.width;
+    canvas.height = rect.height;
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth   = 2;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+  }
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  canvas.addEventListener('mousedown', e => { isDrawing = true; ctx.beginPath(); draw(e); });
+  canvas.addEventListener('mousemove', e => { if (isDrawing) draw(e); });
+  canvas.addEventListener('mouseup',   () => isDrawing = false);
+  canvas.addEventListener('mouseleave',() => isDrawing = false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing = true; ctx.beginPath(); draw(e.touches[0]); }, { passive: false });
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (isDrawing) draw(e.touches[0]); }, { passive: false });
+  canvas.addEventListener('touchend',   () => isDrawing = false);
+
+  function draw(e) {
+    const rect   = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top)  * scaleY;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  // =============================================
+  // 단계 전환
+  // =============================================
+  function showStep(n) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view' + n).classList.add('active');
+    for (let i = 1; i <= 3; i++) {
+      const s = document.getElementById('s' + i);
+      s.className = 'step';
+      if (i < n)  s.classList.add('done');
+      if (i === n) s.classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function goStep1() { showStep(1); }
+
+  function goStep2() {
+    // 필수 입력 검사
+    const fields = [
+      { id: '직원명',    label: '이름' },
+      { id: '연락처',    label: '연락처' },
+      { id: '이메일',    label: '이메일' },
+      { id: '주소',      label: '주소' },
+      { id: '주민번호',  label: '주민번호' },
+      { id: '계약시작일',label: '계약시작일' },
+    ];
+    for (const f of fields) {
+      if (!document.getElementById(f.id).value.trim()) {
+        alert(f.label + '을(를) 입력해주세요.');
+        document.getElementById(f.id).focus();
+        return;
+      }
+    }
+
+    // 주민번호 형식 검사
+    const 주민번호Val = document.getElementById('주민번호').value.trim();
+    const errEl = document.getElementById('err주민번호');
+    if (!/^\d{6}-\d{7}$/.test(주민번호Val)) {
+      errEl.style.display = 'block';
+      document.getElementById('주민번호').focus();
+      return;
+    }
+    errEl.style.display = 'none';
+
+    // 데이터 수집
+    formData = {
+      직원명    : document.getElementById('직원명').value.trim(),
+      연락처    : document.getElementById('연락처').value.trim(),
+      이메일    : document.getElementById('이메일').value.trim(),
+      주소      : document.getElementById('주소').value.trim(),
+      주민번호  : 주민번호Val,
+      계약시작일: document.getElementById('계약시작일').value,
+      기본급    : document.getElementById('기본급').value.replace(' 원', '').trim(),
+    };
+
+    // 계약서 미리보기 요청
+    showLoading('계약서를 불러오는 중...');
+    const params = new URLSearchParams({ action: 'getPreview', ...formData });
+    fetch(`${SCRIPT_URL}?${params}`)
+      .then(r => r.json())
+      .then(res => {
+        hideLoading();
+        if (res.success) {
+          작성일 = res.작성일;
+          document.getElementById('contractContent').textContent = res.content;
+          showStep(2);
+        } else {
+          alert('계약서 불러오기 오류: ' + res.message);
+        }
+      })
+      .catch(err => { hideLoading(); alert('네트워크 오류: ' + err.message); });
+  }
+
+  function goStep3() {
+    showStep(3);
+    setTimeout(initCanvas, 100);
+  }
+
+  // =============================================
+  // 서명 제출
+  // =============================================
+  function submitSign() {
+    // 서명 여부 확인
+    const blank = document.createElement('canvas');
+    blank.width = canvas.width; blank.height = canvas.height;
+    if (canvas.toDataURL() === blank.toDataURL()) {
+      alert('서명을 먼저 해주세요.');
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      작성일: 작성일,
+      서명  : canvas.toDataURL('image/png'),
+    };
+
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+
+    showLoading('계약서를 생성하고 있습니다...');
+
+    fetch(SCRIPT_URL, {
+      method : 'POST',
+      body   : JSON.stringify(payload),
+    })
+      .then(r => r.json())
+      .then(res => {
+        hideLoading();
+        if (res.success) {
+          showStep(4);
+          // 단계 표시 모두 완료로
+          for (let i = 1; i <= 3; i++) {
+            document.getElementById('s' + i).className = 'step done';
+          }
+        } else {
+          alert('오류: ' + res.message);
+          btn.disabled = false;
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        alert('제출 오류: ' + err.message);
+        btn.disabled = false;
+      });
+  }
+
+  // =============================================
+  // 로딩 표시
+  // =============================================
+  function showLoading(msg) {
+    document.getElementById('loadingText').textContent = msg || '처리 중입니다...';
+    document.getElementById('loadingOverlay').classList.add('show');
+  }
+  function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+  }
+
+  // =============================================
+  // 페이지 로드 시 기본급 조회
+  // =============================================
+  window.addEventListener('load', () => {
+    fetch(`${SCRIPT_URL}?action=getBaseSalary`)
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          document.getElementById('기본급').value = res.amount + ' 원';
+        }
+      })
+      .catch(() => {});
+  });
+</script>
+</body>
+</html>
