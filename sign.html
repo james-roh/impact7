@@ -292,50 +292,45 @@
   // =============================================
   // 서명 제출
   // =============================================
-  function submitSign() {
-    // 서명 여부 확인
-    const blank = document.createElement('canvas');
-    blank.width = canvas.width; blank.height = canvas.height;
-    if (canvas.toDataURL() === blank.toDataURL()) {
-      alert('서명을 먼저 해주세요.');
-      return;
-    }
-
-    const payload = {
-      ...formData,
-      작성일: 작성일,
-      서명  : canvas.toDataURL('image/png'),
-    };
-
-    const btn = document.getElementById('btnSubmit');
-    btn.disabled = true;
-
-    showLoading('계약서를 생성하고 있습니다...');
-
-    fetch(SCRIPT_URL, {
-      method : 'POST',
-      body   : JSON.stringify(payload),
-    })
-      .then(r => r.json())
-      .then(res => {
-        hideLoading();
-        if (res.success) {
-          showStep(4);
-          // 단계 표시 모두 완료로
-          for (let i = 1; i <= 3; i++) {
-            document.getElementById('s' + i).className = 'step done';
-          }
-        } else {
-          alert('오류: ' + res.message);
-          btn.disabled = false;
-        }
-      })
-      .catch(err => {
-        hideLoading();
-        alert('제출 오류: ' + err.message);
-        btn.disabled = false;
-      });
+function submitSign() {
+  const blank = document.createElement('canvas');
+  blank.width = canvas.width; blank.height = canvas.height;
+  if (canvas.toDataURL() === blank.toDataURL()) {
+    alert('서명을 먼저 해주세요.');
+    return;
   }
+
+  const payload = {
+    ...formData,
+    작성일: 작성일,
+    서명  : canvas.toDataURL('image/png'),
+  };
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  showLoading('계약서를 생성하고 있습니다...\n잠시만 기다려주세요. (약 30초)');
+
+  fetch(SCRIPT_URL, {
+    method  : 'POST',
+    mode    : 'no-cors',
+    cache   : 'no-cache',
+    headers : { 'Content-Type': 'text/plain' },
+    body    : JSON.stringify(payload),
+  })
+  .then(() => {
+    hideLoading();
+    showStep(4);
+    for (let i = 1; i <= 3; i++) {
+      document.getElementById('s' + i).className = 'step done';
+    }
+  })
+  .catch(err => {
+    hideLoading();
+    alert('제출 오류: ' + err.message);
+    btn.disabled = false;
+  });
+}
+
 
   // =============================================
   // 로딩 표시
