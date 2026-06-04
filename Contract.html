@@ -342,12 +342,14 @@ function handleCredential(response) {
     return;
   }
 
+  localStorage.setItem('userEmail', email);
   document.getElementById('userEmail').textContent = email;
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('mainScreen').style.display  = 'block';
 
   loadData();
 }
+
 function parseJwt(token) {
   const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
   return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
