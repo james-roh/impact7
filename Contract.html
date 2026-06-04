@@ -162,7 +162,8 @@
   }
 </style>
 </head>
-<body>
+<body onload="checkAutoLogin()">
+
 
 <!-- 로그인 화면 -->
 <div id="loginScreen">
@@ -509,7 +510,7 @@ function copyLink() {
     setTimeout(() => btn.textContent = '링크 복사', 2000);
   });
 }
- window.onload = function() {
+function checkAutoLogin() {
   const savedEmail = localStorage.getItem('userEmail');
   if (savedEmail) {
     document.getElementById('userEmail').textContent = savedEmail;
@@ -517,7 +518,8 @@ function copyLink() {
     document.getElementById('mainScreen').style.display  = 'block';
     loadData();
   }
-};
+}
+
 
 </script>
 </body>
