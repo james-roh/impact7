@@ -444,7 +444,17 @@ function submitSign() {
     계약시작일: formatDateKor(new Date(document.getElementById('startDate').value)),
     급여:      salaryValue.replace(/,/g, ''),
     작성일:    작성일,
-    서명:      canvas.toDataURL('image/png')
+ 서명: (() => {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width  = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.fillStyle = 'white';
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  tempCtx.drawImage(canvas, 0, 0);
+  return tempCanvas.toDataURL('image/png');
+})()
+
   };
 
   showLoading('계약서 처리 중입니다...');
