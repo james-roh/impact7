@@ -1,821 +1,510 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>근로계약서 - 임팩트세븐학원</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Malgun Gothic', Arial, sans-serif; background: #f0f2f5; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>임팩트세븐학원 근로계약서 관리</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Malgun Gothic', sans-serif; background: #f5f5f5; }
 
-    /* ── 로그인 화면 ── */
-    #loginView {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; min-height: 100vh;
-    }
-    .login-box {
-      background: #fff; border-radius: 12px; padding: 40px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1); text-align: center; width: 360px;
-    }
-    .login-box h1 { font-size: 20px; color: #333; margin-bottom: 8px; }
-    .login-box p  { font-size: 14px; color: #888; margin-bottom: 28px; line-height: 1.6; }
-    .login-error  { color: #e53935; font-size: 13px; margin-top: 12px; display: none; }
+  /* 로그인 화면 */
+  #loginScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: #f5f5f5;
+  }
+  .login-box {
+    background: #fff; border-radius: 12px; padding: 48px 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 380px;
+  }
+  .login-box h1 { font-size: 20px; color: #2d6a4f; margin-bottom: 8px; }
+  .login-box p  { font-size: 14px; color: #666; margin-bottom: 32px; }
+  .login-box .logo { font-size: 40px; margin-bottom: 16px; }
 
-    /* ── 앱 전체 레이아웃 ── */
-    #appView { display: none; height: 100vh; flex-direction: column; }
-    #appView.show { display: flex; }
+  /* 메인 레이아웃 */
+  #mainScreen { display: none; min-height: 100vh; }
+  .header {
+    background: #2d6a4f; color: #fff; padding: 0 24px;
+    height: 56px; display: flex; align-items: center; justify-content: space-between;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  }
+  .header h1 { font-size: 18px; }
+  .header .user-info { font-size: 13px; opacity: 0.85; }
 
-    /* ── 헤더 ── */
-    .header {
-      background: #fff; padding: 14px 24px;
-      border-bottom: 1px solid #ddd; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .header h1 { font-size: 17px; color: #333; }
-    .header .user-info { font-size: 13px; color: #666; display: flex; align-items: center; gap: 12px; }
-    .btn-logout {
-      padding: 6px 14px; background: #f5f5f5; border: 1px solid #ddd;
-      border-radius: 6px; cursor: pointer; font-size: 13px; color: #555;
-    }
-    .btn-logout:hover { background: #eee; }
+  .sidebar {
+    position: fixed; top: 56px; left: 0; bottom: 0;
+    width: 160px; background: #1b4332; padding-top: 16px;
+  }
+  .sidebar-menu {
+    list-style: none;
+  }
+  .sidebar-menu li {
+    padding: 12px 20px; color: #b7e4c7; font-size: 14px;
+    cursor: pointer; border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .sidebar-menu li:hover { background: #2d6a4f; color: #fff; }
+  .sidebar-menu li.active {
+    background: #2d6a4f; color: #fff;
+    border-left-color: #95d5b2;
+  }
+  .sidebar-menu li .menu-icon { margin-right: 8px; }
 
-    /* ── 본문 ── */
-    .body-wrap { display: flex; flex: 1; overflow: hidden; }
+  .content {
+    margin-left: 160px; margin-top: 56px;
+    padding: 32px; min-height: calc(100vh - 56px);
+  }
 
-    /* ── 사이드바 ── */
-    .sidebar {
-      width: 180px; background: #2e7d32; color: #fff;
-      flex-shrink: 0; padding: 20px 0;
-    }
-    .sidebar-title {
-      font-size: 11px; color: #a5d6a7; padding: 0 20px 12px;
-      letter-spacing: 1px;
-    }
-    .sidebar-menu { list-style: none; }
-    .sidebar-menu li a {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 20px; color: #c8e6c9;
-      text-decoration: none; font-size: 14px;
-      cursor: pointer; transition: background 0.15s;
-    }
-    .sidebar-menu li a:hover  { background: rgba(255,255,255,0.1); color: #fff; }
-    .sidebar-menu li a.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: bold; }
+  /* 탭 콘텐츠 */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-    /* ── 메인 ── */
-    .main { flex: 1; overflow-y: auto; padding: 30px; }
-    .page-title {
-      font-size: 18px; font-weight: bold; color: #333;
-      margin-bottom: 24px; padding-bottom: 12px;
-      border-bottom: 2px solid #4CAF50;
-    }
+  .page-title {
+    font-size: 22px; font-weight: 700; color: #1b4332;
+    margin-bottom: 24px; padding-bottom: 12px;
+    border-bottom: 2px solid #95d5b2;
+  }
 
-    /* ── 카드 ── */
-    .card {
-      background: #fff; border-radius: 10px; padding: 28px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08); max-width: 720px;
-    }
+  /* 통계 카드 */
+  .stats-row {
+    display: flex; gap: 16px; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: #fff; border-radius: 10px; padding: 20px 24px;
+    flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #2d6a4f;
+  }
+  .stat-card .stat-num { font-size: 28px; font-weight: 700; color: #2d6a4f; }
+  .stat-card .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
 
-    /* ── 단계 표시 ── */
-    .steps {
-      display: flex; align-items: center; justify-content: center;
-      gap: 0; margin-bottom: 28px;
-    }
-    .step {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: #ddd; color: #999;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 14px;
-    }
-    .step.active { background: #4CAF50; color: #fff; }
-    .step.done   { background: #81C784; color: #fff; }
-    .step-line   { width: 40px; height: 2px; background: #ddd; }
+  /* 필터 영역 */
+  .filter-row {
+    display: flex; gap: 12px; margin-bottom: 16px; align-items: center;
+  }
+  .filter-row input, .filter-row select {
+    padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;
+    font-size: 14px; font-family: inherit;
+  }
+  .filter-row input[type="text"] { width: 200px; }
+  .filter-row input[type="date"] { width: 150px; }
+  .filter-row label { font-size: 13px; color: #555; }
 
-    /* ── 폼 ── */
-    .view { display: none; }
-    .view.active { display: block; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-weight: bold; font-size: 13px; color: #444; margin-bottom: 6px; }
-    .form-group input {
-      width: 100%; padding: 10px 12px; border: 1px solid #ddd;
-      border-radius: 6px; font-size: 14px; outline: none;
-    }
-    .form-group input:focus { border-color: #4CAF50; }
-    .form-group input[readonly] { background: #f9f9f9; color: #666; }
-    .form-row { display: flex; gap: 12px; }
-    .form-row .form-group { flex: 1; }
-    .error-msg { color: #e53935; font-size: 12px; margin-top: 4px; display: none; }
+  /* 테이블 */
+  .table-wrap {
+    background: #fff; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #2d6a4f; color: #fff; }
+  thead th { padding: 12px 16px; font-size: 14px; text-align: left; font-weight: 600; }
+  tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+  tbody tr:hover { background: #f6fff8; }
+  tbody td { padding: 12px 16px; font-size: 14px; color: #333; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-teacher { background: #d8f3dc; color: #1b4332; }
+  .badge-admin   { background: #dbe4ff; color: #364fc7; }
+  .btn-pdf {
+    background: #2d6a4f; color: #fff; border: none;
+    padding: 5px 12px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .btn-pdf:hover { background: #1b4332; }
+  .no-data { text-align: center; padding: 48px; color: #aaa; font-size: 15px; }
 
-    /* ── 계약서 미리보기 ── */
-    .contract-box {
-      background: #fafafa; border: 1px solid #ddd; border-radius: 8px;
-      padding: 20px; margin-bottom: 20px; white-space: pre-wrap;
-      line-height: 1.9; font-size: 13px; color: #333;
-      max-height: 420px; overflow-y: auto;
-    }
+  /* 행정직원 링크 생성 */
+  .link-gen-box {
+    background: #fff; border-radius: 10px; padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 28px;
+    border: 1px solid #d8f3dc;
+  }
+  .link-gen-box h3 { font-size: 16px; color: #1b4332; margin-bottom: 16px; }
+  .input-row { display: flex; gap: 12px; align-items: flex-end; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label { font-size: 13px; color: #555; font-weight: 600; }
+  .input-group input {
+    padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 15px; width: 200px; font-family: inherit;
+  }
+  .btn-generate {
+    background: #2d6a4f; color: #fff; border: none;
+    padding: 10px 24px; border-radius: 8px; font-size: 15px;
+    cursor: pointer; font-family: inherit; white-space: nowrap;
+  }
+  .btn-generate:hover { background: #1b4332; }
 
-    /* ── 서명 캔버스 ── */
-    .sign-label { font-weight: bold; font-size: 14px; color: #444; margin-bottom: 8px; }
-    #signCanvas {
-      border: 2px solid #333; border-radius: 6px; background: #fff;
-      width: 100%; height: 160px; cursor: crosshair;
-      touch-action: none; display: block;
-    }
+  .link-result {
+    margin-top: 16px; padding: 14px 16px;
+    background: #f6fff8; border: 1px solid #95d5b2; border-radius: 8px;
+    display: none;
+  }
+  .link-result .link-label { font-size: 12px; color: #555; margin-bottom: 6px; }
+  .link-result .link-url {
+    font-size: 13px; color: #2d6a4f; word-break: break-all;
+    margin-bottom: 10px; font-family: monospace;
+  }
+  .btn-copy {
+    background: #95d5b2; color: #1b4332; border: none;
+    padding: 6px 16px; border-radius: 6px; font-size: 13px;
+    cursor: pointer; font-weight: 600; font-family: inherit;
+  }
+  .btn-copy:hover { background: #74c69d; }
 
-    /* ── 버튼 ── */
-    .btn-wrap { display: flex; gap: 10px; margin-top: 16px; }
-    .btn-primary {
-      flex: 1; padding: 13px; background: #4CAF50; color: #fff;
-      border: none; border-radius: 8px; font-size: 15px;
-      font-weight: bold; cursor: pointer;
-    }
-    .btn-secondary {
-      padding: 13px 20px; background: #aaa; color: #fff;
-      border: none; border-radius: 8px; font-size: 14px; cursor: pointer;
-    }
-    .btn-primary:hover   { background: #388E3C; }
-    .btn-secondary:hover { background: #999; }
-    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
-
-    /* ── 링크 생성 박스 (행정직원 HR용) ── */
-    .link-box {
-      background: #E8F5E9; border: 1px solid #A5D6A7;
-      border-radius: 8px; padding: 16px; margin-top: 16px;
-    }
-    .link-box label { font-size: 13px; font-weight: bold; color: #2e7d32; }
-    .link-input-wrap { display: flex; gap: 8px; margin-top: 8px; }
-    .link-input-wrap input {
-      flex: 1; padding: 10px 12px; border: 1px solid #A5D6A7;
-      border-radius: 6px; font-size: 13px; background: #fff; outline: none;
-    }
-    .btn-copy {
-      padding: 10px 16px; background: #2e7d32; color: #fff;
-      border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
-    }
-    .btn-copy:hover { background: #1b5e20; }
-    .btn-generate {
-      width: 100%; padding: 12px; background: #4CAF50; color: #fff;
-      border: none; border-radius: 8px; font-size: 15px;
-      font-weight: bold; cursor: pointer; margin-top: 12px;
-    }
-    .btn-generate:hover { background: #388E3C; }
-
-    /* ── 완료 화면 ── */
-    .done-box { text-align: center; padding: 50px 20px; }
-    .done-box .icon { font-size: 60px; margin-bottom: 20px; }
-    .done-box h2 { color: #4CAF50; font-size: 22px; margin-bottom: 12px; }
-    .done-box p  { color: #666; font-size: 15px; line-height: 1.7; }
-
-    /* ── 로딩 ── */
-    .loading-overlay {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%; background: rgba(255,255,255,0.85);
-      z-index: 999; flex-direction: column;
-      align-items: center; justify-content: center;
-    }
-    .loading-overlay.show { display: flex; }
-    .spinner {
-      width: 48px; height: 48px; border: 5px solid #ddd;
-      border-top-color: #4CAF50; border-radius: 50%;
-      animation: spin 0.8s linear infinite; margin-bottom: 16px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 16px; color: #555; }
-  </style>
+  .loading {
+    text-align: center; padding: 48px; color: #888; font-size: 15px;
+  }
+  .error-msg {
+    text-align: center; padding: 48px; color: #e63946; font-size: 15px;
+  }
+</style>
 </head>
 <body>
 
-<!-- 로딩 오버레이 -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">처리 중입니다...</div>
-</div>
-
-<!-- ── 로그인 화면 ── -->
-<div id="loginView">
+<!-- 로그인 화면 -->
+<div id="loginScreen">
   <div class="login-box">
+    <div class="logo">📋</div>
     <h1>임팩트세븐학원</h1>
-    <p>근로계약서 시스템<br>@impact7.kr 계정으로 로그인하세요</p>
+    <p>근로계약서 관리 시스템<br>@impact7.kr 계정으로 로그인하세요</p>
     <div id="g_id_onload"
-      data-client_id="497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com"
-      data-callback="handleCredential"
-      data-auto_prompt="true">
+         data-client_id="497398575943-80nlgu93m2517h85e632an0a9g4622tl.apps.googleusercontent.com"
+         data-callback="handleCredential"
+         data-auto_prompt="true">
     </div>
     <div class="g_id_signin"
-      data-type="standard" data-size="large"
-      data-theme="outline" data-text="sign_in_with"
-      data-shape="rectangular" data-logo_alignment="left"
-      data-width="280">
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-locale="ko"
+         data-width="280">
     </div>
-    <div class="login-error" id="loginError"></div>
+    <p id="loginError" style="color:#e63946;font-size:13px;margin-top:16px;display:none;">
+      @impact7.kr 계정만 접근 가능합니다.
+    </p>
   </div>
 </div>
 
-<!-- ── 앱 화면 ── -->
-<div id="appView">
-  <!-- 헤더 -->
+<!-- 메인 화면 -->
+<div id="mainScreen">
   <div class="header">
-    <h1>임팩트세븐학원 근로계약서</h1>
-    <div class="user-info">
-      <span id="userEmail"></span>
-      <button class="btn-logout" onclick="logout()">로그아웃</button>
-    </div>
+    <h1>📋 임팩트세븐학원 근로계약서 관리</h1>
+    <span class="user-info" id="userEmail"></span>
   </div>
 
-  <div class="body-wrap">
-    <!-- 사이드바 -->
-    <div class="sidebar">
-      <div class="sidebar-title">직원 구분</div>
-      <ul class="sidebar-menu">
-        <li><a id="menu-tutor" class="active" onclick="switchMenu('tutor')">👩‍🏫 학습교사</a></li>
-        <li><a id="menu-admin" onclick="switchMenu('admin')">🏢 행정직원</a></li>
-      </ul>
+  <div class="sidebar">
+    <ul class="sidebar-menu">
+      <li class="active" onclick="switchTab('teacher')" id="menu-teacher">
+        <span class="menu-icon">🏫</span> 학습교사
+      </li>
+      <li onclick="switchTab('admin')" id="menu-admin">
+        <span class="menu-icon">📁</span> 행정직원
+      </li>
+    </ul>
+  </div>
+
+  <div class="content">
+
+    <!-- 학습교사 탭 -->
+    <div class="tab-content active" id="tab-teacher">
+      <div class="page-title">학습교사 계약 현황</div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="teacher-total">-</div>
+          <div class="stat-label">전체 계약</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="teacher-month">-</div>
+          <div class="stat-label">이번 달 신규</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <input type="text" id="teacher-search" placeholder="이름 검색" oninput="filterTable('teacher')">
+        <label>시작일</label>
+        <input type="date" id="teacher-date-from" onchange="filterTable('teacher')">
+        <label>~</label>
+        <input type="date" id="teacher-date-to" onchange="filterTable('teacher')">
+      </div>
+
+      <div class="table-wrap">
+        <div id="teacher-loading" class="loading">데이터 불러오는 중...</div>
+        <table id="teacher-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>직원명</th>
+              <th>주소</th>
+              <th>연락처</th>
+              <th>주민번호</th>
+              <th>작성일</th>
+              <th>계약서</th>
+            </tr>
+          </thead>
+          <tbody id="teacher-tbody"></tbody>
+        </table>
+        <div id="teacher-nodata" class="no-data" style="display:none;">
+          계약 데이터가 없습니다.
+        </div>
+      </div>
     </div>
 
-    <!-- 메인 -->
-    <div class="main" id="mainArea">
-      <!-- 학습교사 영역 -->
-      <div id="tutorArea">
-        <div class="page-title">학습교사 근로계약서</div>
-        <div class="card">
-          <!-- 단계 표시 -->
-          <div class="steps">
-            <div class="step active" id="ts1">1</div>
-            <div class="step-line"></div>
-            <div class="step" id="ts2">2</div>
-            <div class="step-line"></div>
-            <div class="step" id="ts3">3</div>
-          </div>
+    <!-- 행정직원 탭 -->
+    <div class="tab-content" id="tab-admin">
+      <div class="page-title">행정직원 계약 현황</div>
 
-          <!-- 1단계: 정보 입력 -->
-          <div class="view active" id="tv1">
-            <div class="form-row">
-              <div class="form-group">
-                <label>이름 *</label>
-                <input type="text" id="t_직원명" placeholder="홍길동">
-              </div>
-              <div class="form-group">
-                <label>연락처 *</label>
-                <input type="text" id="t_연락처" placeholder="010-0000-0000">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>이메일 *</label>
-              <input type="email" id="t_이메일" placeholder="example@email.com">
-            </div>
-            <div class="form-group">
-              <label>주소 *</label>
-              <input type="text" id="t_주소" placeholder="서울시 강남구 ...">
-            </div>
-            <div class="form-group">
-              <label>주민번호 * <span style="font-weight:normal;color:#999;">(예: 000000-0000000)</span></label>
-              <input type="text" id="t_주민번호" placeholder="000000-0000000" maxlength="14">
-              <div class="error-msg" id="t_err주민번호">형식이 올바르지 않습니다. (예: 000000-0000000)</div>
-            </div>
-            <div class="form-group">
-              <label>계약시작일 *</label>
-              <input type="date" id="t_계약시작일">
-            </div>
-            <div class="form-group">
-              <label>기본급 (시급)</label>
-              <input type="text" id="t_기본급" readonly placeholder="불러오는 중...">
-            </div>
-            <div class="btn-wrap">
-              <button class="btn-primary" onclick="tutorStep2()">계약서 확인 →</button>
-            </div>
+      <!-- 링크 생성 -->
+      <div class="link-gen-box">
+        <h3>🔗 행정직원 계약서 링크 생성</h3>
+        <div class="input-row">
+          <div class="input-group">
+            <label>월 급여 (원)</label>
+            <input type="number" id="admin-salary" placeholder="예: 2500000">
           </div>
-
-          <!-- 2단계: 계약서 확인 -->
-          <div class="view" id="tv2">
-            <div class="contract-box" id="t_contractContent"></div>
-            <div class="btn-wrap">
-              <button class="btn-secondary" onclick="tutorShowStep(1)">← 수정</button>
-              <button class="btn-primary"   onclick="tutorShowStep(3); setTimeout(initCanvas,100);">서명하기 →</button>
-            </div>
-          </div>
-
-          <!-- 3단계: 서명 -->
-          <div class="view" id="tv3">
-            <p class="sign-label">아래 서명란에 서명해주세요</p>
-            <canvas id="signCanvas"></canvas>
-            <div class="btn-wrap">
-              <button class="btn-secondary" onclick="clearCanvas()">다시 그리기</button>
-              <button class="btn-primary" id="t_btnSubmit" onclick="tutorSubmit()">서명 완료 및 제출</button>
-            </div>
-          </div>
-
-          <!-- 4단계: 완료 -->
-          <div class="view" id="tv4">
-            <div class="done-box">
-              <div class="icon">✅</div>
-              <h2>서명이 완료되었습니다</h2>
-              <p>근로계약서 PDF가<br>입력하신 이메일로 발송됩니다.</p>
-            </div>
-          </div>
+          <button class="btn-generate" onclick="generateLink()">링크 생성</button>
+        </div>
+        <div class="link-result" id="linkResult">
+          <div class="link-label">📎 아래 링크를 행정직원에게 전달하세요 (1회용)</div>
+          <div class="link-url" id="generatedLink"></div>
+          <button class="btn-copy" onclick="copyLink()">링크 복사</button>
         </div>
       </div>
 
-      <!-- 행정직원 영역 -->
-      <div id="adminArea" style="display:none;">
-        <div class="page-title">행정직원 근로계약서</div>
-        <div class="card">
-          <!-- HR 담당자: 급여 입력 + 링크 생성 -->
-          <div id="adminHR">
-            <h3 style="font-size:15px;color:#333;margin-bottom:16px;">📋 계약 링크 생성</h3>
-            <div class="form-group">
-              <label>급여 (월급) *</label>
-              <input type="text" id="a_급여" placeholder="예) 2,500,000">
-            </div>
-            <button class="btn-generate" onclick="generateAdminLink()">1회용 계약 링크 생성</button>
-            <div class="link-box" id="linkBox" style="display:none;">
-              <label>생성된 링크 (행정직원에게 전달하세요)</label>
-              <div class="link-input-wrap">
-                <input type="text" id="generatedLink" readonly>
-                <button class="btn-copy" onclick="copyLink()">복사</button>
-              </div>
-            </div>
-          </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="admin-total">-</div>
+          <div class="stat-label">전체 계약</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="admin-month">-</div>
+          <div class="stat-label">이번 달 신규</div>
         </div>
       </div>
 
-      <!-- 행정직원 계약서 작성 (토큰으로 접속 시) -->
-      <div id="adminContractArea" style="display:none;">
-        <div class="page-title">행정직원 근로계약서 작성</div>
-        <div class="card">
-          <div class="steps">
-            <div class="step active" id="as1">1</div>
-            <div class="step-line"></div>
-            <div class="step" id="as2">2</div>
-            <div class="step-line"></div>
-            <div class="step" id="as3">3</div>
-          </div>
-
-          <!-- 1단계: 정보 입력 -->
-          <div class="view active" id="av1">
-            <div class="form-row">
-              <div class="form-group">
-                <label>이름 *</label>
-                <input type="text" id="a_직원명" placeholder="홍길동">
-              </div>
-              <div class="form-group">
-                <label>연락처 *</label>
-                <input type="text" id="a_연락처" placeholder="010-0000-0000">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>이메일 *</label>
-              <input type="email" id="a_이메일" placeholder="example@email.com">
-            </div>
-            <div class="form-group">
-              <label>주소 *</label>
-              <input type="text" id="a_주소" placeholder="서울시 강남구 ...">
-            </div>
-            <div class="form-group">
-              <label>주민번호 * <span style="font-weight:normal;color:#999;">(예: 000000-0000000)</span></label>
-              <input type="text" id="a_주민번호" placeholder="000000-0000000" maxlength="14">
-              <div class="error-msg" id="a_err주민번호">형식이 올바르지 않습니다. (예: 000000-0000000)</div>
-            </div>
-            <div class="form-group">
-              <label>계약시작일 *</label>
-              <input type="date" id="a_계약시작일">
-            </div>
-            <div class="form-group">
-              <label>급여</label>
-              <input type="text" id="a_급여표시" readonly placeholder="불러오는 중...">
-            </div>
-            <div class="btn-wrap">
-              <button class="btn-primary" onclick="adminStep2()">계약서 확인 →</button>
-            </div>
-          </div>
-
-          <!-- 2단계: 계약서 확인 -->
-          <div class="view" id="av2">
-            <div class="contract-box" id="a_contractContent"></div>
-            <div class="btn-wrap">
-              <button class="btn-secondary" onclick="adminShowStep(1)">← 수정</button>
-              <button class="btn-primary"   onclick="adminShowStep(3); setTimeout(initCanvas,100);">서명하기 →</button>
-            </div>
-          </div>
-
-          <!-- 3단계: 서명 -->
-          <div class="view" id="av3">
-            <p class="sign-label">아래 서명란에 서명해주세요</p>
-            <canvas id="signCanvas2"></canvas>
-            <div class="btn-wrap">
-              <button class="btn-secondary" onclick="clearCanvas2()">다시 그리기</button>
-              <button class="btn-primary" id="a_btnSubmit" onclick="adminSubmit()">서명 완료 및 제출</button>
-            </div>
-          </div>
-
-          <!-- 4단계: 완료 -->
-          <div class="view" id="av4">
-            <div class="done-box">
-              <div class="icon">✅</div>
-              <h2>서명이 완료되었습니다</h2>
-              <p>근로계약서 PDF가<br>입력하신 이메일로 발송됩니다.</p>
-            </div>
-          </div>
-        </div>
+      <div class="filter-row">
+        <input type="text" id="admin-search" placeholder="이름 검색" oninput="filterTable('admin')">
+        <label>시작일</label>
+        <input type="date" id="admin-date-from" onchange="filterTable('admin')">
+        <label>~</label>
+        <input type="date" id="admin-date-to" onchange="filterTable('admin')">
       </div>
 
-    </div><!-- /main -->
-  </div><!-- /body-wrap -->
-</div><!-- /appView -->
+      <div class="table-wrap">
+        <div id="admin-loading" class="loading">데이터 불러오는 중...</div>
+        <table id="admin-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>직원명</th>
+              <th>주소</th>
+              <th>연락처</th>
+              <th>주민번호</th>
+              <th>작성일</th>
+              <th>계약서</th>
+            </tr>
+          </thead>
+          <tbody id="admin-tbody"></tbody>
+        </table>
+        <div id="admin-nodata" class="no-data" style="display:none;">
+          계약 데이터가 없습니다.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-  const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbycF38lIhLqSBDgxNVCJZK34HeBOcGmZXqUDzYR2bQ8dcx54XZUe0z5ip2j89K8dFuZ/exec';
-  const ALLOWED_DOMAIN = 'impact7.kr';
+const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbycF38lIhLqSBDgxNVCJZK34HeBOcGmZXqUDzYR2bQ8dcx54XZUe0z5ip2j89K8dFuZ/exec';
+const ALLOWED_DOMAIN = 'impact7.kr';
+const ADMIN_SIGN_URL = 'https://james-roh.github.io/impact7/admin-sign.html';
 
-  // URL 파라미터
-  const urlParams  = new URLSearchParams(location.search);
-  const urlType    = urlParams.get('type');   // 'admin'
-  const urlToken   = urlParams.get('token');  // UUID
+let allTeacherData = [];
+let allAdminData   = [];
 
-  let tutorFormData = {};
-  let adminFormData = {};
-  let adminToken    = '';
-  let 작성일T = '';
-  let 작성일A = '';
+// ==================== Google 로그인 ====================
+function handleCredential(response) {
+  const payload = parseJwt(response.credential);
+  const email   = payload.email || '';
+  const domain  = email.split('@')[1];
 
-  // =============================================
-  // 페이지 로드
-  // =============================================
-  window.addEventListener('load', () => {
-    // 행정직원 토큰 링크로 접속 시 → 로그인 없이 바로 계약서
-    if (urlType === 'admin' && urlToken) {
-      adminToken = urlToken;
-      showAdminContract();
-      return;
+  if (domain !== ALLOWED_DOMAIN) {
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('userEmail').textContent = email;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainScreen').style.display  = 'block';
+
+  loadData();
+}
+
+function parseJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
+    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+  ).join('')));
+}
+
+// ==================== 탭 전환 ====================
+function switchTab(type) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-menu li').forEach(l => l.classList.remove('active'));
+  document.getElementById('tab-' + type).classList.add('active');
+  document.getElementById('menu-' + type).classList.add('active');
+}
+
+// ==================== 데이터 로드 ====================
+function loadData() {
+  fetch(SCRIPT_URL + '?action=getData')
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) throw new Error(res.message);
+
+      allTeacherData = res.data.filter(d => d.구분 === '학습교사');
+      allAdminData   = res.data.filter(d => d.구분 === '행정직원');
+
+      renderTable('teacher', allTeacherData);
+      renderTable('admin',   allAdminData);
+      updateStats();
+    })
+    .catch(err => {
+      ['teacher', 'admin'].forEach(type => {
+        document.getElementById(type + '-loading').innerHTML =
+          '<span style="color:#e63946">데이터 로드 실패: ' + err.message + '</span>';
+      });
+    });
+}
+
+// ==================== 통계 업데이트 ====================
+function updateStats() {
+  const now   = new Date();
+  const thisY = now.getFullYear();
+  const thisM = now.getMonth();
+
+  function countMonth(data) {
+    return data.filter(d => {
+      if (!d.작성일) return false;
+      const parts = d.작성일.match(/(\d+)년\s*(\d+)월/);
+      if (!parts) return false;
+      return parseInt(parts[1]) === thisY && parseInt(parts[2]) === thisM + 1;
+    }).length;
+  }
+
+  document.getElementById('teacher-total').textContent = allTeacherData.length;
+  document.getElementById('teacher-month').textContent = countMonth(allTeacherData);
+  document.getElementById('admin-total').textContent   = allAdminData.length;
+  document.getElementById('admin-month').textContent   = countMonth(allAdminData);
+}
+
+// ==================== 테이블 렌더링 ====================
+function renderTable(type, data) {
+  const loading = document.getElementById(type + '-loading');
+  const table   = document.getElementById(type + '-table');
+  const tbody   = document.getElementById(type + '-tbody');
+  const nodata  = document.getElementById(type + '-nodata');
+
+  loading.style.display = 'none';
+
+  if (!data || data.length === 0) {
+    table.style.display  = 'none';
+    nodata.style.display = 'block';
+    return;
+  }
+
+  nodata.style.display = 'none';
+  table.style.display  = 'table';
+
+  tbody.innerHTML = data.map(row => `
+    <tr>
+      <td>${row.직원명 || '-'}</td>
+      <td>${row.주소   || '-'}</td>
+      <td>${row.연락처 || '-'}</td>
+      <td>${maskJumin(row.주민번호)}</td>
+      <td>${row.작성일 || '-'}</td>
+      <td>${row.pdfUrl
+        ? `<a href="${row.pdfUrl}" target="_blank" class="btn-pdf">📄 PDF</a>`
+        : '-'}</td>
+    </tr>
+  `).join('');
+}
+
+// 주민번호 마스킹
+function maskJumin(jumin) {
+  if (!jumin) return '-';
+  const str = String(jumin);
+  if (str.length >= 8) return str.substring(0, 8) + '******';
+  return str;
+}
+
+// ==================== 필터링 ====================
+function filterTable(type) {
+  const search   = document.getElementById(type + '-search').value.trim();
+  const dateFrom = document.getElementById(type + '-date-from').value;
+  const dateTo   = document.getElementById(type + '-date-to').value;
+  const allData  = type === 'teacher' ? allTeacherData : allAdminData;
+
+  const filtered = allData.filter(row => {
+    if (search && !row.직원명.includes(search)) return false;
+    if (dateFrom || dateTo) {
+      const rowDate = parseKorDate(row.작성일);
+      if (dateFrom && rowDate < new Date(dateFrom)) return false;
+      if (dateTo   && rowDate > new Date(dateTo))   return false;
     }
-    // 그 외 → Google 로그인 필요
+    return true;
   });
 
-  // =============================================
-  // Google 로그인
-  // =============================================
-  function handleCredential(response) {
-    const payload = parseJwt(response.credential);
-    const email   = payload.email || '';
-    const domain  = email.split('@')[1];
+  renderTable(type, filtered);
+}
 
-    if (domain !== ALLOWED_DOMAIN) {
-      const errEl = document.getElementById('loginError');
-      errEl.textContent = `@${ALLOWED_DOMAIN} 계정만 접근 가능합니다.`;
-      errEl.style.display = 'block';
-      return;
-    }
+function parseKorDate(str) {
+  if (!str) return new Date(0);
+  const m = str.match(/(\d+)년\s*(\d+)월\s*(\d+)일/);
+  if (!m) return new Date(0);
+  return new Date(m[1], m[2] - 1, m[3]);
+}
 
-    document.getElementById('userEmail').textContent = email;
-    document.getElementById('loginView').style.display = 'none';
-    document.getElementById('appView').classList.add('show');
-    loadBaseSalary();
+// ==================== 링크 생성 ====================
+function generateLink() {
+  const salary = document.getElementById('admin-salary').value.trim();
+  if (!salary || isNaN(salary) || Number(salary) <= 0) {
+    alert('급여를 올바르게 입력해주세요.');
+    return;
   }
 
-  function parseJwt(token) {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join('')));
-  }
+  const btn = document.querySelector('.btn-generate');
+  btn.textContent = '생성 중...';
+  btn.disabled    = true;
 
-  function logout() {
-    google.accounts.id.disableAutoSelect();
-    document.getElementById('loginView').style.display = 'flex';
-    document.getElementById('appView').classList.remove('show');
-  }
+  fetch(SCRIPT_URL + '?action=generateToken&급여=' + encodeURIComponent(salary))
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) throw new Error(res.message);
 
-  // =============================================
-  // 행정직원 토큰 접속 시 (로그인 없이)
-  // =============================================
-  function showAdminContract() {
-    document.getElementById('loginView').style.display  = 'none';
-    document.getElementById('appView').classList.add('show');
-    document.getElementById('userEmail').textContent    = '';
-    document.querySelector('.btn-logout').style.display = 'none';
-    document.querySelector('.sidebar').style.display    = 'none';
-
-    document.getElementById('tutorArea').style.display        = 'none';
-    document.getElementById('adminArea').style.display        = 'none';
-    document.getElementById('adminContractArea').style.display = 'block';
-
-    // 토큰 검증 + 급여 불러오기
-    showLoading('계약서를 불러오는 중...');
-    fetch(`${SCRIPT_URL}?action=validateToken&token=${adminToken}`)
-      .then(r => r.json())
-      .then(res => {
-        hideLoading();
-        if (res.success) {
-          document.getElementById('a_급여표시').value = res.급여 + ' 원';
-        } else {
-          document.getElementById('adminContractArea').innerHTML =
-            `<div style="text-align:center;padding:60px;color:#e53935;font-size:16px;">
-              ${res.message}
-            </div>`;
-        }
-      })
-      .catch(() => hideLoading());
-  }
-
-  // =============================================
-  // 사이드 메뉴 전환
-  // =============================================
-  function switchMenu(menu) {
-    document.getElementById('menu-tutor').className = menu === 'tutor' ? 'active' : '';
-    document.getElementById('menu-admin').className = menu === 'admin' ? 'active' : '';
-    document.getElementById('tutorArea').style.display = menu === 'tutor' ? 'block' : 'none';
-    document.getElementById('adminArea').style.display = menu === 'admin' ? 'block' : 'none';
-    document.getElementById('adminContractArea').style.display = 'none';
-  }
-
-  // =============================================
-  // 기본급 불러오기 (학습교사)
-  // =============================================
-  function loadBaseSalary() {
-    fetch(`${SCRIPT_URL}?action=getBaseSalary`)
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          document.getElementById('t_기본급').value = res.amount + ' 원';
-        }
-      })
-      .catch(() => {});
-  }
-
-  // =============================================
-  // 학습교사 단계 전환
-  // =============================================
-  function tutorShowStep(n) {
-    ['tv1','tv2','tv3','tv4'].forEach((id, i) => {
-      document.getElementById(id).className = 'view' + (i + 1 === n ? ' active' : '');
-    });
-    for (let i = 1; i <= 3; i++) {
-      const s = document.getElementById('ts' + i);
-      s.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
-    }
-    window.scrollTo(0, 0);
-  }
-
-  function tutorStep2() {
-    const fields = [
-      { id: 't_직원명',    label: '이름' },
-      { id: 't_연락처',    label: '연락처' },
-      { id: 't_이메일',    label: '이메일' },
-      { id: 't_주소',      label: '주소' },
-      { id: 't_주민번호',  label: '주민번호' },
-      { id: 't_계약시작일',label: '계약시작일' },
-    ];
-    for (const f of fields) {
-      if (!document.getElementById(f.id).value.trim()) {
-        alert(f.label + '을(를) 입력해주세요.');
-        document.getElementById(f.id).focus();
-        return;
-      }
-    }
-    const 주민번호Val = document.getElementById('t_주민번호').value.trim();
-    if (!/^\d{6}-\d{7}$/.test(주민번호Val)) {
-      document.getElementById('t_err주민번호').style.display = 'block';
-      document.getElementById('t_주민번호').focus();
-      return;
-    }
-    document.getElementById('t_err주민번호').style.display = 'none';
-
-    tutorFormData = {
-      직원명    : document.getElementById('t_직원명').value.trim(),
-      연락처    : document.getElementById('t_연락처').value.trim(),
-      이메일    : document.getElementById('t_이메일').value.trim(),
-      주소      : document.getElementById('t_주소').value.trim(),
-      주민번호  : 주민번호Val,
-      계약시작일: document.getElementById('t_계약시작일').value,
-      기본급    : document.getElementById('t_기본급').value.replace(' 원','').trim(),
-    };
-
-    showLoading('계약서를 불러오는 중...');
-    const params = new URLSearchParams({ action: 'getPreview', ...tutorFormData });
-    fetch(`${SCRIPT_URL}?${params}`)
-      .then(r => r.json())
-      .then(res => {
-        hideLoading();
-        if (res.success) {
-          작성일T = res.작성일;
-          document.getElementById('t_contractContent').textContent = res.content;
-          tutorShowStep(2);
-        } else {
-          alert('오류: ' + res.message);
-        }
-      })
-      .catch(err => { hideLoading(); alert('네트워크 오류: ' + err.message); });
-  }
-
-  function tutorSubmit() {
-    const blank = document.createElement('canvas');
-    blank.width = canvas.width; blank.height = canvas.height;
-    if (canvas.toDataURL() === blank.toDataURL()) { alert('서명을 먼저 해주세요.'); return; }
-
-    const payload = { ...tutorFormData, 작성일: 작성일T, 서명: canvas.toDataURL('image/png'), type: 'tutor' };
-    const btn = document.getElementById('t_btnSubmit');
-    btn.disabled = true;
-    showLoading('계약서를 생성하고 있습니다... (약 30초)');
-
-    fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors', cache: 'no-cache',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
+      const link = ADMIN_SIGN_URL + '?token=' + res.token;
+      document.getElementById('generatedLink').textContent = link;
+      document.getElementById('linkResult').style.display = 'block';
+      document.getElementById('admin-salary').value = '';
     })
-    .then(() => { hideLoading(); tutorShowStep(4); })
-    .catch(err => { hideLoading(); alert('오류: ' + err.message); btn.disabled = false; });
-  }
-
-  // =============================================
-  // 행정직원 링크 생성 (HR)
-  // =============================================
-  function generateAdminLink() {
-    const 급여 = document.getElementById('a_급여').value.trim();
-    if (!급여) { alert('급여를 입력해주세요.'); return; }
-
-    showLoading('링크를 생성하는 중...');
-    fetch(`${SCRIPT_URL}?action=generateToken&급여=${encodeURIComponent(급여)}`)
-      .then(r => r.json())
-      .then(res => {
-        hideLoading();
-        if (res.success) {
-          document.getElementById('generatedLink').value = res.link;
-          document.getElementById('linkBox').style.display = 'block';
-        } else {
-          alert('오류: ' + res.message);
-        }
-      })
-      .catch(err => { hideLoading(); alert('오류: ' + err.message); });
-  }
-
-  function copyLink() {
-    const input = document.getElementById('generatedLink');
-    input.select();
-    document.execCommand('copy');
-    alert('링크가 복사되었습니다!');
-  }
-
-  // =============================================
-  // 행정직원 계약서 단계 전환
-  // =============================================
-  function adminShowStep(n) {
-    ['av1','av2','av3','av4'].forEach((id, i) => {
-      document.getElementById(id).className = 'view' + (i + 1 === n ? ' active' : '');
+    .catch(err => alert('링크 생성 실패: ' + err.message))
+    .finally(() => {
+      btn.textContent = '링크 생성';
+      btn.disabled    = false;
     });
-    for (let i = 1; i <= 3; i++) {
-      const s = document.getElementById('as' + i);
-      s.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
-    }
-    window.scrollTo(0, 0);
-  }
+}
 
-  function adminStep2() {
-    const fields = [
-      { id: 'a_직원명',    label: '이름' },
-      { id: 'a_연락처',    label: '연락처' },
-      { id: 'a_이메일',    label: '이메일' },
-      { id: 'a_주소',      label: '주소' },
-      { id: 'a_주민번호',  label: '주민번호' },
-      { id: 'a_계약시작일',label: '계약시작일' },
-    ];
-    for (const f of fields) {
-      if (!document.getElementById(f.id).value.trim()) {
-        alert(f.label + '을(를) 입력해주세요.');
-        document.getElementById(f.id).focus();
-        return;
-      }
-    }
-    const 주민번호Val = document.getElementById('a_주민번호').value.trim();
-    if (!/^\d{6}-\d{7}$/.test(주민번호Val)) {
-      document.getElementById('a_err주민번호').style.display = 'block';
-      document.getElementById('a_주민번호').focus();
-      return;
-    }
-    document.getElementById('a_err주민번호').style.display = 'none';
-
-    adminFormData = {
-      직원명    : document.getElementById('a_직원명').value.trim(),
-      연락처    : document.getElementById('a_연락처').value.trim(),
-      이메일    : document.getElementById('a_이메일').value.trim(),
-      주소      : document.getElementById('a_주소').value.trim(),
-      주민번호  : 주민번호Val,
-      계약시작일: document.getElementById('a_계약시작일').value,
-      급여      : document.getElementById('a_급여표시').value.replace(' 원','').trim(),
-    };
-
-    showLoading('계약서를 불러오는 중...');
-    const params = new URLSearchParams({ action: 'getAdminPreview', token: adminToken, ...adminFormData });
-    fetch(`${SCRIPT_URL}?${params}`)
-      .then(r => r.json())
-      .then(res => {
-        hideLoading();
-        if (res.success) {
-          작성일A = res.작성일;
-          document.getElementById('a_contractContent').textContent = res.content;
-          adminShowStep(2);
-        } else {
-          alert('오류: ' + res.message);
-        }
-      })
-      .catch(err => { hideLoading(); alert('오류: ' + err.message); });
-  }
-
-  function adminSubmit() {
-    const blank = document.createElement('canvas');
-    blank.width = canvas2.width; blank.height = canvas2.height;
-    if (canvas2.toDataURL() === blank.toDataURL()) { alert('서명을 먼저 해주세요.'); return; }
-
-    const payload = {
-      ...adminFormData, type: 'admin',
-      token: adminToken, 작성일: 작성일A,
-      서명: canvas2.toDataURL('image/png'),
-    };
-    const btn = document.getElementById('a_btnSubmit');
-    btn.disabled = true;
-    showLoading('계약서를 생성하고 있습니다... (약 30초)');
-
-    fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors', cache: 'no-cache',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-    })
-    .then(() => { hideLoading(); adminShowStep(4); })
-    .catch(err => { hideLoading(); alert('오류: ' + err.message); btn.disabled = false; });
-  }
-
-  // =============================================
-  // 캔버스 (학습교사)
-  // =============================================
-  const canvas = document.getElementById('signCanvas');
-  const ctx    = canvas.getContext('2d');
-  let isDrawing = false;
-
-  function initCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width; canvas.height = rect.height;
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  }
-  function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-  canvas.addEventListener('mousedown', e => { isDrawing = true; ctx.beginPath(); drawT(e); });
-  canvas.addEventListener('mousemove', e => { if (isDrawing) drawT(e); });
-  canvas.addEventListener('mouseup',   () => isDrawing = false);
-  canvas.addEventListener('mouseleave',() => isDrawing = false);
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing = true; ctx.beginPath(); drawT(e.touches[0]); }, { passive: false });
-  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (isDrawing) drawT(e.touches[0]); }, { passive: false });
-  canvas.addEventListener('touchend',   () => isDrawing = false);
-
-  function drawT(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (e.clientY - rect.top)  * (canvas.height / rect.height);
-    ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
-  }
-
-  // =============================================
-  // 캔버스 (행정직원)
-  // =============================================
-  const canvas2 = document.getElementById('signCanvas2');
-  const ctx2    = canvas2.getContext('2d');
-  let isDrawing2 = false;
-
-  function initCanvas2() {
-    const rect = canvas2.getBoundingClientRect();
-    canvas2.width = rect.width; canvas2.height = rect.height;
-    ctx2.strokeStyle = '#000'; ctx2.lineWidth = 2;
-    ctx2.lineCap = 'round'; ctx2.lineJoin = 'round';
-  }
-  function clearCanvas2() { ctx2.clearRect(0, 0, canvas2.width, canvas2.height); }
-
-  canvas2.addEventListener('mousedown', e => { isDrawing2 = true; ctx2.beginPath(); drawA(e); });
-  canvas2.addEventListener('mousemove', e => { if (isDrawing2) drawA(e); });
-  canvas2.addEventListener('mouseup',   () => isDrawing2 = false);
-  canvas2.addEventListener('mouseleave',() => isDrawing2 = false);
-  canvas2.addEventListener('touchstart', e => { e.preventDefault(); isDrawing2 = true; ctx2.beginPath(); drawA(e.touches[0]); }, { passive: false });
-  canvas2.addEventListener('touchmove',  e => { e.preventDefault(); if (isDrawing2) drawA(e.touches[0]); }, { passive: false });
-  canvas2.addEventListener('touchend',   () => isDrawing2 = false);
-
-  function drawA(e) {
-    const rect = canvas2.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (canvas2.width / rect.width);
-    const y = (e.clientY - rect.top)  * (canvas2.height / rect.height);
-    ctx2.lineTo(x, y); ctx2.stroke(); ctx2.beginPath(); ctx2.moveTo(x, y);
-  }
-
-  // 행정직원 서명 단계로 이동 시 캔버스 초기화
-  document.querySelector('[onclick="adminShowStep(3); setTimeout(initCanvas,100);"]')
-    ?.setAttribute('onclick', 'adminShowStep(3); setTimeout(initCanvas2,100);');
-
-  // =============================================
-  // 로딩
-  // =============================================
-  function showLoading(msg) {
-    document.getElementById('loadingText').textContent = msg || '처리 중입니다...';
-    document.getElementById('loadingOverlay').classList.add('show');
-  }
-  function hideLoading() {
-    document.getElementById('loadingOverlay').classList.remove('show');
-  }
+function copyLink() {
+  const link = document.getElementById('generatedLink').textContent;
+  navigator.clipboard.writeText(link).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '복사됨 ✓';
+    setTimeout(() => btn.textContent = '링크 복사', 2000);
+  });
+}
 </script>
 </body>
 </html>
