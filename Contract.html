@@ -347,7 +347,6 @@ function handleCredential(response) {
 
   loadData();
 }
-
 function parseJwt(token) {
   const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
   return JSON.parse(decodeURIComponent(atob(base64).split('').map(c =>
@@ -510,6 +509,16 @@ function copyLink() {
     setTimeout(() => btn.textContent = '링크 복사', 2000);
   });
 }
+ window.onload = function() {
+  const savedEmail = localStorage.getItem('userEmail');
+  if (savedEmail) {
+    document.getElementById('userEmail').textContent = savedEmail;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display  = 'block';
+    loadData();
+  }
+};
+
 </script>
 </body>
 </html>
