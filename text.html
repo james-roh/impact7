@@ -820,15 +820,33 @@ function switchMenu(menu) {
     }
 }
 
+function loadHolidaysFromGuideline() {
+    const raw = localStorage.getItem('guideline_main') || "";
+    const lines = raw.split('\n');
+    const year = new Date().getFullYear();
+
+    lines.forEach(line => {
+        const match = line.match(/(?:(\d{4})년\s*)?(\d{1,2})월\s*휴무일\s*[:：]\s*([\d,\s]+)/);
+        if (match) {
+            const y     = match[1] ? match[1] : String(year);
+            const month = String(match[2]).padStart(2, '0');
+            const days  = match[3].split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d));
+            const key   = `${y}-${month}`;
+            fixedHolidaysDB[key] = days;
+        }
+    });
+}
+
 window.onload = function () {
     const now = new Date();
     const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    document.getElementById('targetMonth').value = `${yyyy}-${mm}`;
+    document.getElementById('targetMonth').value = `${yyyy}-07`;
     checkLoginState();
+    loadHolidaysFromGuideline();   // ← 이 줄 추가
     renderCalendarCoreSystem();
     loadGuidelinesData();
 };
+
 
 
 ;
