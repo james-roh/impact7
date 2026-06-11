@@ -343,7 +343,25 @@
 </div>
 
 <script>
-    const fixedHolidaysDB = { "2026-05": [1, 2, 5, 25], "2026-06": [6] };
+  const fixedHolidaysDB = { "2026-05": [1, 2, 5, 25], "2026-06": [6] };
+
+function loadHolidaysFromGuideline() {
+    const raw = localStorage.getItem('guideline_class') || "";
+    const lines = raw.split('\n');
+    const year = new Date().getFullYear();
+
+    lines.forEach(line => {
+        const match = line.match(/(?:(\d{4})년\s*)?(\d{1,2})월\s*휴무일\s*[:：]\s*([\d,\s]+)/);
+        if (match) {
+            const y     = match[1] ? match[1] : String(year);
+            const month = String(match[2]).padStart(2, '0');
+            const days  = match[3].split(',').map(d => parseInt(d.trim())).filter(d => !isNaN(d));
+            const key   = `${y}-${month}`;
+            fixedHolidaysDB[key] = days;
+        }
+    });
+}
+
     const tuitionFeeDB = {
         elem: [{ text: "350,000 원", value: "350000" }, { text: "315,000 원 (형제할인)", value: "315000" }, { text: "직접 입력", value: "custom" }],
         mid: [{ text: "400,000 원", value: "400000" }, { text: "360,000 원 (형제할인)", value: "360000" }, { text: "직접 입력", value: "custom" }],
@@ -353,11 +371,13 @@
     let currentLoggedId = "jaewon";
     let lastActiveEmail = "roh@impact7.kr";
 
-    window.onload = function() {
+window.onload = function() {
+        loadHolidaysFromGuideline();
         loadSavedCustomAccounts();
         checkLoginState();
         renderCalendarCoreSystem();
     };
+
 
     function loadSavedCustomAccounts() {
         const storedList = localStorage.getItem('customImpactAccounts');
