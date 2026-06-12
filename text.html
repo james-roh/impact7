@@ -821,7 +821,8 @@ function switchMenu(menu) {
 }
 
 function loadHolidaysFromGuideline() {
-    const raw = localStorage.getItem('guideline_main') || "";
+    const raw = localStorage.getItem('guideline_class') || "";
+
     const lines = raw.split('\n');
     const year = new Date().getFullYear();
 
