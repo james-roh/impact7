@@ -233,7 +233,8 @@ async function loadSheetData() {
       }
     });
 
-    render();
+applySheetData();
+
   } catch(e) {
     console.error('시트 로드 실패:', e);
     render();
@@ -479,6 +480,104 @@ function toggleSettings() {
   if (!isOpen) {
     buildSettingsForm();
     panel.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+// ========== 구글 시트 데이터 로드 ==========
+const SHEET_ID = '1d2nuMH7AvA5NB7kLdwK0EQglpVdS07-Uqo6bOWUYcJE';
+const SHEET_GID = '37076610';
+
+async function loadSheetData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.substring(47).slice(0, -2));
+  return json.table.rows.map(row =>
+    row.c ? row.c.map(cell => (cell && cell.v !== null ? String(cell.v).trim() : '')) : []
+  );
+}
+
+function getCell(rows, rowIdx, colIdx) {
+  return (rows[rowIdx] && rows[rowIdx][colIdx]) ? rows[rowIdx][colIdx] : '';
+}
+
+async function applySheetData() {
+  try {
+    const rows = await loadSheetData();
+
+    // V=21번째(인덱스 21), W=22번째(인덱스 22) → 봄2학기 교재명/출판사
+    const TIT = 21; // V열
+    const PUB = 22; // W열
+    const NAME = 4;  // E열 = 반명
+
+    // 각 행 번호 매핑 (0-based index, 헤더 제외)
+    // 초등반 (rows 3~14): PX/PA/PI × 독해/문법/실전/청해
+    const elemMap = {
+      PX: { 독해: 3,  문법: 6,  실전: 9,  청해: 12 },
+      PA: { 독해: 4,  문법: 7,  실전: 10, 청해: 13 },
+      PI: { 독해: 5,  문법: 8,  실전: 11, 청해: 14 },
+    };
+
+    // 중등 1학년 (rows 36~52): SP/EX/AX/A/I × 독해/문법/실전/청해
+    const midMap = {
+      SP: { 독해: 36, 문법: 41, 실전: 46, 청해: 51 },
+      EX: { 독해: 37, 문법: 42, 실전: 47, 청해: 52 },
+      AX: { 독해: 38, 문법: 43, 실전: 48, 청해: 53 },
+      A:  { 독해: 39, 문법: 44, 실전: 49, 청해: 54 },
+      I:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
+    };
+
+    // 고등반 (rows 에서 HS/HX/HA)
+    const highMap = {
+      HS: { 독해: 83, 문법: 86, 실전: 89 },
+      HX: { 독해: 84, 문법: 87, 실전: 90 },
+      HA: { 독해: 85, 문법: 88, 실전: 91 },
+    };
+
+    const saved = loadImageUrls();
+    let updated = false;
+
+    function applyIfEmpty(secKey, classKey, field, rowIdx) {
+      const key = `${secKey}_${classKey}_${field}`;
+      const titleKey = key + '_title';
+      const pubKey   = key + '_pub';
+      // 이미 저장된 값이 있으면 덮어쓰지 않음
+      if (!saved[titleKey]) {
+        saved[titleKey] = getCell(rows, rowIdx, TIT);
+        updated = true;
+      }
+      if (!saved[pubKey]) {
+        saved[pubKey] = getCell(rows, rowIdx, PUB);
+        updated = true;
+      }
+    }
+
+    // 초등반
+    for (const [cls, fields] of Object.entries(elemMap)) {
+      for (const [field, rowIdx] of Object.entries(fields)) {
+        applyIfEmpty('elem', cls, field, rowIdx);
+      }
+    }
+    // 중등반
+    for (const [cls, fields] of Object.entries(midMap)) {
+      for (const [field, rowIdx] of Object.entries(fields)) {
+        applyIfEmpty('mid', cls, field, rowIdx);
+      }
+    }
+    // 고등반
+    for (const [cls, fields] of Object.entries(highMap)) {
+      for (const [field, rowIdx] of Object.entries(fields)) {
+        applyIfEmpty('high', cls, field, rowIdx);
+      }
+    }
+
+    if (updated) {
+      saveImageUrls(saved);
+      console.log('✅ 구글 시트 데이터 적용 완료');
+    }
+    render();
+  } catch(e) {
+    console.error('시트 로드 실패:', e);
+    render();
   }
 }
 
