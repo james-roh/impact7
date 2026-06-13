@@ -424,6 +424,11 @@ const savedSemester = localStorage.getItem('selectedSemester');
 if (savedSemester) document.getElementById('semesterSelect').value = savedSemester;
 
 function toggleSettings() {
+  const user = firebase.auth().currentUser;
+  if (!user || user.email !== 'roh@impact7.kr') {
+    alert('교재 설정 권한이 없습니다.');
+    return;
+  }
   const panel  = document.getElementById('settingsPanel');
   const isOpen = panel.style.display === 'block';
   panel.style.display = isOpen ? 'none' : 'block';
@@ -432,6 +437,7 @@ function toggleSettings() {
     panel.scrollIntoView({ behavior: 'smooth' });
   }
 }
+
 
 // ========== 초기 실행 ==========
 init();
