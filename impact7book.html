@@ -137,7 +137,8 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
   </div>
   <div style="background:#fff; padding:16px; border:1px solid #ddd; border-radius:0 0 8px 8px;">
     <div id="settingsForm"></div>
-    <button id="saveSettingsBtn" onclick="saveImageSettings()">저장</button>
+   <button id="saveSettingsBtn" onclick="saveImageSettings()">저장 (JSON)</button>
+
     <button id="resetSettingsBtn" onclick="resetImageSettings()">초기화</button>
   </div>
 </div>
@@ -424,10 +425,19 @@ function saveImageSettings() {
     });
   });
 
-  saveImageUrls(saved);
-  render();
-  document.getElementById('settingsPanel').style.display = 'none';
-  alert('✅ 저장되었습니다!');
+saveImageUrls(saved);
+
+// JSON 파일 다운로드
+const blob = new Blob([JSON.stringify(saved, null, 2)], { type: 'application/json' });
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'bookImages.json';
+a.click();
+
+render();
+document.getElementById('settingsPanel').style.display = 'none';
+alert('✅ 저장되었습니다! bookImages.json을 GitHub에 올려주세요.');
+
 }
 
 function resetImageSettings() {
