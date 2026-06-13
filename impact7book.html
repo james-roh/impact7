@@ -187,8 +187,11 @@ async function applySheetData() {
   try {
     const rows = await loadSheetData();
 
-const TIT  = 21; // V열 = 봄2 교재명
-const PUB  = 23; // X열 = 봄2 출판사
+const TIT      = 21; // V열 = 초등/고등 교재명
+const PUB      = 23; // X열 = 초등/고등 출판사
+const MID_TIT  = 18; // S열 = 중등 교재명
+const MID_PUB  = 22; // W열 = 중등 출판사
+
 
 
     const elemMap = {
@@ -212,20 +215,23 @@ const PUB  = 23; // X열 = 봄2 출판사
     const saved = loadImageUrls();
     let updated = false;
 
-    function applyIfEmpty(secKey, classKey, field, rowIdx) {
-      const key      = `${secKey}_${classKey}_${field}`;
-      const titleKey = key + '_title';
-      const pubKey   = key + '_pub';
-      if (!saved[titleKey]) { saved[titleKey] = getCell(rows, rowIdx, TIT); updated = true; }
-      if (!saved[pubKey])   { saved[pubKey]   = getCell(rows, rowIdx, PUB); updated = true; }
-    }
+function applyIfEmpty(secKey, classKey, field, rowIdx, titCol = TIT, pubCol = PUB) {
+  const key      = `${secKey}_${classKey}_${field}`;
+  const titleKey = key + '_title';
+  const pubKey   = key + '_pub';
+  if (!saved[titleKey]) { saved[titleKey] = getCell(rows, rowIdx, titCol); updated = true; }
+  if (!saved[pubKey])   { saved[pubKey]   = getCell(rows, rowIdx, pubCol); updated = true; }
+}
+
 
     for (const [cls, fields] of Object.entries(elemMap)) {
       for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('elem', cls, field, rowIdx);
     }
-    for (const [cls, fields] of Object.entries(midMap)) {
-      for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('mid', cls, field, rowIdx);
-    }
+// 중등반
+for (const [cls, fields] of Object.entries(midMap)) {
+  for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('mid', cls, field, rowIdx, MID_TIT, MID_PUB);
+}
+
     for (const [cls, fields] of Object.entries(highMap)) {
       for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('high', cls, field, rowIdx);
     }
