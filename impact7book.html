@@ -464,11 +464,11 @@ async function loadJsonFile(url) {
   const res = await fetch(url);
   const data = await res.json();
   Object.assign(savedData, data);
+  const appEl = document.getElementById('app');
+  if (appEl) appEl.style.display = 'block';
   render();
-const appEl = document.getElementById('app');
-if (appEl) appEl.style.display = 'block';
-
 }
+
 
 
 </script>
