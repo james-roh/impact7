@@ -182,11 +182,12 @@ async function loadFromSheet() {
     A:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
     I:  { 독해: 41, 문법: 46, 실전: 51, 청해: 56 },
   };
-  const highMap = {
-    HS: { 독해: 83, 문법: 86, 실전: 89 },
-    HX: { 독해: 84, 문법: 87, 실전: 90 },
-    HA: { 독해: 85, 문법: 88, 실전: 91 },
-  };
+const highMap = {
+  HS: { 독해: 113, 문법: 116, 실전: 119 },
+  HX: { 독해: 114, 문법: 117, 실전: 120 },
+  HA: { 독해: 115, 문법: 118, 실전: 121 },
+};
+
 
   function setVal(secKey, cls, field, rowIdx, titCol, pubCol) {
     const key = `${secKey}_${cls}_${field}`;
