@@ -7,77 +7,38 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Noto Sans KR', sans-serif; background: #f5f6fa; color: #333; }
-h1 { text-align: left; padding: 28px 0 8px 16px; font-size: 1.8rem; color: #1a1a2e; }
-.subtitle { text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 24px; padding-left: 16px; }
-
-.section { max-width: 1100px; margin: 0 0 40px 0; padding: 0 16px; }
-
+  h1 { text-align: left; padding: 28px 0 8px 16px; font-size: 1.8rem; color: #1a1a2e; }
+  .subtitle { text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 24px; padding-left: 16px; }
+  .section { max-width: 1100px; margin: 0 0 40px 0; padding: 0 16px; }
   .section-title {
     font-size: 1.1rem; font-weight: 700; color: #fff;
     background: #2d6a4f; padding: 10px 18px; border-radius: 8px 8px 0 0;
   }
   .section-title.mid  { background: #2d6a4f; }
   .section-title.high { background: #2d6a4f; }
-
   table { width: 100%; border-collapse: collapse; background: #fff;
           border-radius: 0 0 8px 8px; overflow: hidden;
           box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
   th { background: #f0f4f8; padding: 10px 8px; font-size: 0.82rem;
        text-align: center; border-bottom: 2px solid #dde; color: #555; }
-td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
-     vertical-align: middle; font-size: 0.82rem; height: 36px; }
-
+  td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
+       vertical-align: middle; font-size: 0.82rem; height: 36px; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #f8faff; }
-
   .book-cover {
     width: 60px; height: 84px; object-fit: cover;
     border-radius: 4px; box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
     display: block; margin: 0 auto 6px;
   }
-  .book-no-img {
-    width: 60px; height: 84px; display: flex;
-    align-items: center; justify-content: center;
-    font-size: 2rem; background: #f0f0f0;
-    border-radius: 4px; margin: 0 auto 6px;
-  }
   .book-cell { text-align: center; padding: 4px; }
-  .book-link { text-decoration: none; color: inherit; }
-  .book-link:hover .book-cover {
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
-    transform: scale(1.03); transition: all 0.2s;
-  }
   .book-title { font-size: 0.75rem; font-weight: 600; margin-bottom: 2px; line-height: 1.3; }
   .book-pub { font-size: 0.65rem; color: #888; }
   .no-book { color: #ccc; font-size: 0.75rem; }
-  .loading { text-align: center; padding: 40px; color: #888; }
-
-  /* 톱니 버튼 */
-#settingsToggle {
-  background: transparent;
-  color: #333;
-  font-size: 1rem;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 1px solid #999;
-  margin-top: 16px;
-}
-
-#settingsToggle:hover { background: transparent; }
-
-  #settingsHeader {
-    background: #2d5a8e; color: white;
-    padding: 14px 16px; display: flex;
-    justify-content: space-between; align-items: center;
-    font-weight: 600; font-size: 1rem; flex-shrink: 0;
+  #settingsToggle {
+    background: transparent; color: #333; font-size: 1rem;
+    padding: 10px 20px; border-radius: 8px; cursor: pointer;
+    border: 1px solid #999; margin-top: 16px;
   }
-  #settingsHeader button {
-    background: none; border: none; color: white;
-    font-size: 1.2rem; cursor: pointer; padding: 0 4px;
-  }
-  #settingsBody { padding: 16px; overflow-y: auto; flex: 1; }
-
   .settings-section { margin-bottom: 16px; }
   .settings-section-title {
     font-size: 0.85rem; font-weight: 700; color: #2d5a8e;
@@ -96,7 +57,6 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
     border-radius: 3px; border: 1px solid #eee;
     cursor: pointer; flex-shrink: 0;
   }
-
   #saveSettingsBtn {
     width: 100%; padding: 10px; background: #2d5a8e;
     color: white; border: none; border-radius: 6px;
@@ -115,14 +75,12 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
 </head>
 <body>
 
-<!-- 사이드바 -->
 <div id="sidebarContainer"></div>
 <script src="sidebar.js"></script>
 
 <div style="margin-left: 2px; padding: 20px 0;">
-
 <div style="padding: 0 16px 24px;">
- <div style="display:flex; align-items:baseline; gap:12px;">
+  <div style="display:flex; align-items:baseline; gap:12px;">
     <h1 style="padding:28px 0 8px 0;">임팩트7 교재 안내</h1>
     <select id="semesterSelect" onchange="saveSemester()" style="padding:4px 10px; border-radius:6px; border:1px solid #999; font-size:0.85rem; background:rgba(255,255,255,0.6); color:#1a1a1a; font-weight:600; cursor:pointer;">
       <option value="봄2">봄학기</option>
@@ -131,45 +89,64 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
 </div>
 
 <div id="app"></div>
+
 <div id="settingsPanel" style="display:none; max-width:1100px; margin:16px 0;">
   <div style="background:#2d5a8e; color:white; padding:14px 16px; border-radius:8px 8px 0 0; font-weight:600;">
-     교재 이미지 URL 설정
+    교재 설정
   </div>
   <div style="background:#fff; padding:16px; border:1px solid #ddd; border-radius:0 0 8px 8px;">
     <div id="settingsForm"></div>
-   <button id="saveSettingsBtn" onclick="saveImageSettings()">저장 (JSON)</button>
-
+    <button id="saveSettingsBtn" onclick="saveImageSettings()">저장 (JSON)</button>
     <button id="resetSettingsBtn" onclick="resetImageSettings()">초기화</button>
   </div>
 </div>
 
 <script>
-// ========== 구글 시트 설정 ==========
+// ========== 설정 ==========
 const SHEET_ID  = '1d2nuMH7AvA5NB7kLdwK0EQglpVdS07-Uqo6bOWUYcJE';
 const SHEET_GID = '37076610';
+const JSON_URL  = 'https://raw.githubusercontent.com/impact7/bookdata/main/bookImages.json';
 
-// ========== 교재 데이터 ==========
+// ========== 교재 구조 ==========
 let bookData = {
   elem: { title: "초등반", rows: [
-    { class: "PX", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
-    { class: "PA", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
-    { class: "PI", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } }
+    { class: "PX", 독해: {}, 문법: {}, 실전: {}, 청해: {} },
+    { class: "PA", 독해: {}, 문법: {}, 실전: {}, 청해: {} },
+    { class: "PI", 독해: {}, 문법: {}, 실전: {}, 청해: {} }
   ]},
   mid: { title: "중등반", rows: [
-    { class: "SP", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
-    { class: "EX", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
-    { class: "AX", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
-    { class: "A",  독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
-    { class: "I",  독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } }
+    { class: "SP", 독해: {}, 문법: {}, 실전: {}, 청해: {} },
+    { class: "EX", 독해: {}, 문법: {}, 실전: {}, 청해: {} },
+    { class: "AX", 독해: {}, 문법: {}, 실전: {}, 청해: {} },
+    { class: "A",  독해: {}, 문법: {}, 실전: {}, 청해: {} },
+    { class: "I",  독해: {}, 문법: {}, 실전: {}, 청해: {} }
   ]},
   high: { title: "고등반", rows: [
-    { class: "HS", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" } },
-    { class: "HX", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" } },
-    { class: "HA", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" } }
+    { class: "HS", 독해: {}, 문법: {}, 실전: {} },
+    { class: "HX", 독해: {}, 문법: {}, 실전: {} },
+    { class: "HA", 독해: {}, 문법: {}, 실전: {} }
   ]}
 };
 
-// ========== 구글 시트 로드 ==========
+// ========== 저장 데이터 (교재명/출판사/이미지 모두) ==========
+let savedData = {};
+
+// ========== GitHub JSON 로드 ==========
+async function loadJsonData() {
+  try {
+    const res = await fetch(JSON_URL + '?t=' + Date.now());
+    if (res.ok) {
+      savedData = await res.json();
+      console.log('✅ bookImages.json 로드 완료');
+      return true;
+    }
+  } catch(e) {
+    console.log('bookImages.json 없음, 구글 시트에서 로드');
+  }
+  return false;
+}
+
+// ========== 구글 시트 로드 (최초 1회) ==========
 async function loadSheetData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
   const res  = await fetch(url);
@@ -184,99 +161,84 @@ function getCell(rows, rowIdx, colIdx) {
   return (rows[rowIdx] && rows[rowIdx][colIdx]) ? rows[rowIdx][colIdx] : '';
 }
 
-async function applySheetData() {
-  try {
-    const rows = await loadSheetData();
+async function loadFromSheet() {
+  const rows = await loadSheetData();
 
-const TIT      = 21; // V열 = 초등/고등 교재명
-const PUB      = 23; // X열 = 초등/고등 출판사
-const MID_TIT  = 18; // S열 = 중등 교재명
-const MID_PUB  = 22; // W열 = 중등 출판사
+  const TIT     = 21; // V열 = 초등/고등 교재명
+  const PUB     = 23; // X열 = 초등/고등 출판사
+  const MID_TIT = 21; // V열 = 중등 교재명
+  const MID_PUB = 22; // W열 = 중등 출판사
 
+  const elemMap = {
+    PX: { 독해: 3,  문법: 6,  실전: 9,  청해: 12 },
+    PA: { 독해: 4,  문법: 7,  실전: 10, 청해: 13 },
+    PI: { 독해: 5,  문법: 8,  실전: 11, 청해: 14 },
+  };
+  const midMap = {
+    SP: { 독해: 37, 문법: 42, 실전: 47, 청해: 52 },
+    EX: { 독해: 38, 문법: 43, 실전: 48, 청해: 53 },
+    AX: { 독해: 39, 문법: 44, 실전: 49, 청해: 54 },
+    A:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
+    I:  { 독해: 41, 문법: 46, 실전: 51, 청해: 56 },
+  };
+  const highMap = {
+    HS: { 독해: 83, 문법: 86, 실전: 89 },
+    HX: { 독해: 84, 문법: 87, 실전: 90 },
+    HA: { 독해: 85, 문법: 88, 실전: 91 },
+  };
 
-
-    const elemMap = {
-      PX: { 독해: 3,  문법: 6,  실전: 9,  청해: 12 },
-      PA: { 독해: 4,  문법: 7,  실전: 10, 청해: 13 },
-      PI: { 독해: 5,  문법: 8,  실전: 11, 청해: 14 },
-    };
-const midMap = {
-  SP: { 독해: 37, 문법: 42, 실전: 47, 청해: 52 },
-  EX: { 독해: 38, 문법: 43, 실전: 48, 청해: 53 },
-  AX: { 독해: 39, 문법: 44, 실전: 49, 청해: 54 },
-  A:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
-  I:  { 독해: 41, 문법: 46, 실전: 51, 청해: 56 },
-};
-
-
-    const highMap = {
-      HS: { 독해: 83, 문법: 86, 실전: 89 },
-      HX: { 독해: 84, 문법: 87, 실전: 90 },
-      HA: { 독해: 85, 문법: 88, 실전: 91 },
-    };
-
-    const saved = loadImageUrls();
-    let updated = false;
-
-function applyIfEmpty(secKey, classKey, field, rowIdx, titCol = TIT, pubCol = PUB) {
-  const key      = `${secKey}_${classKey}_${field}`;
-  const titleKey = key + '_title';
-  const pubKey   = key + '_pub';
-  if (!saved[titleKey]) { saved[titleKey] = getCell(rows, rowIdx, titCol); updated = true; }
-  if (!saved[pubKey])   { saved[pubKey]   = getCell(rows, rowIdx, pubCol); updated = true; }
-}
-
-
-    for (const [cls, fields] of Object.entries(elemMap)) {
-      for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('elem', cls, field, rowIdx);
-    }
-// 중등반
-for (const [cls, fields] of Object.entries(midMap)) {
-  for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('mid', cls, field, rowIdx, MID_TIT, MID_PUB);
-}
-
-    for (const [cls, fields] of Object.entries(highMap)) {
-      for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('high', cls, field, rowIdx);
-    }
-
-    if (updated) {
-      saveImageUrls(saved);
-      console.log('✅ 구글 시트 데이터 적용 완료');
-    }
-    render();
-  } catch(e) {
-    console.error('시트 로드 실패:', e);
-    render();
+  function setVal(secKey, cls, field, rowIdx, titCol, pubCol) {
+    const key = `${secKey}_${cls}_${field}`;
+    savedData[key + '_title'] = getCell(rows, rowIdx, titCol);
+    savedData[key + '_pub']   = getCell(rows, rowIdx, pubCol);
+    savedData[key + '_img']   = '';
   }
+
+  for (const [cls, fields] of Object.entries(elemMap))
+    for (const [field, rowIdx] of Object.entries(fields))
+      setVal('elem', cls, field, rowIdx, TIT, PUB);
+
+  for (const [cls, fields] of Object.entries(midMap))
+    for (const [field, rowIdx] of Object.entries(fields))
+      setVal('mid', cls, field, rowIdx, MID_TIT, MID_PUB);
+
+  for (const [cls, fields] of Object.entries(highMap))
+    for (const [field, rowIdx] of Object.entries(fields))
+      setVal('high', cls, field, rowIdx, TIT, PUB);
+
+  console.log('✅ 구글 시트 데이터 로드 완료');
+}
+
+// ========== 초기 로드 ==========
+async function init() {
+  const jsonLoaded = await loadJsonData();
+  if (!jsonLoaded) {
+    await loadFromSheet();
+  }
+  render();
 }
 
 // ========== 렌더링 ==========
-function buildBookCell(bookInfo, secKey, rowClass, field) {
-  if (!bookInfo) return '<td></td>';
-  if (bookInfo.title === "-") return `<td><span class="no-book">-</span></td>`;
+function buildBookCell(secKey, rowClass, field) {
+  const key       = `${secKey}_${rowClass}_${field}`;
+  const titleText = savedData[key + '_title'] || '';
+  const pubText   = savedData[key + '_pub']   || '';
+  const imgSrc    = savedData[key + '_img']   || '';
 
-  const savedUrls = loadImageUrls();
-  const key = `${secKey}_${rowClass}_${field}`;
-
-  const imgSrc    = savedUrls[key + '_img']   || bookInfo.img   || '';
-  const titleText = savedUrls[key + '_title'] || bookInfo.title || '';
-  const pubText   = savedUrls[key + '_pub']   || bookInfo.pub   || '';
-
-  const imgHtml = imgSrc
-    ? `<img id="bookimg_${key}" src="${imgSrc}" alt="${titleText}" class="book-cover"
-         style="cursor:pointer;"
-         onclick="openPopup('${imgSrc}')"
-         onerror="this.style.display='none';">`
-    : ``;
-
-  const inner = `${imgHtml}
-    ${titleText ? `<div class="book-title">${titleText}</div>` : ''}
-    ${pubText   ? `<div class="book-pub">${pubText}</div>`     : ''}`;
-
-  const isEmpty = !imgSrc && !titleText && !pubText;
+  const isEmpty = !titleText && !pubText && !imgSrc;
   if (isEmpty) return '<td></td>';
 
-  return `<td><div class="book-cell">${inner}</div></td>`;
+  const imgHtml = imgSrc
+    ? `<img src="${imgSrc}" alt="${titleText}" class="book-cover"
+         style="cursor:pointer;" onclick="openPopup('${imgSrc}')"
+         onerror="this.style.display='none';">`
+    : '';
+
+  return `<td><div class="book-cell">
+    ${imgHtml}
+    ${titleText ? `<div class="book-title">${titleText}</div>` : ''}
+    ${pubText   ? `<div class="book-pub">${pubText}</div>`     : ''}
+  </div></td>`;
 }
 
 function renderSection(data, type) {
@@ -294,10 +256,10 @@ function renderSection(data, type) {
   for (const row of data.rows) {
     html += `<tr>
       <td><strong>${row.class}</strong></td>
-      ${buildBookCell(row.독해, type, row.class, '독해')}
-      ${buildBookCell(row.문법, type, row.class, '문법')}
-      ${buildBookCell(row.실전, type, row.class, '실전')}
-      ${row.청해 ? buildBookCell(row.청해, type, row.class, '청해') : ''}
+      ${buildBookCell(type, row.class, '독해')}
+      ${buildBookCell(type, row.class, '문법')}
+      ${buildBookCell(type, row.class, '실전')}
+      ${type !== 'high' ? buildBookCell(type, row.class, '청해') : ''}
     </tr>`;
   }
 
@@ -307,30 +269,20 @@ function renderSection(data, type) {
 
 function render() {
   const app = document.getElementById('app');
-  if (!app) { console.error('app 없음'); return; }
-  const h = renderSection(bookData.elem, 'elem') +
-            renderSection(bookData.mid,  'mid')  +
-            renderSection(bookData.high, 'high');
-  app.innerHTML = h +
+  if (!app) return;
+  app.innerHTML =
+    renderSection(bookData.elem, 'elem') +
+    renderSection(bookData.mid,  'mid')  +
+    renderSection(bookData.high, 'high') +
     `<div style="max-width:1100px; margin:0 0 40px 0; padding:0 16px;">
-       <button id="settingsToggle" onclick="toggleSettings()" title="이미지 URL 설정">교재 설정</button>
+       <button id="settingsToggle" onclick="toggleSettings()">교재 설정</button>
      </div>`;
 }
 
 // ========== 설정 패널 ==========
-function loadImageUrls() {
-  const saved = localStorage.getItem('bookImageUrls');
-  return saved ? JSON.parse(saved) : {};
-}
-
-function saveImageUrls(data) {
-  localStorage.setItem('bookImageUrls', JSON.stringify(data));
-}
-
 function buildSettingsForm() {
   const form = document.getElementById('settingsForm');
   form.innerHTML = '';
-  const saved = loadImageUrls();
   const sections = [
     { key: 'elem', label: '초등반' },
     { key: 'mid',  label: '중등반' },
@@ -355,20 +307,25 @@ function buildSettingsForm() {
 
     secData.rows.forEach(row => {
       fields.forEach(field => {
-        const item = row[field];
-        if (!item) return;
+        if (!row[field] && row[field] !== undefined) return;
+        if (sec.key === 'high' && field === '청해') return;
+
         const key      = `${sec.key}_${row.class}_${field}`;
-        const curImg   = saved[key + '_img']   || item.img   || '';
-        const curTitle = saved[key + '_title'] || item.title || '';
-        const curPub   = saved[key + '_pub']   || item.pub   || '';
-        const rowDiv   = document.createElement('div');
-        rowDiv.style   = 'border:1px solid #eee; border-radius:6px; padding:8px; margin-bottom:10px;';
+        const curTitle = savedData[key + '_title'] || '';
+        const curPub   = savedData[key + '_pub']   || '';
+        const curImg   = savedData[key + '_img']   || '';
+
+        const rowDiv = document.createElement('div');
+        rowDiv.style = 'border:1px solid #eee; border-radius:6px; padding:8px; margin-bottom:10px;';
         rowDiv.innerHTML = `
           <div style="font-size:0.78rem; font-weight:700; color:#2d5a8e; margin-bottom:6px;">${row.class} · ${field}</div>
-          <div class="settings-row"><label>교재명</label><input type="text" id="input_${key}_title" value="${curTitle}" placeholder="교재명" /></div>
-          <div class="settings-row"><label>출판사</label><input type="text" id="input_${key}_pub"   value="${curPub}"   placeholder="출판사" /></div>
+          <div class="settings-row"><label>교재명</label>
+            <input type="text" id="input_${key}_title" value="${curTitle}" placeholder="교재명" /></div>
+          <div class="settings-row"><label>출판사</label>
+            <input type="text" id="input_${key}_pub" value="${curPub}" placeholder="출판사" /></div>
           <div class="settings-row"><label>이미지 URL</label>
-            <input type="text" id="input_${key}_img" value="${curImg}" placeholder="이미지 URL" oninput="previewImage('${key}', this.value)" />
+            <input type="text" id="input_${key}_img" value="${curImg}" placeholder="이미지 URL"
+              oninput="previewImage('${key}', this.value)" />
             ${curImg
               ? `<img class="img-preview" id="preview_${key}" src="${curImg}" alt="미리보기">`
               : `<div class="img-preview" id="preview_${key}" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#aaa;">없음</div>`}
@@ -379,13 +336,10 @@ function buildSettingsForm() {
     return secDiv;
   }
 
-  // 왼쪽: 초등반 + 고등반
   ['elem', 'high'].forEach(secKey => {
-    const secDiv = buildSecDiv(secKey);
-    if (secDiv) leftCol.appendChild(secDiv);
+    const d = buildSecDiv(secKey);
+    if (d) leftCol.appendChild(d);
   });
-
-  // 오른쪽: 중등반
   const midDiv = buildSecDiv('mid');
   if (midDiv) rightCol.appendChild(midDiv);
 
@@ -397,61 +351,53 @@ function buildSettingsForm() {
 function previewImage(key, url) {
   const el = document.getElementById('preview_' + key);
   if (!el) return;
-  if (url) {
-    el.outerHTML = `<img class="img-preview" id="preview_${key}" src="${url}" alt="미리보기">`;
-  }
+  if (url) el.outerHTML = `<img class="img-preview" id="preview_${key}" src="${url}" alt="미리보기">`;
 }
 
 function saveImageSettings() {
-  const saved   = loadImageUrls();
   const sections = [{ key: 'elem' }, { key: 'mid' }, { key: 'high' }];
   const fields   = ['독해', '문법', '실전', '청해'];
 
   sections.forEach(sec => {
-    const secData = bookData[sec.key];
-    if (!secData) return;
-    secData.rows.forEach(row => {
+    bookData[sec.key].rows.forEach(row => {
       fields.forEach(field => {
-        const item = row[field];
-        if (!item) return;
+        if (sec.key === 'high' && field === '청해') return;
         const key     = `${sec.key}_${row.class}_${field}`;
         const titleEl = document.getElementById(`input_${key}_title`);
         const pubEl   = document.getElementById(`input_${key}_pub`);
         const imgEl   = document.getElementById(`input_${key}_img`);
-        if (titleEl) saved[key + '_title'] = titleEl.value.trim();
-        if (pubEl)   saved[key + '_pub']   = pubEl.value.trim();
-        if (imgEl)   saved[key + '_img']   = imgEl.value.trim();
+        if (titleEl) savedData[key + '_title'] = titleEl.value.trim();
+        if (pubEl)   savedData[key + '_pub']   = pubEl.value.trim();
+        if (imgEl)   savedData[key + '_img']   = imgEl.value.trim();
       });
     });
   });
 
-saveImageUrls(saved);
+  // JSON 다운로드
+  const blob = new Blob([JSON.stringify(savedData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bookImages.json';
+  a.click();
 
-// JSON 파일 다운로드
-const blob = new Blob([JSON.stringify(saved, null, 2)], { type: 'application/json' });
-const a = document.createElement('a');
-a.href = URL.createObjectURL(blob);
-a.download = 'bookImages.json';
-a.click();
-
-render();
-document.getElementById('settingsPanel').style.display = 'none';
-alert('✅ 저장되었습니다! bookImages.json을 GitHub에 올려주세요.');
-
+  render();
+  document.getElementById('settingsPanel').style.display = 'none';
+  alert('✅ 저장되었습니다!\nbookImages.json을 GitHub impact7/bookdata에 올려주세요.');
 }
 
 function resetImageSettings() {
-  if (!confirm('모든 이미지 URL을 초기화할까요?')) return;
-  localStorage.removeItem('bookImageUrls');
-  render();
-  buildSettingsForm();
-  alert('🗑️ 초기화되었습니다.');
+  if (!confirm('모든 데이터를 초기화하고 구글 시트에서 다시 불러올까요?')) return;
+  savedData = {};
+  loadFromSheet().then(() => {
+    render();
+    buildSettingsForm();
+    alert('🗑️ 초기화되었습니다.');
+  });
 }
 
 function openPopup(src) {
-  const popup = document.getElementById('imgPopup');
   document.getElementById('imgPopupImg').src = src;
-  popup.style.display = 'flex';
+  document.getElementById('imgPopup').style.display = 'flex';
 }
 
 function closePopup() {
@@ -459,8 +405,7 @@ function closePopup() {
 }
 
 function saveSemester() {
-  const val = document.getElementById('semesterSelect').value;
-  localStorage.setItem('selectedSemester', val);
+  localStorage.setItem('selectedSemester', document.getElementById('semesterSelect').value);
 }
 
 const savedSemester = localStorage.getItem('selectedSemester');
@@ -477,7 +422,7 @@ function toggleSettings() {
 }
 
 // ========== 초기 실행 ==========
-applySheetData();
+init();
 </script>
 
 <div id="imgPopup" onclick="closePopup()"
