@@ -458,7 +458,9 @@ async function loadJsonFile(url) {
   const data = await res.json();
   Object.assign(savedData, data);
   render();
-  document.getElementById('bookTable').style.display = 'block';
+const appEl = document.getElementById('app');
+if (appEl) appEl.style.display = 'block';
+
 }
 
 
