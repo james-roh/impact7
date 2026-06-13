@@ -212,9 +212,9 @@ const highMap = {
     for (const [field, rowIdx] of Object.entries(fields))
       setVal('mid', cls, field, rowIdx, MID_TIT, MID_PUB);
 
-  for (const [cls, fields] of Object.entries(highMap))
-    for (const [field, rowIdx] of Object.entries(fields))
-      setVal('high', cls, field, rowIdx, TIT, PUB);
+for (const [cls, fields] of Object.entries(highMap))
+  for (const [field, rowIdx] of Object.entries(fields))
+    setVal('high', cls, field, rowIdx, HIGH_TIT, HIGH_PUB);
 
   console.log('✅ 구글 시트 데이터 로드 완료');
 }
