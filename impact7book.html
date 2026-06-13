@@ -10,7 +10,6 @@
 h1 { text-align: left; padding: 28px 0 8px 16px; font-size: 1.8rem; color: #1a1a2e; }
 .subtitle { text-align: left; color: #888; font-size: 0.9rem; margin-bottom: 24px; padding-left: 16px; }
 
-
 .section { max-width: 1100px; margin: 0 0 40px 0; padding: 0 16px; }
 
   .section-title {
@@ -20,7 +19,6 @@ h1 { text-align: left; padding: 28px 0 8px 16px; font-size: 1.8rem; color: #1a1a
   .section-title.mid  { background: #2d6a4f; }
   .section-title.high { background: #2d6a4f; }
 
-
   table { width: 100%; border-collapse: collapse; background: #fff;
           border-radius: 0 0 8px 8px; overflow: hidden;
           box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
@@ -28,7 +26,6 @@ h1 { text-align: left; padding: 28px 0 8px 16px; font-size: 1.8rem; color: #1a1a
        text-align: center; border-bottom: 2px solid #dde; color: #555; }
 td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
      vertical-align: middle; font-size: 0.82rem; height: 36px; }
-
 
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #f8faff; }
@@ -68,14 +65,6 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
 }
 
 #settingsToggle:hover { background: transparent; }
-
-
-
-
-
-
-
-
 
   #settingsHeader {
     background: #2d5a8e; color: white;
@@ -123,7 +112,6 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
   #resetSettingsBtn:hover { background: #ffe5e5; color: #c00; }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
 <body>
 
@@ -134,41 +122,32 @@ td { padding: 4px 8px; text-align: center; border-bottom: 1px solid #eef;
 <div style="margin-left: 2px; padding: 20px 0;">
 
 <div style="padding: 0 16px 24px;">
-
  <div style="display:flex; align-items:baseline; gap:12px;">
-
     <h1 style="padding:28px 0 8px 0;">임팩트7 교재 안내</h1>
-<select id="semesterSelect" onchange="saveSemester()" style="padding:4px 10px; border-radius:6px; border:1px solid #999; font-size:0.85rem; background:rgba(255,255,255,0.6); color:#1a1a1a; font-weight:600; cursor:pointer;">
-  <option value="봄2">봄학기</option>
-</select>
-
-
-
+    <select id="semesterSelect" onchange="saveSemester()" style="padding:4px 10px; border-radius:6px; border:1px solid #999; font-size:0.85rem; background:rgba(255,255,255,0.6); color:#1a1a1a; font-weight:600; cursor:pointer;">
+      <option value="봄2">봄학기</option>
     </select>
   </div>
 </div>
 
 <div id="app"></div>
 <div id="settingsPanel" style="display:none; max-width:1100px; margin:16px 0;">
-
-
-
   <div style="background:#2d5a8e; color:white; padding:14px 16px; border-radius:8px 8px 0 0; font-weight:600;">
      교재 이미지 URL 설정
   </div>
   <div style="background:#fff; padding:16px; border:1px solid #ddd; border-radius:0 0 8px 8px;">
     <div id="settingsForm"></div>
-<button id="saveSettingsBtn" onclick="saveImageSettings()">저장</button>
-<button id="resetSettingsBtn" onclick="resetImageSettings()">초기화</button>
-
+    <button id="saveSettingsBtn" onclick="saveImageSettings()">저장</button>
+    <button id="resetSettingsBtn" onclick="resetImageSettings()">초기화</button>
   </div>
 </div>
 
-
 <script>
-const SHEET_ID = '1d2nuMH7AvA5NB7kLdwK0EQglpVdS07-Uqo6bOWUYcJE';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=2025-26%20yearly`;
+// ========== 구글 시트 설정 ==========
+const SHEET_ID  = '1d2nuMH7AvA5NB7kLdwK0EQglpVdS07-Uqo6bOWUYcJE';
+const SHEET_GID = '37076610';
 
+// ========== 교재 데이터 ==========
 let bookData = {
   elem: { title: "초등반", rows: [
     { class: "PX", 독해: { title: "", pub: "", img: "" }, 문법: { title: "", pub: "", img: "" }, 실전: { title: "", pub: "", img: "" }, 청해: { title: "", pub: "", img: "" } },
@@ -189,68 +168,83 @@ let bookData = {
   ]}
 };
 
+// ========== 구글 시트 로드 ==========
 async function loadSheetData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
+  const res  = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.substring(47).slice(0, -2));
+  return json.table.rows.map(row =>
+    row.c ? row.c.map(cell => (cell && cell.v !== null ? String(cell.v).trim() : '')) : []
+  );
+}
+
+function getCell(rows, rowIdx, colIdx) {
+  return (rows[rowIdx] && rows[rowIdx][colIdx]) ? rows[rowIdx][colIdx] : '';
+}
+
+async function applySheetData() {
   try {
-    const res = await fetch(SHEET_URL);
-    const text = await res.text();
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows;
+    const rows = await loadSheetData();
 
-    // 봄2 열 인덱스: S열=18, T열=19 (0-based)
-    const titleCol = 21; // S열(교재명)
-    const pubCol   = 23; // T열(출판사)
+    const TIT  = 21; // V열 = 봄2 교재명
+    const PUB  = 22; // W열 = 봄2 출판사
 
-    // 반명→섹션/필드 매핑
-    const map = {
-      PX: { sec: 'elem', class: 'PX' }, PA: { sec: 'elem', class: 'PA' }, PI: { sec: 'elem', class: 'PI' },
-      SP: { sec: 'mid',  class: 'SP' }, EX: { sec: 'mid',  class: 'EX' }, AX: { sec: 'mid',  class: 'AX' },
-      A:  { sec: 'mid',  class: 'A'  }, I:  { sec: 'mid',  class: 'I'  },
-      HS: { sec: 'high', class: 'HS' }, HX: { sec: 'high', class: 'HX' }, HA: { sec: 'high', class: 'HA' }
+    const elemMap = {
+      PX: { 독해: 3,  문법: 6,  실전: 9,  청해: 12 },
+      PA: { 독해: 4,  문법: 7,  실전: 10, 청해: 13 },
+      PI: { 독해: 5,  문법: 8,  실전: 11, 청해: 14 },
+    };
+    const midMap = {
+      SP: { 독해: 36, 문법: 41, 실전: 46, 청해: 51 },
+      EX: { 독해: 37, 문법: 42, 실전: 47, 청해: 52 },
+      AX: { 독해: 38, 문법: 43, 실전: 48, 청해: 53 },
+      A:  { 독해: 39, 문법: 44, 실전: 49, 청해: 54 },
+      I:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
+    };
+    const highMap = {
+      HS: { 독해: 83, 문법: 86, 실전: 89 },
+      HX: { 독해: 84, 문법: 87, 실전: 90 },
+      HA: { 독해: 85, 문법: 88, 실전: 91 },
     };
 
-    let curField = '';
-    rows.forEach(row => {
-      const cells = row.c;
-      const getVal = (i) => cells[i]?.v?.toString().trim() || '';
+    const saved = loadImageUrls();
+    let updated = false;
 
-      // 영역(독해/문법/실전/청해) 감지
-      const field = getVal(1);
-      if (['독해','문법','실전','청해'].includes(field)) curField = field;
+    function applyIfEmpty(secKey, classKey, field, rowIdx) {
+      const key      = `${secKey}_${classKey}_${field}`;
+      const titleKey = key + '_title';
+      const pubKey   = key + '_pub';
+      if (!saved[titleKey]) { saved[titleKey] = getCell(rows, rowIdx, TIT); updated = true; }
+      if (!saved[pubKey])   { saved[pubKey]   = getCell(rows, rowIdx, PUB); updated = true; }
+    }
 
-      const className = getVal(4);
-      const info = map[className];
-      if (!info || !curField) return;
+    for (const [cls, fields] of Object.entries(elemMap)) {
+      for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('elem', cls, field, rowIdx);
+    }
+    for (const [cls, fields] of Object.entries(midMap)) {
+      for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('mid', cls, field, rowIdx);
+    }
+    for (const [cls, fields] of Object.entries(highMap)) {
+      for (const [field, rowIdx] of Object.entries(fields)) applyIfEmpty('high', cls, field, rowIdx);
+    }
 
-      const title = getVal(titleCol);
-      const pub   = getVal(pubCol);
-      if (!title) return;
-
-      const secRows = bookData[info.sec].rows;
-      const targetRow = secRows.find(r => r.class === info.class);
-      if (targetRow && targetRow[curField]) {
-        targetRow[curField].title = title;
-        targetRow[curField].pub   = pub;
-      }
-    });
-
-applySheetData();
-
+    if (updated) {
+      saveImageUrls(saved);
+      console.log('✅ 구글 시트 데이터 적용 완료');
+    }
+    render();
   } catch(e) {
     console.error('시트 로드 실패:', e);
     render();
   }
 }
 
-loadSheetData();
-
-// ────────────────────────────────────────────
-// 렌더링
-// ────────────────────────────────────────────
+// ========== 렌더링 ==========
 function buildBookCell(bookInfo, secKey, rowClass, field) {
   if (!bookInfo) return '<td></td>';
   if (bookInfo.title === "-") return `<td><span class="no-book">-</span></td>`;
 
-  const imgId = `bookimg_${secKey}_${rowClass}_${field}`;
   const savedUrls = loadImageUrls();
   const key = `${secKey}_${rowClass}_${field}`;
 
@@ -259,32 +253,27 @@ function buildBookCell(bookInfo, secKey, rowClass, field) {
   const pubText   = savedUrls[key + '_pub']   || bookInfo.pub   || '';
 
   const imgHtml = imgSrc
-    ? `<img id="${imgId}" src="${imgSrc}" alt="${titleText}" class="book-cover"
+    ? `<img id="bookimg_${key}" src="${imgSrc}" alt="${titleText}" class="book-cover"
          style="cursor:pointer;"
          onclick="openPopup('${imgSrc}')"
          onerror="this.style.display='none';">`
     : ``;
 
-
-
   const inner = `${imgHtml}
     ${titleText ? `<div class="book-title">${titleText}</div>` : ''}
-    ${pubText ? `<div class="book-pub">${pubText}</div>` : ''}`;
+    ${pubText   ? `<div class="book-pub">${pubText}</div>`     : ''}`;
 
   const isEmpty = !imgSrc && !titleText && !pubText;
   if (isEmpty) return '<td></td>';
 
   return `<td><div class="book-cell">${inner}</div></td>`;
-
 }
-
 
 function renderSection(data, type) {
   const titleClass = type === 'mid' ? 'mid' : type === 'high' ? 'high' : '';
   let html = `
     <div class="section">
       <div class="section-title ${titleClass}">${data.title}</div>
-
       <table>
         <thead><tr>
           <th>반명</th><th>독해</th><th>문법</th><th>실전</th>
@@ -312,19 +301,13 @@ function render() {
   const h = renderSection(bookData.elem, 'elem') +
             renderSection(bookData.mid,  'mid')  +
             renderSection(bookData.high, 'high');
-  console.log('render html 길이:', h.length);
-    app.innerHTML = h +
+  app.innerHTML = h +
     `<div style="max-width:1100px; margin:0 0 40px 0; padding:0 16px;">
-<button id="settingsToggle" onclick="toggleSettings()" title="이미지 URL 설정">교재 설정</button>
-
-    </div>`;
-
+       <button id="settingsToggle" onclick="toggleSettings()" title="이미지 URL 설정">교재 설정</button>
+     </div>`;
 }
 
-
-// ────────────────────────────────────────────
-// 설정 패널
-// ────────────────────────────────────────────
+// ========== 설정 패널 ==========
 function loadImageUrls() {
   const saved = localStorage.getItem('bookImageUrls');
   return saved ? JSON.parse(saved) : {};
@@ -333,8 +316,6 @@ function loadImageUrls() {
 function saveImageUrls(data) {
   localStorage.setItem('bookImageUrls', JSON.stringify(data));
 }
-
-
 
 function buildSettingsForm() {
   const form = document.getElementById('settingsForm');
@@ -350,11 +331,11 @@ function buildSettingsForm() {
   const topRow = document.createElement('div');
   topRow.style = 'display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; align-items:start;';
 
-  const leftCol = document.createElement('div');
+  const leftCol  = document.createElement('div');
   const rightCol = document.createElement('div');
 
   function buildSecDiv(secKey) {
-    const sec = sections.find(s => s.key === secKey);
+    const sec     = sections.find(s => s.key === secKey);
     const secData = bookData[sec.key];
     if (!secData) return null;
 
@@ -366,16 +347,16 @@ function buildSettingsForm() {
       fields.forEach(field => {
         const item = row[field];
         if (!item) return;
-        const key = `${sec.key}_${row.class}_${field}`;
+        const key      = `${sec.key}_${row.class}_${field}`;
         const curImg   = saved[key + '_img']   || item.img   || '';
         const curTitle = saved[key + '_title'] || item.title || '';
         const curPub   = saved[key + '_pub']   || item.pub   || '';
-        const rowDiv = document.createElement('div');
-        rowDiv.style = 'border:1px solid #eee; border-radius:6px; padding:8px; margin-bottom:10px;';
+        const rowDiv   = document.createElement('div');
+        rowDiv.style   = 'border:1px solid #eee; border-radius:6px; padding:8px; margin-bottom:10px;';
         rowDiv.innerHTML = `
           <div style="font-size:0.78rem; font-weight:700; color:#2d5a8e; margin-bottom:6px;">${row.class} · ${field}</div>
           <div class="settings-row"><label>교재명</label><input type="text" id="input_${key}_title" value="${curTitle}" placeholder="교재명" /></div>
-          <div class="settings-row"><label>출판사</label><input type="text" id="input_${key}_pub" value="${curPub}" placeholder="출판사" /></div>
+          <div class="settings-row"><label>출판사</label><input type="text" id="input_${key}_pub"   value="${curPub}"   placeholder="출판사" /></div>
           <div class="settings-row"><label>이미지 URL</label>
             <input type="text" id="input_${key}_img" value="${curImg}" placeholder="이미지 URL" oninput="previewImage('${key}', this.value)" />
             ${curImg
@@ -388,13 +369,13 @@ function buildSettingsForm() {
     return secDiv;
   }
 
-  // 왼쪽 열: 초등반 + 고등반
+  // 왼쪽: 초등반 + 고등반
   ['elem', 'high'].forEach(secKey => {
     const secDiv = buildSecDiv(secKey);
     if (secDiv) leftCol.appendChild(secDiv);
   });
 
-  // 오른쪽 열: 중등반
+  // 오른쪽: 중등반
   const midDiv = buildSecDiv('mid');
   if (midDiv) rightCol.appendChild(midDiv);
 
@@ -403,9 +384,7 @@ function buildSettingsForm() {
   form.appendChild(topRow);
 }
 
-
 function previewImage(key, url) {
-
   const el = document.getElementById('preview_' + key);
   if (!el) return;
   if (url) {
@@ -414,11 +393,9 @@ function previewImage(key, url) {
 }
 
 function saveImageSettings() {
-  const saved = loadImageUrls();
-  const sections = [
-    { key: 'elem' }, { key: 'mid' }, { key: 'high' }
-  ];
-  const fields = ['독해', '문법', '실전', '청해'];
+  const saved   = loadImageUrls();
+  const sections = [{ key: 'elem' }, { key: 'mid' }, { key: 'high' }];
+  const fields   = ['독해', '문법', '실전', '청해'];
 
   sections.forEach(sec => {
     const secData = bookData[sec.key];
@@ -427,12 +404,10 @@ function saveImageSettings() {
       fields.forEach(field => {
         const item = row[field];
         if (!item) return;
-        const key = `${sec.key}_${row.class}_${field}`;
-
+        const key     = `${sec.key}_${row.class}_${field}`;
         const titleEl = document.getElementById(`input_${key}_title`);
         const pubEl   = document.getElementById(`input_${key}_pub`);
         const imgEl   = document.getElementById(`input_${key}_img`);
-
         if (titleEl) saved[key + '_title'] = titleEl.value.trim();
         if (pubEl)   saved[key + '_pub']   = pubEl.value.trim();
         if (imgEl)   saved[key + '_img']   = imgEl.value.trim();
@@ -453,6 +428,7 @@ function resetImageSettings() {
   buildSettingsForm();
   alert('🗑️ 초기화되었습니다.');
 }
+
 function openPopup(src) {
   const popup = document.getElementById('imgPopup');
   document.getElementById('imgPopupImg').src = src;
@@ -468,13 +444,11 @@ function saveSemester() {
   localStorage.setItem('selectedSemester', val);
 }
 
-// 페이지 로드 시 복원
 const savedSemester = localStorage.getItem('selectedSemester');
 if (savedSemester) document.getElementById('semesterSelect').value = savedSemester;
 
-
 function toggleSettings() {
-  const panel = document.getElementById('settingsPanel');
+  const panel  = document.getElementById('settingsPanel');
   const isOpen = panel.style.display === 'block';
   panel.style.display = isOpen ? 'none' : 'block';
   if (!isOpen) {
@@ -482,110 +456,11 @@ function toggleSettings() {
     panel.scrollIntoView({ behavior: 'smooth' });
   }
 }
-// ========== 구글 시트 데이터 로드 ==========
 
-const SHEET_GID = '37076610';
-
-
-async function loadSheetData() {
- const url = `https://docs.google.com/spreadsheets/d/1d2nuMH7AvA5NB7kLdwK0EQglpVdS07-Uqo6bOWUYcJE/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
-
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = JSON.parse(text.substring(47).slice(0, -2));
-  return json.table.rows.map(row =>
-    row.c ? row.c.map(cell => (cell && cell.v !== null ? String(cell.v).trim() : '')) : []
-  );
-}
-
-function getCell(rows, rowIdx, colIdx) {
-  return (rows[rowIdx] && rows[rowIdx][colIdx]) ? rows[rowIdx][colIdx] : '';
-}
-
-async function applySheetData() {
-  try {
-    const rows = await loadSheetData();
-
-    // V=21번째(인덱스 21), W=22번째(인덱스 22) → 봄2학기 교재명/출판사
-    const TIT = 21; // V열
-    const PUB = 22; // W열
-    const NAME = 4;  // E열 = 반명
-
-    // 각 행 번호 매핑 (0-based index, 헤더 제외)
-    // 초등반 (rows 3~14): PX/PA/PI × 독해/문법/실전/청해
-    const elemMap = {
-      PX: { 독해: 3,  문법: 6,  실전: 9,  청해: 12 },
-      PA: { 독해: 4,  문법: 7,  실전: 10, 청해: 13 },
-      PI: { 독해: 5,  문법: 8,  실전: 11, 청해: 14 },
-    };
-
-    // 중등 1학년 (rows 36~52): SP/EX/AX/A/I × 독해/문법/실전/청해
-    const midMap = {
-      SP: { 독해: 36, 문법: 41, 실전: 46, 청해: 51 },
-      EX: { 독해: 37, 문법: 42, 실전: 47, 청해: 52 },
-      AX: { 독해: 38, 문법: 43, 실전: 48, 청해: 53 },
-      A:  { 독해: 39, 문법: 44, 실전: 49, 청해: 54 },
-      I:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
-    };
-
-    // 고등반 (rows 에서 HS/HX/HA)
-    const highMap = {
-      HS: { 독해: 83, 문법: 86, 실전: 89 },
-      HX: { 독해: 84, 문법: 87, 실전: 90 },
-      HA: { 독해: 85, 문법: 88, 실전: 91 },
-    };
-
-    const saved = loadImageUrls();
-    let updated = false;
-
-    function applyIfEmpty(secKey, classKey, field, rowIdx) {
-      const key = `${secKey}_${classKey}_${field}`;
-      const titleKey = key + '_title';
-      const pubKey   = key + '_pub';
-      // 이미 저장된 값이 있으면 덮어쓰지 않음
-      if (!saved[titleKey]) {
-        saved[titleKey] = getCell(rows, rowIdx, TIT);
-        updated = true;
-      }
-      if (!saved[pubKey]) {
-        saved[pubKey] = getCell(rows, rowIdx, PUB);
-        updated = true;
-      }
-    }
-
-    // 초등반
-    for (const [cls, fields] of Object.entries(elemMap)) {
-      for (const [field, rowIdx] of Object.entries(fields)) {
-        applyIfEmpty('elem', cls, field, rowIdx);
-      }
-    }
-    // 중등반
-    for (const [cls, fields] of Object.entries(midMap)) {
-      for (const [field, rowIdx] of Object.entries(fields)) {
-        applyIfEmpty('mid', cls, field, rowIdx);
-      }
-    }
-    // 고등반
-    for (const [cls, fields] of Object.entries(highMap)) {
-      for (const [field, rowIdx] of Object.entries(fields)) {
-        applyIfEmpty('high', cls, field, rowIdx);
-      }
-    }
-
-    if (updated) {
-      saveImageUrls(saved);
-      console.log('✅ 구글 시트 데이터 적용 완료');
-    }
-    render();
-  } catch(e) {
-    console.error('시트 로드 실패:', e);
-    render();
-  }
-}
-
-// 초기 실행
-
+// ========== 초기 실행 ==========
+applySheetData();
 </script>
+
 <div id="imgPopup" onclick="closePopup()"
   style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
          background:rgba(0,0,0,0.7); z-index:9999;
@@ -595,5 +470,6 @@ async function applySheetData() {
            box-shadow:0 4px 20px rgba(0,0,0,0.5);">
 </div>
 
+</div>
 </body>
 </html>
