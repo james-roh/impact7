@@ -427,7 +427,11 @@ function saveSemester() {
 }
 
 const savedSemester = localStorage.getItem('selectedSemester');
-if (savedSemester) document.getElementById('semesterSelect').value = savedSemester;
+if (savedSemester) {
+  document.getElementById('semesterSelect').value = savedSemester;
+  loadJsonFile(savedSemester);
+}
+
 
 function toggleSettings() {
 
