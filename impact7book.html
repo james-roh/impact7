@@ -254,11 +254,11 @@ function buildBookCell(secKey, rowClass, field) {
   </div></td>`;
 }
 
-function renderSection(data, type, extraHtml = '') {
+function renderSection(data, type) {
   const titleClass = type === 'mid' ? 'mid' : type === 'high' ? 'high' : '';
   let html = `
     <div class="section">
-      <div class="section-title ${titleClass}" style="display:flex; justify-content:space-between; align-items:center;">${data.title}${type === 'elem' ? extraHtml : ''}</div>
+      <div class="section-title ${titleClass}">${data.title}</div>
 
       <table>
         <thead><tr>
@@ -284,12 +284,11 @@ function renderSection(data, type, extraHtml = '') {
 function render() {
   const app = document.getElementById('app');
   if (!app) return;
-  const semesterSelect = document.getElementById('semesterSelect');
-  const semesterHtml = semesterSelect ? semesterSelect.outerHTML : '';
   app.innerHTML =
-    renderSection(bookData.elem, 'elem', semesterHtml) +
+    renderSection(bookData.elem, 'elem') +
     renderSection(bookData.mid,  'mid')  +
     renderSection(bookData.high, 'high') +
+
 
     `<div style="max-width:1100px; margin:0 0 40px 0; padding:0 16px;">
        <button id="settingsToggle" onclick="toggleSettings()">교재 설정</button>
