@@ -443,7 +443,8 @@ function toggleSettings() {
 
 
 // ========== 초기 실행 ==========
-init();
+document.addEventListener('DOMContentLoaded', init);
+
 
  async function loadSemesterList() {
   const res = await fetch('https://api.github.com/repos/james-roh/impact7/contents/bookdata');
