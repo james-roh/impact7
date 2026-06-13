@@ -89,7 +89,10 @@
   </div>
 </div>
 
-<div id="app"></div>
+<div id="app" style="display:none">
+
+ 
+</div>
 
 <div id="settingsPanel" style="display:none; max-width:1100px; margin:16px 0;">
   <div style="background:#2d5a8e; color:white; padding:14px 16px; border-radius:8px 8px 0 0; font-weight:600;">
@@ -223,12 +226,8 @@ for (const [cls, fields] of Object.entries(highMap))
 // ========== 초기 로드 ==========
 async function init() {
   await loadSemesterList();
-  const jsonLoaded = await loadJsonData();
-  if (!jsonLoaded) {
-    await loadFromSheet();
-  }
-  render();
 }
+
 
 // ========== 렌더링 ==========
 function buildBookCell(secKey, rowClass, field) {
@@ -424,11 +423,7 @@ const savedSemester = localStorage.getItem('selectedSemester');
 if (savedSemester) document.getElementById('semesterSelect').value = savedSemester;
 
 function toggleSettings() {
-  const pw = prompt('교재 설정 비밀번호를 입력하세요:');
-  if (pw !== 'impact7roh') {
-    alert('권한이 없습니다.');
-    return;
-  }
+
 
   const panel  = document.getElementById('settingsPanel');
   const isOpen = panel.style.display === 'block';
@@ -463,7 +458,9 @@ async function loadJsonFile(url) {
   const data = await res.json();
   Object.assign(savedData, data);
   render();
+  document.getElementById('bookTable').style.display = 'block';
 }
+
 
 </script>
 
