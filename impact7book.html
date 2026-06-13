@@ -82,9 +82,10 @@
 <div style="padding: 0 16px 24px;">
   <div style="display:flex; align-items:baseline; gap:12px;">
     <h1 style="padding:28px 0 8px 0;">임팩트7 교재 안내</h1>
-    <select id="semesterSelect" onchange="saveSemester()" style="padding:4px 10px; border-radius:6px; border:1px solid #999; font-size:0.85rem; background:rgba(255,255,255,0.6); color:#1a1a1a; font-weight:600; cursor:pointer;">
-      <option value="봄2">봄학기</option>
-    </select>
+<select id="semesterSelect" onchange="loadJsonFile(this.value)" style="padding:4px 10px; border-radius:6px; border:1px solid #999; font-size:0.85rem; background:rgba(255,255,255,0.6); color:#1a1a1a; font-weight:600; cursor:pointer;">
+  <option value="">-- 학기 선택 --</option>
+</select>
+
   </div>
 </div>
 
@@ -433,6 +434,29 @@ function toggleSettings() {
 
 // ========== 초기 실행 ==========
 init();
+
+ async function loadSemesterList() {
+  const res = await fetch('https://api.github.com/repos/james-roh/impact7/contents/bookdata');
+  const files = await res.json();
+  const select = document.getElementById('semesterSelect');
+  files
+    .filter(f => f.name.endsWith('.json'))
+    .forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.download_url;
+      opt.textContent = f.name.replace('.json', '');
+      select.appendChild(opt);
+    });
+}
+
+async function loadJsonFile(url) {
+  if (!url) return;
+  const res = await fetch(url);
+  const data = await res.json();
+  Object.assign(savedData, data);
+  render();
+}
+
 </script>
 
 <div id="imgPopup" onclick="closePopup()"
