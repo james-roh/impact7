@@ -463,11 +463,12 @@ async function loadJsonFile(url) {
   if (!url) return;
   const res = await fetch(url);
   const data = await res.json();
-  Object.assign(savedData, data);
+  savedData = data;
   const appEl = document.getElementById('app');
   if (appEl) appEl.style.display = 'block';
   render();
 }
+
 
 
 
