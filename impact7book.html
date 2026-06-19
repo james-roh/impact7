@@ -83,21 +83,11 @@
 <div style="display:flex; align-items:center; justify-content:space-between;">
     <h1 style="padding:28px 0 8px 0;">임팩트7 교재 안내</h1>
 <select id="semesterSelect" onchange="saveSemester(); loadJsonFile(this.value)">
-
 </select>
-
-  </div>
-
-
-
-
-
+</div>
 </div>
 
-<div id="app" style="display:none">
-
- 
-</div>
+<div id="app" style="display:none"></div>
 
 <div id="settingsPanel" style="display:none; max-width:1100px; margin:16px 0;">
   <div style="background:#2d5a8e; color:white; padding:14px 16px; border-radius:8px 8px 0 0; font-weight:600;">
@@ -111,12 +101,10 @@
 </div>
 
 <script>
-// ========== 설정 ==========
 const SHEET_ID  = '1d2nuMH7AvA5NB7kLdwK0EQglpVdS07-Uqo6bOWUYcJE';
 const SHEET_GID = '37076610';
 const JSON_URL  = 'https://raw.githubusercontent.com/impact7/bookdata/main/bookImages.json';
 
-// ========== 교재 구조 ==========
 let bookData = {
   elem: { title: "초등반", rows: [
     { class: "PX", 독해: {}, 문법: {}, 실전: {}, 청해: {} },
@@ -137,10 +125,8 @@ let bookData = {
   ]}
 };
 
-// ========== 저장 데이터 (교재명/출판사/이미지 모두) ==========
 let savedData = {};
 
-// ========== GitHub JSON 로드 ==========
 async function loadJsonData() {
   try {
     const res = await fetch(JSON_URL + '?t=' + Date.now());
@@ -155,7 +141,6 @@ async function loadJsonData() {
   return false;
 }
 
-// ========== 구글 시트 로드 (최초 1회) ==========
 async function loadSheetData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
   const res  = await fetch(url);
@@ -172,19 +157,12 @@ function getCell(rows, rowIdx, colIdx) {
 
 async function loadFromSheet() {
   const rows = await loadSheetData();
-
-const TIT      = 21; // V열 = 초등 교재명
-const PUB      = 23; // X열 = 초등 출판사
-const MID_TIT  = 18; // S열 = 중등 교재명
-const MID_PUB  = 22; // W열 = 중등 출판사
-const HIGH_TIT = 11;
-const HIGH_PUB = 15;
-
-
-
-
-
-
+  const TIT      = 21;
+  const PUB      = 23;
+  const MID_TIT  = 18;
+  const MID_PUB  = 22;
+  const HIGH_TIT = 11;
+  const HIGH_PUB = 15;
 
   const elemMap = {
     PX: { 독해: 3,  문법: 6,  실전: 9,  청해: 12 },
@@ -198,13 +176,11 @@ const HIGH_PUB = 15;
     A:  { 독해: 40, 문법: 45, 실전: 50, 청해: 55 },
     I:  { 독해: 41, 문법: 46, 실전: 51, 청해: 56 },
   };
-const highMap = {
-  HS: { 독해: 102, 문법: 105, 실전: 108 },
-  HX: { 독해: 103, 문법: 106, 실전: 109 },
-  HA: { 독해: 104, 문법: 107, 실전: 110 },
-};
-
-
+  const highMap = {
+    HS: { 독해: 102, 문법: 105, 실전: 108 },
+    HX: { 독해: 103, 문법: 106, 실전: 109 },
+    HA: { 독해: 104, 문법: 107, 실전: 110 },
+  };
 
   function setVal(secKey, cls, field, rowIdx, titCol, pubCol) {
     const key = `${secKey}_${cls}_${field}`;
@@ -221,20 +197,30 @@ const highMap = {
     for (const [field, rowIdx] of Object.entries(fields))
       setVal('mid', cls, field, rowIdx, MID_TIT, MID_PUB);
 
-for (const [cls, fields] of Object.entries(highMap))
-  for (const [field, rowIdx] of Object.entries(fields))
-    setVal('high', cls, field, rowIdx, HIGH_TIT, HIGH_PUB);
+  for (const [cls, fields] of Object.entries(highMap))
+    for (const [field, rowIdx] of Object.entries(fields))
+      setVal('high', cls, field, rowIdx, HIGH_TIT, HIGH_PUB);
 
   console.log('✅ 구글 시트 데이터 로드 완료');
 }
 
-// ========== 초기 로드 ==========
+// ✅ 수정된 init() - loadSemesterList 완료 후 localStorage 복원
 async function init() {
   await loadSemesterList();
+
+  const savedSemester = localStorage.getItem('selectedSemester');
+  if (savedSemester) {
+    document.getElementById('semesterSelect').value = savedSemester;
+    await loadJsonFile(savedSemester);
+  } else {
+    const select = document.getElementById('semesterSelect');
+    if (select.options.length > 0) {
+      select.selectedIndex = 0;
+      await loadJsonFile(select.value);
+    }
+  }
 }
 
-
-// ========== 렌더링 ==========
 function buildBookCell(secKey, rowClass, field) {
   const key       = `${secKey}_${rowClass}_${field}`;
   const titleText = savedData[key + '_title'] || '';
@@ -262,7 +248,6 @@ function renderSection(data, type) {
   let html = `
     <div class="section">
       <div class="section-title ${titleClass}">${data.title}</div>
-
       <table>
         <thead><tr>
           <th>반명</th><th>독해</th><th>문법</th><th>실전</th>
@@ -291,14 +276,11 @@ function render() {
     renderSection(bookData.elem, 'elem') +
     renderSection(bookData.mid,  'mid')  +
     renderSection(bookData.high, 'high') +
-
-
     `<div style="max-width:1100px; margin:0 0 40px 0; padding:0 16px;">
        <button id="settingsToggle" onclick="toggleSettings()">교재 설정</button>
      </div>`;
 }
 
-// ========== 설정 패널 ==========
 function buildSettingsForm() {
   const form = document.getElementById('settingsForm');
   form.innerHTML = '';
@@ -392,7 +374,6 @@ function saveImageSettings() {
     });
   });
 
-  // JSON 다운로드
   const blob = new Blob([JSON.stringify(savedData, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -427,16 +408,7 @@ function saveSemester() {
   localStorage.setItem('selectedSemester', document.getElementById('semesterSelect').value);
 }
 
-const savedSemester = localStorage.getItem('selectedSemester');
-if (savedSemester) {
-  document.getElementById('semesterSelect').value = savedSemester;
-  loadJsonFile(savedSemester);
-}
-
-
 function toggleSettings() {
-
-
   const panel  = document.getElementById('settingsPanel');
   const isOpen = panel.style.display === 'block';
   panel.style.display = isOpen ? 'none' : 'block';
@@ -446,12 +418,10 @@ function toggleSettings() {
   }
 }
 
-
 // ========== 초기 실행 ==========
 document.addEventListener('DOMContentLoaded', init);
 
-
- async function loadSemesterList() {
+async function loadSemesterList() {
   const res = await fetch('https://api.github.com/repos/james-roh/impact7/contents/bookdata');
   const files = await res.json();
   const select = document.getElementById('semesterSelect');
@@ -474,10 +444,6 @@ async function loadJsonFile(url) {
   if (appEl) appEl.style.display = 'block';
   render();
 }
-
-
-
-
 </script>
 
 <div id="imgPopup" onclick="closePopup()"
