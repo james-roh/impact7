@@ -116,9 +116,10 @@
     <i class="fas fa-book"></i> impact7 교재
 </div>
 
-            <div class="sidebar-menu-item" id="menu-coming3" onclick="alert('준비중')">
-                <i class="fas fa-clock"></i> 준비중3
-            </div>
+          <div class="sidebar-menu-item" id="menu-coming3" onclick="window.location.href='impactmoney.html'">
+    <i class="fas fa-coins"></i> 임팩트머니 관리
+</div>
+
         </div>
     `;
 
@@ -133,7 +134,10 @@ if (path.includes('text.html')) {
     sidebar.querySelector('#menu-inventory').classList.add('active');
 } else if (path.includes('impact7book.html')) {
     sidebar.querySelector('#menu-coming2').classList.add('active');
+} else if (path.includes('impactmoney.html')) {
+    sidebar.querySelector('#menu-coming3').classList.add('active');
 }
+
 
     // body 첫 번째 자식으로 사이드바 삽입
        document.addEventListener('DOMContentLoaded', function () {
