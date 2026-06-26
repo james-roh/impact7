@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>임팩트머니 교환내역서</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      background: #f0ede8;
+      color: #222;
+      min-height: 100vh;
+    }
+
+.top-bar {
+  background: #f0ede8;
+  border-bottom: none;
+  padding: 18px 0 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.top-bar h1 {
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #111;
+  max-width: 900px;
+  width: 100%;
+  padding: 0 24px;
+}
+
+
+    .tab-row {
+      display: flex;
+    }
+
+    .tab-row button {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 8px 18px 10px;
+      font-size: 0.9rem;
+      color: #888;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .tab-row button.active {
+      color: #111;
+      border-bottom: 2px solid #111;
+      font-weight: 700;
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .card-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 13px;
+    }
+
+.reg-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.reg-row input,
+.reg-row select {
+  padding: 8px 11px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.reg-row input:focus {
+  border-color: #2e7d51;
+  box-shadow: 0 0 0 2px rgba(46,125,81,0.12);
+}
+
+.reg-row input[type="date"] { width: 140px; flex-shrink: 0; }
+.reg-row .inp-소속 { flex: 1.2; min-width: 0; }
+
+.reg-row .inp-반명 { flex: 1; min-width: 0; }
+.reg-row .inp-성명 { flex: 1; min-width: 0; }
+.reg-row .inp-금액 { flex: 1; min-width: 0; }
+.reg-row .btn-reg  { flex-shrink: 0; }
+
+
+
+    .btn-reg {
+      padding: 8px 22px;
+      background: #2e7d51;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: background 0.18s;
+    }
+    .btn-reg:hover { background: #25633f; }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 14px;
+    }
+
+    .card-inner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .card-inner-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #222;
+    }
+
+    .btn-refresh {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #555;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-refresh:hover { background: #ebebeb; }
+
+    .search-wrap { margin-bottom: 16px; }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1px solid #e0ddd8;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      background: #faf9f7;
+      outline: none;
+      color: #333;
+      transition: border-color 0.18s;
+    }
+
+    .search-wrap input:focus {
+      border-color: #2e7d51;
+      background: #fff;
+    }
+
+    .tbl-wrap {
+      overflow-y: auto;
+      max-height: 420px;
+      border: 1px solid #e8e4de;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      background: #faf9f7;
+      color: #555;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid #e8e4de;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f2efea;
+      transition: background 0.1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f7fbf8; }
+
+    tbody td {
+      padding: 9px 14px;
+      color: #333;
+      vertical-align: middle;
+    }
+
+    .amt-cell { font-weight: 600; color: #1a6e3c; }
+
+    .empty-row {
+      text-align: center;
+      color: #bbb;
+      padding: 42px 0 !important;
+      font-size: 0.88rem;
+    }
+
+    /* 문자 미리보기 */
+.msg-card {
+  display: none;
+  background: #fff;
+  border: 1px solid #c3ddd0;
+  border-radius: 9px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.msg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.msg-header-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+
+.msg-btns { display: flex; gap: 6px; align-items: center; }
+
+.btn-copy {
+  padding: 4px 13px;
+  background: #2e7d51;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-copy:hover { background: #25633f; }
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  color: #999;
+  cursor: pointer;
+  padding: 2px 5px;
+}
+
+.msg-body {
+  background: #f5f5f5;
+  border-radius: 7px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.msg-pre {
+  font-family: 'Malgun Gothic', sans-serif;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+  line-height: 1.85;
+  color: #222;
+}
+
+.btn-copy-bottom {
+  padding: 8px 22px;
+  background: #2e7d51;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-copy-bottom:hover { background: #25633f; }
+
+
+    /* 모달 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px 32px;
+      min-width: 290px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+      text-align: center;
+    }
+
+    .modal h3 { font-size: 1rem; margin-bottom: 10px; color: #111; }
+    .modal p  { font-size: 0.87rem; color: #555; margin-bottom: 22px; line-height: 1.6; }
+    .modal-btns { display: flex; gap: 8px; justify-content: center; }
+
+    .btn-m-del {
+      padding: 8px 22px;
+      background: #e53e3e;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-m-cancel {
+      padding: 8px 22px;
+      background: #eee;
+      color: #444;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    @media (max-width: 640px) {
+
+      .top-bar { padding: 14px 16px 0; }
+      .content { padding: 16px 12px 40px; }
+      .reg-row input { min-width: 0; flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <h1>임팩트머니 교환내역서</h1>
+
+  </div>
+
+  <div class="content">
+
+    <!-- 신규 교환 등록 -->
+    <div class="card">
+      <div class="card-label">신규 교환 등록</div>
+<div class="reg-row">
+  <input type="date"   id="inp-date" />
+<input type="text" class="inp-소속" id="inp-소속" placeholder="소속" />
+
+  <input type="text"   class="inp-반명" id="inp-반명" placeholder="반명" />
+  <input type="text"   class="inp-성명" id="inp-성명" placeholder="성명" />
+  <input type="number" class="inp-금액" id="inp-금액" placeholder="금액" />
+  <button class="btn-reg" id="btn-add">등록</button>
+</div>
+
+    </div>
+
+    <!-- 문자 미리보기 -->
+<div class="msg-card" id="msg-card">
+  <div class="msg-header">
+    <span class="msg-header-title">[문자 내용] 복사해서 사용하세요</span>
+    <div class="msg-btns">
+      <button class="btn-close" id="btn-close-msg">✕</button>
+    </div>
+  </div>
+  <div class="msg-body">
+    <pre class="msg-pre" id="msg-preview"></pre>
+  </div>
+  <button class="btn-copy" id="btn-copy">복사하기</button>
+</div>
+
+
+    <!-- 교환 현황 -->
+    <div class="section-title">교환 현황</div>
+
+    <div class="card">
+      <div class="card-inner-header">
+        <div class="card-inner-title">
+          <span>📊</span><span>교환 내역</span>
+        </div>
+        <button class="btn-refresh" id="btn-refresh">🔄 새로고침</button>
+      </div>
+
+      <div class="search-wrap">
+        <input type="text" id="search-input" placeholder="이름, 반명, 소속으로 검색..." />
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>연번</th>
+              <th>날짜</th>
+              <th>소속</th>
+              <th>반명</th>
+              <th>성명</th>
+              <th>금액</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-body">
+            <tr><td colspan="6" class="empty-row">등록된 데이터가 없습니다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 삭제 모달 (내부 삭제용, UI 노출 없음) -->
+  <div class="modal-overlay" id="modal-overlay" style="display:none;">
+    <div class="modal">
+      <h3>⚠️ 삭제 확인</h3>
+      <p id="modal-msg"></p>
+      <div class="modal-btns">
+        <button class="btn-m-del"    id="modal-ok">삭제</button>
+        <button class="btn-m-cancel" id="modal-cancel">취소</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const STORAGE_KEY = 'impactmoney_v2';
+  const CUTOFF      = new Date('2026-03-01');
+
+  const SAMPLE_DATA = [
+    { 연번:1,  날짜:'2026-03-02', 소속:'2단지 초중',  반명:'AX103', 성명:'김지호', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:2,  날짜:'2026-03-03', 소속:'2단지 초중',  반명:'A104',  성명:'정정현', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:3,  날짜:'2026-03-06', 소속:'10단지 초중', 반명:'PA201', 성명:'이시후', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:4,  날짜:'2026-03-06', 소속:'10단지 초중', 반명:'SP201', 성명:'김채윤', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:5,  날짜:'2026-03-06', 소속:'2단지 초중',  반명:'AX101', 성명:'박민아', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:6,  날짜:'2026-03-06', 소속:'2단지 초중',  반명:'A101',  성명:'김지안', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:7,  날짜:'2026-03-09', 소속:'2단지 초중',  반명:'EX101', 성명:'장은아', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:8,  날짜:'2026-03-12', 소속:'2단지 초중',  반명:'A102',  성명:'최윤주', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:9,  날짜:'2026-03-13', 소속:'2단지 초중',  반명:'EX101', 성명:'이시우', 금액:20000, 교부사유:'성적' },
+    { 연번:10, 날짜:'2026-03-13', 소속:'2단지 초중',  반명:'A101',  성명:'송채이', 금액:10000, 교부사유:'임팩트머니' },
+    { 연번:11, 날짜:'2026-03-16', 소속:'2단지 초중',  반명:'AX103', 성명:'김민준', 금액:10000, 교부사유:'임팩트머니' },
+  ];
+
+const MSG_TPL =
+  '안녕하세요, %%학부모님.\n' +
+  '%%학생 학생이 최근 학원 수업에 성실히 참여하고 과제를 충실히 수행하며 훌륭한 모습을 보여주었습니다.\n' +
+  '그 노력의 결실로 임팩트머니를 모아 문화상품권 %%금액을 받게 되었습니다.\n' +
+  '가정에서도 학생의 성장에 따뜻한 격려와 칭찬 부탁드립니다. 감사합니다.';
+
+
+  const todayStr = () => new Date().toISOString().slice(0, 10);
+
+  function fmtAmt(v) {
+    const n = Number(v);
+    if (!n || isNaN(n)) return '₩0';
+    return '₩' + n.toLocaleString('ko-KR');
+  }
+
+  function normalizeAmt(v) {
+    const n = Number(v);
+    return (!isNaN(n) && n > 0 && n < 1000) ? n * 10000 : n;
+  }
+
+  function calcSoSok(raw) {
+    if (!raw) return '';
+    const v = raw.toString().toUpperCase().trim();
+    const d = (v.match(/\d/) || [''])[0];
+    if (v.startsWith('H')) {
+      return d==='1' ? '2단지 고등' : d==='2' ? '10단지 고등' : '2단지 고등';
+    } else {
+      return d==='1' ? '2단지 초중' : d==='2' ? '10단지 초중' : '';
+    }
+  }
+
+function showMsgCard(msg) {
+  if (!msg) return;
+  document.getElementById('msg-preview').textContent = msg;
+  const card = document.getElementById('msg-card');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function buildMsg(성명, 금액) {
+  if (!성명 || !금액) return null;
+  const amt = Number(금액);
+  const txt = amt===5000  ? '오천원권'
+            : amt===10000 ? '만원권'
+            : amt===20000 ? '이만원권'
+            : `${(amt/10000).toLocaleString()}만원권`;
+  return MSG_TPL
+    .replace(/%%학부모님/g, `${성명} 학부모님`)
+    .replace(/%%학생/g, 성명)
+    .replace(/%%금액/g, `문화상품권 ${txt}`);
+}
+
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; }
+    catch { return null; }
+  }
+
+  function save(records) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  }
+
+  function initData() {
+    if (!load()) save(SAMPLE_DATA);
+  }
+
+  function getRecords() { return load() || []; }
+
+  function nextNum(records) {
+    return records.length ? Math.max(...records.map(r => Number(r.연번)||0)) + 1 : 1;
+  }
+
+  function addRecord(f) {
+    const records = getRecords();
+    records.push({
+      연번:    nextNum(records),
+      날짜:    f.날짜 || todayStr(),
+      소속:    f.소속 || '',
+      반명:    f.반명.toUpperCase().trim(),
+      성명:    f.성명.trim(),
+      금액:    normalizeAmt(f.금액),
+      교부사유: f.사유 || ''
+    });
+    save(records);
+  }
+
+function getFiltered() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  return getRecords()
+    .filter(r => {
+      return !q
+        || r.성명.toLowerCase().includes(q)
+        || r.반명.toLowerCase().includes(q)
+        || (r.소속||'').toLowerCase().includes(q);
+    })
+.sort((a, b) => {
+  const dateDiff = new Date(b.날짜) - new Date(a.날짜);
+  if (dateDiff !== 0) return dateDiff;
+  return Number(b.연번) - Number(a.연번);
+});
+
+
+}
+
+
+function render() {
+  const tbody = document.getElementById('tbl-body');
+  const rows  = getFiltered();
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">등록된 데이터가 없습니다.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.연번}</td>
+      <td>${r.날짜}</td>
+      <td>${r.소속 || '-'}</td>
+      <td>${r.반명}</td>
+      <td>${r.성명}</td>
+      <td class="amt-cell">${fmtAmt(r.금액)}</td>
+    </tr>`).join('');
+}
+
+// GAS에서 데이터 불러오기
+async function loadFromGAS() {
+  const tbody = document.getElementById('tbl-body');
+  tbody.innerHTML = `<tr><td colspan="6" class="empty-row">데이터 불러오는 중...</td></tr>`;
+
+  try {
+    const res = await fetch(GAS_DATA_URL);
+    const data = await res.json();
+    save(data);
+    render();
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">❌ 데이터 불러오기 실패</td></tr>`;
+  }
+}
+
+
+  // 반명 → 소속 자동
+  document.getElementById('inp-반명').addEventListener('input', function() {
+    document.getElementById('inp-소속').value = calcSoSok(this.value);
+  });
+
+  // 등록
+ // ↓ STEP 2에서 복사한 웹앱 URL로 교체하세요
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm-qPwaaOCHa6ETEtjLe8e-VBsXcr0koeMsK8fDod3GtQAlPrhJEQZlBvZMonjZUlc/exec';
+
+const GAS_DATA_URL = GAS_URL + '?action=data';
+
+
+document.getElementById('btn-add').addEventListener('click', async () => {
+  const 날짜 = document.getElementById('inp-date').value || todayStr();
+  const 반명 = document.getElementById('inp-반명').value.trim();
+  const 성명 = document.getElementById('inp-성명').value.trim();
+  const 금액 = document.getElementById('inp-금액').value;
+  const 소속 = document.getElementById('inp-소속').value;
+
+  if (!반명 || !성명 || !금액) {
+    alert('반명, 성명, 금액은 필수 입력 항목입니다.');
+    return;
+  }
+
+  const payload = {
+    날짜,
+    반명: 반명.toUpperCase().trim(),
+    성명: 성명.trim(),
+    금액: normalizeAmt(금액),
+    소속
+  };
+
+  try {
+    document.getElementById('btn-add').disabled = true;
+    document.getElementById('btn-add').textContent = '저장 중...';
+
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+
+if (result.result === 'success') {
+  addRecord({ 날짜, 반명, 성명, 금액, 소속, 사유: '' });
+  showMsgCard(buildMsg(성명, normalizeAmt(금액)));
+
+  ['inp-반명','inp-성명','inp-금액','inp-소속'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  render();
+}
+ else {
+      alert('❌ 오류: ' + result.message);
+    }
+
+  } catch(err) {
+    alert('❌ 서버 연결 실패: ' + err.message);
+  } finally {
+    document.getElementById('btn-add').disabled = false;
+    document.getElementById('btn-add').textContent = '등록';
+  }
+});
+
+
+// 검색
+// 복사 버튼
+document.getElementById('btn-copy').addEventListener('click', () => {
+  const text = document.getElementById('msg-preview').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('복사완료');
+  });
+});
+
+// 닫기 버튼
+document.getElementById('btn-close-msg').addEventListener('click', () => {
+  document.getElementById('msg-card').style.display = 'none';
+});
+
+// 검색
+document.getElementById('search-input').addEventListener('input', render);
+
+
+// GAS에서 데이터 불러오기
+async function loadFromGAS() {
+  const tbody = document.getElementById('tbl-body');
+  tbody.innerHTML = `<tr><td colspan="6" class="empty-row">데이터 불러오는 중...</td></tr>`;
+  try {
+    const res = await fetch(GAS_DATA_URL);
+    const data = await res.json();
+    save(data);
+    render();
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">❌ 데이터 불러오기 실패</td></tr>`;
+  }
+}
+
+// 새로고침
+document.getElementById('btn-refresh').addEventListener('click', loadFromGAS);
+
+// 초기 실행
+document.getElementById('inp-date').value = todayStr();
+loadFromGAS();
+
+</script>
+</body>
+</html>
