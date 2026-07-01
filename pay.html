@@ -727,8 +727,9 @@ function renderSummary(rows) {
   if (!text) return;
 
 const lines = recentRows.map(r =>
-  `${r['이름']} / ${r['주민번호 (- 를 포함하여 전체번호)']} / ${r['급여계좌 선택']} / ${r['계좌번호 (반드시 본인 계좌의 숫자만 입력)']} / ${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원`
+  `${r['이름']} / ${r['주민번호 (- 를 포함하여 전체번호)']} / ${r['급여계좌 선택']} / ${r['계좌번호 (반드시 본인 계좌의 숫자만 입력)']} / ${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}`
 ).join('\n');
+
 
 
   text.innerText = lines;
