@@ -251,19 +251,21 @@ body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
 <!-- 레이아웃 -->
 <div class="layout">
 
-  <!-- 사이드바 -->
-  <div class="sidebar">
-<div style="display:flex; align-items:center;">
-<div class="sidebar-menu active" id="menu-claims" onclick="showPage('claims', this)" style="flex:1;"><i class="fa-solid fa-file-invoice-dollar"></i> 급여청구서</div>
+ <!-- 사이드바 -->
+<div class="sidebar">
+  <div style="display:flex; align-items:center;">
+    <div class="sidebar-menu active" id="menu-claims" onclick="showPage('claims', this)" style="flex:1;"><i class="fa-solid fa-file-invoice-dollar"></i> 급여청구서</div>
+    <a href="https://docs.google.com/spreadsheets/d/1LN9A9am1MnbVUR88sNDG0EQKwsfILVSpXljE-xbXN74/edit?resourcekey=&gid=700535447#gid=700535447" target="_blank" style="padding:0 12px; color:#888; font-size:.85rem; text-decoration:none;" title="시트 열기">↗</a>
+  </div>
 
-  <a href="https://docs.google.com/spreadsheets/d/1LN9A9am1MnbVUR88sNDG0EQKwsfILVSpXljE-xbXN74/edit?resourcekey=&gid=700535447#gid=700535447" target="_blank" style="padding:0 12px; color:#888; font-size:.85rem; text-decoration:none;" title="시트 열기">↗</a>
+  <a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1sH4zNITL1qNLrpti8CRWJTec2zL9W_OD/edit?gid=82225613#gid=82225613" target="_blank"><i class="fa-solid fa-building"></i> 고정 거래처</a>
+
+  <a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1XwDXZTRDYVYm_avyNkGC0vkm4bSfCSmXoX6BPQemYuI/edit?gid=1170515617#gid=1170515617" target="_blank"><i class="fa-solid fa-credit-card"></i> 임직원 비용</a>
+
+  <a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1y_MCFG4ypzLJ3Oq0rIK3CKDm7sBuNrII/edit?usp=sharing&ouid=102732943513306361499&rtpof=true&sd=true" target="_blank"><i class="fa-solid fa-money-check-dollar"></i> 급여 보고</a>
+
 </div>
 
-<a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1sH4zNITL1qNLrpti8CRWJTec2zL9W_OD/edit?gid=82225613#gid=82225613" target="_blank"><i class="fa-solid fa-building"></i> 고정 거래처</a>
-
-<a class="sidebar-menu" href="https://docs.google.com/spreadsheets/d/1XwDXZTRDYVYm_avyNkGC0vkm4bSfCSmXoX6BPQemYuI/edit?gid=1170515617#gid=1170515617" target="_blank"><i class="fa-solid fa-credit-card"></i> 임직원 비용</a>
-
-  </div>
 
   <!-- 메인 콘텐츠 -->
   <div class="main-content">
@@ -715,21 +717,22 @@ function getClaimsHTML() {
     `).join('');
   }
 
-  // ── 청구 내역 정리 렌더링 ─────────────────────
-  function renderSummary(rows) {
-    const recentMonth = rows.length ? rows[0]['근로 월 선택'] : null;
-    if (!recentMonth) return;
+ // ── 청구 내역 정리 렌더링 ─────────────────────
+function renderSummary(rows) {
+  const recentMonth = rows.length ? rows[0]['근로 월 선택'] : null;
+  if (!recentMonth) return;
 
-    const recentRows = rows.filter(r => r['근로 월 선택'] === recentMonth);
-    const text = document.getElementById('summaryText');
-    if (!text) return;
+  const recentRows = rows.filter(r => r['근로 월 선택'] === recentMonth);
+  const text = document.getElementById('summaryText');
+  if (!text) return;
 
-    const lines = recentRows.map(r =>
-      `${r['이름']}, ${r['급여계좌 선택']}, ${r['계좌번호 (숫자만 입력)']}, ${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원`
-    ).join('\n');
+  const lines = recentRows.map(r =>
+    `${r['이름']} / ${r['주민등록번호']} / ${r['급여계좌 선택']} / ${r['계좌번호 (숫자만 입력)']} / ${Number(r['청구 금액 (숫자만 입력)']).toLocaleString()}원 / ${r['예금주']}`
+  ).join('\n');
 
-    text.innerText = lines;
-  }
+  text.innerText = lines;
+}
+
 
   function copySummary() {
     const text = document.getElementById('summaryText');
