@@ -206,9 +206,10 @@ async function openDetail(rowIndex, sheetType) {
     <div class="detail-row"><div class="detail-label">소속</div><div class="detail-value">${escapeHtml(row.branch)}</div></div>
     <div class="detail-row"><div class="detail-label">직위</div><div class="detail-value">${escapeHtml(row.position || '강사')}</div></div>
     <div class="detail-row"><div class="detail-label">입사일</div><div class="detail-value">${row.hireDate || '-'}</div></div>
-    ${row.퇴사일 ? `
-    <div class="detail-row"><div class="detail-label">퇴사일</div><div class="detail-value">${escapeHtml(row.퇴사일)}</div></div>
-    ` : ''}
+${row.resignDate ? `
+<div class="detail-row"><div class="detail-label">퇴사일</div><div class="detail-value">${escapeHtml(row.resignDate)}</div></div>
+` : ''}
+
     <div class="detail-row"><div class="detail-label">이메일</div><div class="detail-value">${escapeHtml(row.email)}</div></div>
     <div class="detail-row"><div class="detail-label">용도</div><div class="detail-value">${escapeHtml(row.purpose)}</div></div>
     <div class="detail-row"><div class="detail-label">상태</div><div class="detail-value">${row.status === '발급완료' ? '<span class="badge badge-done">발급완료</span>' : '<span class="badge badge-pending">대기</span>'}</div></div>
