@@ -35,22 +35,19 @@ function showMainScreen() {
   if (userInfoEl) userInfoEl.textContent = '👤 ' + currentUser;
 
   loadList();
- if (window.lucide) {
-  document.querySelectorAll('svg.lucide').forEach(svg => {
-    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
-    const name = cls ? cls[1] : null;
-    if (name) {
-      const i = document.createElement('i');
-      i.setAttribute('data-lucide', name);
-      svg.replaceWith(i);
-    }
-  });
-  lucide.createIcons();
+  if (window.lucide) {
+    document.querySelectorAll('svg.lucide').forEach(svg => {
+      const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+      const name = cls ? cls[1] : null;
+      if (name) {
+        const i = document.createElement('i');
+        i.setAttribute('data-lucide', name);
+        svg.replaceWith(i);
+      }
+    });
+    lucide.createIcons();
+  }
 }
-
-}
-
-
 
 // ============================================================
 // API 호출
@@ -134,18 +131,18 @@ function renderTable() {
   document.getElementById('pendingCount').textContent =
     allData.filter(r => r.sheetType !== 'resign' && r.status === '대기').length;
 
-if (window.lucide) {
-  document.querySelectorAll('svg.lucide').forEach(svg => {
-    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
-    const name = cls ? cls[1] : null;
-    if (name) {
-      const i = document.createElement('i');
-      i.setAttribute('data-lucide', name);
-      svg.replaceWith(i);
-    }
-  });
-  lucide.createIcons();
-}
+  if (window.lucide) {
+    document.querySelectorAll('svg.lucide').forEach(svg => {
+      const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+      const name = cls ? cls[1] : null;
+      if (name) {
+        const i = document.createElement('i');
+        i.setAttribute('data-lucide', name);
+        svg.replaceWith(i);
+      }
+    });
+    lucide.createIcons();
+  }
 }
 
 // ============================================================
@@ -183,24 +180,23 @@ async function openDetail(rowIndex, sheetType) {
     viewBtn.style.display = 'inline-block';
     viewBtn.onclick = () => window.open(row.pdfUrl, '_blank');
 
- if (window.lucide) {
-  document.querySelectorAll('svg.lucide').forEach(svg => {
-    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
-    const name = cls ? cls[1] : null;
-    if (name) {
-      const i = document.createElement('i');
-      i.setAttribute('data-lucide', name);
-      svg.replaceWith(i);
+    if (window.lucide) {
+      document.querySelectorAll('svg.lucide').forEach(svg => {
+        const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+        const name = cls ? cls[1] : null;
+        if (name) {
+          const i = document.createElement('i');
+          i.setAttribute('data-lucide', name);
+          svg.replaceWith(i);
+        }
+      });
+      lucide.createIcons();
     }
-  });
-  lucide.createIcons();
-}
-document.getElementById('detailModal').style.display = 'flex';
-return;
-
+    document.getElementById('detailModal').style.display = 'flex';
+    return;
   }
 
-
+  // ✅ 여기가 수정된 부분 — 퇴사일 조건부 추가
   document.getElementById('modalBody').innerHTML = `
     <div class="detail-row"><div class="detail-label">신청일시</div><div class="detail-value">${row.timestamp || '-'}</div></div>
     <div class="detail-row"><div class="detail-label">서류종류</div><div class="detail-value">${escapeHtml(row.docType)}</div></div>
@@ -210,6 +206,9 @@ return;
     <div class="detail-row"><div class="detail-label">소속</div><div class="detail-value">${escapeHtml(row.branch)}</div></div>
     <div class="detail-row"><div class="detail-label">직위</div><div class="detail-value">${escapeHtml(row.position || '강사')}</div></div>
     <div class="detail-row"><div class="detail-label">입사일</div><div class="detail-value">${row.hireDate || '-'}</div></div>
+    ${row.퇴사일 ? `
+    <div class="detail-row"><div class="detail-label">퇴사일</div><div class="detail-value">${escapeHtml(row.퇴사일)}</div></div>
+    ` : ''}
     <div class="detail-row"><div class="detail-label">이메일</div><div class="detail-value">${escapeHtml(row.email)}</div></div>
     <div class="detail-row"><div class="detail-label">용도</div><div class="detail-value">${escapeHtml(row.purpose)}</div></div>
     <div class="detail-row"><div class="detail-label">상태</div><div class="detail-value">${row.status === '발급완료' ? '<span class="badge badge-done">발급완료</span>' : '<span class="badge badge-pending">대기</span>'}</div></div>
@@ -229,25 +228,24 @@ return;
     viewBtn.onclick = () => window.open(row.pdfUrl, '_blank');
   } else {
     issueBtn.innerHTML = '<i data-lucide="file-text"></i> 발급하기';
-
     emailBtn.disabled = true;
     viewBtn.style.display = 'none';
   }
-if (window.lucide) {
-  document.querySelectorAll('svg.lucide').forEach(svg => {
-    const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
-    const name = cls ? cls[1] : null;
-    if (name) {
-      const i = document.createElement('i');
-      i.setAttribute('data-lucide', name);
-      svg.replaceWith(i);
-    }
-  });
-  lucide.createIcons();
-}
-document.getElementById('detailModal').style.display = 'flex';
-}
 
+  if (window.lucide) {
+    document.querySelectorAll('svg.lucide').forEach(svg => {
+      const cls = (svg.getAttribute('class') || '').match(/lucide-([\w-]+)/);
+      const name = cls ? cls[1] : null;
+      if (name) {
+        const i = document.createElement('i');
+        i.setAttribute('data-lucide', name);
+        svg.replaceWith(i);
+      }
+    });
+    lucide.createIcons();
+  }
+  document.getElementById('detailModal').style.display = 'flex';
+}
 
 function closeModal() {
   document.getElementById('detailModal').style.display = 'none';
@@ -263,8 +261,7 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
 
   const btn = document.getElementById('issueBtn');
   btn.disabled = true;
- btn.innerHTML = '<i data-lucide="loader"></i> 발급 중...';
-
+  btn.innerHTML = '<i data-lucide="loader"></i> 발급 중...';
 
   const res = await callApi('issue', { row: currentRow });
   btn.disabled = false;
@@ -276,7 +273,6 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
   } else {
     showToast('❌ 발급 실패: ' + (res.message || res.error), 'error');
     btn.innerHTML = '<i data-lucide="file-text"></i> 발급하기';
-
   }
 });
 
@@ -292,13 +288,11 @@ document.getElementById('emailBtn').addEventListener('click', async () => {
 
   const btn = document.getElementById('emailBtn');
   btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader"></i> 발송 중...';
-
+  btn.innerHTML = '<i data-lucide="loader"></i> 발송 중...';
 
   const res = await callApi('sendEmail', { row: currentRow });
   btn.disabled = false;
- btn.innerHTML = '<i data-lucide="mail"></i> 이메일 발송';
-
+  btn.innerHTML = '<i data-lucide="mail"></i> 이메일 발송';
 
   if (res.success) {
     showToast('✅ 이메일 발송 완료 (' + res.sentTo + ')', 'success');
