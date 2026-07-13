@@ -1458,12 +1458,11 @@ if (ruleForBook?.bookText) {
         totalBookPrice = calcBookPrice(bookText); // 남은 텍스트 기준 재계산
     }
 
+} else {
+    customBookListText = `[설정 지침에 "${classCode}" 교재 내용을 입력해주세요]`;
+    totalBookPrice = 0;
+}
 
-
-        } else {
-            customBookListText = `[설정 지침에 "${classCode}" 교재 내용을 입력해주세요]`;
-            totalBookPrice = 0;
-        }
 
 
 
