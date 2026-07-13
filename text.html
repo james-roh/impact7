@@ -1090,84 +1090,123 @@ const schoolCodeMap = {
     high: ['HA', 'HX', 'HS']
 };
 
+
 function parseGuidelineRules() {
+    const raw = localStorage.getItem('guideline_class') || '';
+    const rules = {};
     const campusTextMap = {
-        '양지5층':  'yangji5',
-        '양지10층': 'yangji10',
-        '10단지':   'danji10'
+        '양지5':  'yangji5',
+        '양지10': 'yangji10',
+        '10단지': 'danji10'
     };
-    const elemMidCodes = ['PI','PA','PX','I','A','AX','EX','SP'];
+
+    const highCodes      = ['HA','HX','HS'];
+    const subCodeList    = ['A','AX','EX','SP'];
+    const onlyCommonCodes = ['PI','PA','PX','I'];
     const lines = raw.split('\n');
-    let currentCode = null;
-    let isElemMid = false;
-    let bookLines = [];
 
-    const saveCurrentSection = () => {
-        if (bookLines.length === 0) return;
-        const bookText = bookLines.join('\n').trim();
-        if (isElemMid) {
-            // 초등/중등 전체 코드에 동일 교재 적용
-            elemMidCodes.forEach(c => {
-                rules[c] = rules[c] || {};
-                rules[c].bookText = bookText;
-                rules[c].bookPrice = calcBookPrice(bookText);
-            });
-        } else if (currentCode) {
-            rules[currentCode] = rules[currentCode] || {};
-            rules[currentCode].bookText = bookText;
-            rules[currentCode].bookPrice = calcBookPrice(bookText);
+    // 1단계: 공통 교재(초등/중등) 추출
+    let commonBookLines = [];
+    let inCommonSection = false;
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
+        if (trimmed === '초등/중등') { inCommonSection = true; continue; }
+        if (inCommonSection) {
+            if (trimmed === '고등' || trimmed.match(/^[A-Z]{1,3}$/) || trimmed.match(/^[A-Za-z0-9]+=/) || trimmed.match(/^\d+\)/)) {
+                inCommonSection = false;
+            } else if (trimmed !== '') {
+                commonBookLines.push(trimmed);
+            }
         }
-    };
+    }
+    const commonBookText = commonBookLines.join('\n');
 
+    // 2단계: 공통만 사용하는 반 세팅
+    onlyCommonCodes.forEach(c => {
+        if (commonBookText) {
+            rules[c] = { bookText: commonBookText, bookPrice: calcBookPrice(commonBookText) };
+        }
+    });
+
+    // 3단계: KS 규칙 파싱
     lines.forEach(line => {
         const trimmed = line.trim();
-
-        // "코드 = 학부, 요일, 캠퍼스" 형식 (KS131 등)
         const ruleMatch = trimmed.match(/^([A-Za-z0-9]+)\s*=\s*(.+)$/);
         if (ruleMatch) {
-            saveCurrentSection();
-            currentCode = null; isElemMid = false; bookLines = [];
             const code  = ruleMatch[1].trim().toUpperCase();
             const parts = ruleMatch[2].split(',').map(s => s.trim());
             rules[code] = rules[code] || {};
             rules[code].days   = parts[1] || null;
             rules[code].campus = campusTextMap[parts[2]] || null;
-            return;
         }
-
-        // "초등/중등" 섹션
-        if (trimmed === '초등/중등' || trimmed === '초등' || trimmed === '중등') {
-            saveCurrentSection();
-            currentCode = null; isElemMid = true; bookLines = [];
-            return;
-        }
-
-        // "고등" 단독 줄 무시
-        if (trimmed === '고등') {
-            saveCurrentSection();
-            currentCode = null; isElemMid = false; bookLines = [];
-            return;
-        }
-
-
-        // "HA", "HX", "HS" 등 코드 단독 줄
-        const codeOnly = trimmed.match(/^([A-Z]{1,3})$/);
-        if (codeOnly) {
-            saveCurrentSection();
-            currentCode = codeOnly[1].toUpperCase();
-            isElemMid = false; bookLines = [];
-            rules[currentCode] = rules[currentCode] || {};
-            return;
-        }
-
-                // 교재 내용 줄 수집
-        if ((currentCode || isElemMid) && trimmed !== '') {
-            bookLines.push(trimmed);
-        }
-
     });
 
-    saveCurrentSection();
+    // 4단계: 반별 추가 교재 및 고등 교재 파싱
+    let currentCode = null;
+    let bookLines   = [];
+    let inHighSection = false;
+
+    const saveSection = () => {
+        if (!currentCode) return;
+        const bookText = bookLines.join('\n').trim();
+        if (!bookText) return;
+
+        if (highCodes.includes(currentCode)) {
+            rules[currentCode] = rules[currentCode] || {};
+            rules[currentCode].bookText  = bookText;
+            rules[currentCode].bookPrice = calcBookPrice(bookText);
+        } else if (subCodeList.includes(currentCode)) {
+            const merged = commonBookText + (bookText ? '\n' + bookText : '');
+            rules[currentCode] = rules[currentCode] || {};
+            rules[currentCode].bookText  = merged;
+            rules[currentCode].bookPrice = calcBookPrice(merged);
+        }
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
+
+        // 고등 섹션 시작
+        if (trimmed === '고등') { inHighSection = true; continue; }
+
+        if (inHighSection) {
+            // 고등 코드 단독 줄
+            const codeOnly = trimmed.match(/^([A-Z]{1,3})$/);
+            if (codeOnly && highCodes.includes(codeOnly[1])) {
+                saveSection();
+                currentCode = codeOnly[1];
+                bookLines = [];
+                continue;
+            }
+            // 고등 섹션 종료 조건
+            if (trimmed.match(/^\d+\)/) || trimmed.startsWith('초등/중등 교재는')) {
+                saveSection();
+                currentCode = null; bookLines = []; inHighSection = false;
+                continue;
+            }
+            if (currentCode && trimmed !== '') bookLines.push(trimmed);
+
+        } else {
+            // 반별 추가 교재 코드 단독 줄 (A, AX, EX, SP)
+            const codeOnly = trimmed.match(/^([A-Z]{1,3})$/);
+            if (codeOnly && subCodeList.includes(codeOnly[1])) {
+                saveSection();
+                currentCode = codeOnly[1];
+                bookLines = [];
+                continue;
+            }
+            // 다음 섹션 시작이면 저장
+            if (currentCode && (trimmed.match(/^\d+\)/) || trimmed === '고등' || trimmed === '초등/중등')) {
+                saveSection();
+                currentCode = null; bookLines = [];
+                continue;
+            }
+            if (currentCode && subCodeList.includes(currentCode) && trimmed !== '') {
+                bookLines.push(trimmed);
+            }
+        }
+    }
+    saveSection();
     return rules;
 }
 
