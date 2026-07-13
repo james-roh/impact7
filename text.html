@@ -1414,32 +1414,50 @@ const ksBookMap = {
 const ruleForBook = ksBookMap[classCode] || guidelineRules[classCode] || null;
 
 
-              if (ruleForBook?.bookText) {
-            let bookText = ruleForBook.bookText;
-            if (school === 'mid') {
-                const vocaEl = document.getElementById('vocaBookType');
-                if (vocaEl && vocaEl.value === 'prep') {
-                    bookText = bookText.replace(/임팩트[\s]*보카[\s]*[\d,]+원/g, '싹쓰리 Prep 10,000원');
-                    totalBookPrice = (ruleForBook.bookPrice - 8000) + 10000;
-                } else {
-                    totalBookPrice = ruleForBook.bookPrice || 0;
-                }
-            } else {
-                totalBookPrice = ruleForBook.bookPrice || 0;
-            }
-            customBookListText = bookText;
-// 무상 제본 시 고등 자체교재에서 문법/실전/독해 제거
-if (printOption === 'print' && school === 'high') {
-    customBookListText = customBookListText
-        .split('\n')
-        .filter(line => {
-            const t = line.replace(/\t/g, '').trim();
-            return !t.includes('문법') && !t.includes('실전') && !t.includes('독해');
-        })
-        .join('\n')
-        .trim();
-    totalBookPrice = calcBookPrice(customBookListText);
-}
+if (ruleForBook?.bookText) {
+    let bookText = ruleForBook.bookText;
+    let calculatedBookPrice = 0;
+
+    // 중등: 보카 교재 치환
+    if (school === 'mid') {
+        const vocaEl = document.getElementById('vocaBookType');
+        if (vocaEl && vocaEl.value === 'prep') {
+            bookText = bookText.replace(/임팩트[\s]*보카[\s]*[\d,]+원/g, '싹쓰리 Prep 10,000원');
+            calculatedBookPrice = (ruleForBook.bookPrice - 8000) + 10000;
+        } else {
+            calculatedBookPrice = ruleForBook.bookPrice || 0;
+        }
+    } else {
+        calculatedBookPrice = ruleForBook.bookPrice || 0;
+    }
+
+    // ── 무상 제본 처리 ──
+    if (printOption === 'print') {
+        // 고등: 문법/실전/독해 줄 제거 (제본으로 처리하므로)
+        if (school === 'high') {
+            bookText = bookText
+                .split('\n')
+                .filter(line => {
+                    const t = line.replace(/\t/g, '').trim();
+                    return !t.includes('문법') && !t.includes('실전') && !t.includes('독해');
+                })
+                .join('\n')
+                .trim();
+        }
+        // 무상 제본이면 남은 교재 텍스트에서 금액 표시 제거
+        customBookListText = bookText
+            .split('\n')
+            .map(line => line.replace(/[\s:：]*[\d,]+원/g, '').trimEnd())
+            .join('\n');
+        // 무상 제본이므로 교재비 합산 0원
+        totalBookPrice = 0;
+
+    // ── 제본 안함 처리 ──
+    } else {
+        customBookListText = bookText;
+        totalBookPrice = calcBookPrice(bookText); // 남은 텍스트 기준 재계산
+    }
+
 
 
         } else {
