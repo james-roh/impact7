@@ -117,8 +117,9 @@
 </div>
 
           <div class="sidebar-menu-item" id="menu-coming3" onclick="window.location.href='impactmoney.html'">
-    <i class="fas fa-coins"></i> 임팩트머니 관리
+    <i class="fas fa-coins"></i> 금고 시재 관리
 </div>
+
 
         </div>
     `;
