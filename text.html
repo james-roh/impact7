@@ -1481,13 +1481,20 @@ if (ruleForBook?.bookText) {
                 .join('\n')
                 .trim();
         }
-        // 무상 제본이면 남은 교재 텍스트에서 금액 표시 제거
+        // 무상 제본이면 제본 교재(문법/실전/독해)만 금액 제거, 나머지는 금액 유지
         customBookListText = bookText
             .split('\n')
-            .map(line => line.replace(/[\s:：]*[\d,]+원/g, '').trimEnd())
+            .map(line => {
+                const t = line.replace(/\t/g, '').trim();
+                if (t.includes('문법') || t.includes('실전') || t.includes('독해')) {
+                    return line.replace(/[\s:：]*[\d,]+원/g, '').trimEnd();
+                }
+                return line;
+            })
             .join('\n');
-        // 무상 제본이므로 교재비 합산 0원
-        totalBookPrice = 0;
+        // 제본 교재 제외한 나머지 교재비만 합산
+        totalBookPrice = calcBookPrice(customBookListText);
+
 
     // ── 제본 안함 처리 ──
     } else {
