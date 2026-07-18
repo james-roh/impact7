@@ -937,10 +937,11 @@ document.getElementById('btn-금고-add').addEventListener('click', async () => 
       document.getElementById('inp-금고-수량').value = '';
       document.getElementById('inp-금고-입출금').value = '입금';
       renderSummary();
-      alert('등록 완료');
+      showAlert('등록 완료');
     } else {
-      alert('❌ 오류: ' + result.message);
+      showAlert('❌ 오류: ' + result.message);
     }
+
   } catch (err) {
     alert('❌ 서버 연결 실패: ' + err.message);
   } finally {
