@@ -452,7 +452,7 @@
 
 
     <div class="card">
-      <div class="card-label">현금 입,출금 등록</div>
+      <div class="card-label">현금 및 문상 입,출금 등록</div>
       <div class="reg-row">
         <input  type="date"   id="inp-금고-일자" />
 
@@ -491,7 +491,7 @@
 
     <!-- 신규 교환 등록 -->
     <div class="card">
-      <div class="card-label">신규 교환 등록</div>
+      <div class="card-label">문상 출금 등록</div>
 
 <div class="reg-row">
   <input type="date"   id="inp-date" />
@@ -790,7 +790,10 @@ async function renderSummary() {
         else if (소속.includes('2단지') && 소속.includes('고등')) key = '양지10층';
         else if (소속.includes('2단지')) key = '양지5층';
         if (!합계[key]) return;
-        합계[key].문상 -= 1;  // 교환 1건당 문상 1장 출금
+                if (!합계[key]) return;
+        const 장수 = Math.floor((Number(r.금액) || 0) / 10000);  // 금액을 1만원 단위 장수로
+        합계[key].문상 -= 장수;
+
       });
     }
   } catch(err) {
@@ -937,7 +940,8 @@ document.getElementById('btn-금고-add').addEventListener('click', async () => 
       document.getElementById('inp-금고-수량').value = '';
       document.getElementById('inp-금고-입출금').value = '입금';
       renderSummary();
-      showAlert('등록 완료');
+            showAlert('금고 시재 등록이 완료 되었습니다.');
+
     } else {
       showAlert('❌ 오류: ' + result.message);
     }
