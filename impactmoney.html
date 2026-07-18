@@ -738,11 +738,12 @@ async function renderSummary() {
     data.forEach(r => {
 
       const key = 소속키(r.관명);
-      const 권종 = (r.권종 === '문상') ? '문상' : Number(r.권종);
+      const 권종 = (r.권종 === '문상' || Number(r.권종) === 0) ? '문상' : Number(r.권종);
       const 수량 = Number(r.수량) || 0;
       if (!합계[key] || !합계[key].hasOwnProperty(권종)) return;
       합계[key][권종] += (r['입/출금'] === '출금') ? -수량 : 수량;
     });
+
 
   } catch(err) {
     console.error('시재 집계 불러오기 실패', err);
