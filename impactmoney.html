@@ -760,7 +760,27 @@ async function renderSummary() {
     console.error('시재 집계 불러오기 실패', err);
   }
 
+  // 문화상품권 교환 = 문상 출금 (기록용 시트 데이터를 문상 칸에서 빼기)
+  try {
+    const res2  = await fetch(GAS_DATA_URL);
+    const text2 = await res2.json().catch(() => null);
+    const data2 = Array.isArray(text2) ? text2 : [];
+
+    data2.forEach(r => {
+      const 소속 = (r.소속 || '').toString();
+      let key = '';
+      if (소속.includes('10단지')) key = '라벨라';
+      else if (소속.includes('2단지') && 소속.includes('고등')) key = '양지10층';
+      else if (소속.includes('2단지')) key = '양지5층';
+      if (!합계[key]) return;
+      합계[key].문상 -= 1;  // 교환 1건당 문상 1장 출금
+    });
+  } catch(err) {
+    console.error('문상 출금 집계 실패', err);
+  }
+
   const rows = document.querySelectorAll('#summary-body tr');
+
   const 순서 = ['양지5층','양지10층','라벨라'];
   rows.forEach((tr, i) => {
     const d = 합계[순서[i]];
