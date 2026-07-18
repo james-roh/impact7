@@ -718,11 +718,9 @@ function 소속키(소속) {
 }
 
 
-// 시재변동 데이터 URL
-const GAS_시재_URL = GAS_URL + '?action=시재';
-
 // 금고 시재 현황 집계 (시재변동 시트 데이터 기반)
 async function renderSummary() {
+
   const 합계 = {
     '양지5층':  { 50000:0, 10000:0, 5000:0, 1000:0, 문상:0 },
     '양지10층': { 50000:0, 10000:0, 5000:0, 1000:0, 문상:0 },
@@ -786,6 +784,7 @@ async function loadFromGAS() {
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm-qPwaaOCHa6ETEtjLe8e-VBsXcr0koeMsK8fDod3GtQAlPrhJEQZlBvZMonjZUlc/exec';
 
 const GAS_DATA_URL = GAS_URL + '?action=data';
+const GAS_시재_URL = GAS_URL + '?action=시재';
 
 
 document.getElementById('btn-add').addEventListener('click', async () => {
