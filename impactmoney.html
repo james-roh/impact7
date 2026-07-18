@@ -108,6 +108,7 @@
 .reg-row .inp-반명 { flex: 1; min-width: 0; }
 .reg-row .inp-성명 { flex: 1; min-width: 0; }
 .reg-row .inp-금액 { flex: 1; min-width: 0; }
+.reg-row .inp-cash { flex: 1; min-width: 0; }
 .reg-row .btn-reg  { flex-shrink: 0; }
 
 
@@ -377,9 +378,19 @@
 
   <div class="content">
 
+    <!-- 금고 시재 현황 -->
+    <div class="card">
+      <div class="card-label">금고 시재 현황</div>
+      <div class="reg-row">
+        <input type="text" class="inp-cash" id="inp-cash" placeholder="금고 시재 금액을 입력하세요" />
+        <button class="btn-reg" id="btn-cash-add">등록</button>
+      </div>
+    </div>
+
     <!-- 신규 교환 등록 -->
     <div class="card">
       <div class="card-label">신규 교환 등록</div>
+
 <div class="reg-row">
   <input type="date"   id="inp-date" />
 <input type="text" class="inp-소속" id="inp-소속" placeholder="소속" />
@@ -712,7 +723,20 @@ async function loadFromGAS() {
 }
 
 // 새로고침
+// 새로고침
 document.getElementById('btn-refresh').addEventListener('click', loadFromGAS);
+
+// 금고 시재 현황 등록 버튼
+document.getElementById('btn-cash-add').addEventListener('click', () => {
+  const val = document.getElementById('inp-cash').value.trim();
+  if (!val) {
+    alert('금고 시재 금액을 입력하세요.');
+    return;
+  }
+  alert('금고 시재 현황 등록: ' + val);
+  document.getElementById('inp-cash').value = '';
+});
+
 
 // 초기 실행
 document.getElementById('inp-date').value = todayStr();
