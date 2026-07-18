@@ -711,11 +711,12 @@ function render() {
 // 소속명 → 표 행 매핑
 function 소속키(소속) {
   const v = (소속 || '').trim();
-  if (v.includes('라벨라')) return '라벨라';
+  if (v.includes('라벨라') || v.includes('단지')) return '라벨라';   // 10단지관 → 라벨라
   if (v.includes('10')) return '양지10층';
-  if (v.includes('5')) return '양지5층';
+  if (v.includes('5'))  return '양지5층';
   return '';
 }
+
 
 
 // 금고 시재 현황 집계 (시재변동 시트 데이터 기반)
@@ -781,7 +782,8 @@ async function loadFromGAS() {
 
   // 등록
  // ↓ STEP 2에서 복사한 웹앱 URL로 교체하세요
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwm-qPwaaOCHa6ETEtjLe8e-VBsXcr0koeMsK8fDod3GtQAlPrhJEQZlBvZMonjZUlc/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxYRURGe-gSB5HIN-oTb4qtLXhQNr2vp_uDId9Qr622Q8xfN-5LgtD1PoDGGdtatKln/exec';
+
 
 const GAS_DATA_URL = GAS_URL + '?action=data';
 const GAS_시재_URL = GAS_URL + '?action=시재';
