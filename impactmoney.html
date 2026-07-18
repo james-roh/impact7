@@ -711,26 +711,38 @@ function render() {
 // 소속명 → 표 행 매핑
 function 소속키(소속) {
   const v = (소속 || '').trim();
-  if (v.includes('5')) return '양지5층';
-  if (v.includes('10')) return '양지10층';
   if (v.includes('라벨라')) return '라벨라';
+  if (v.includes('10')) return '양지10층';
+  if (v.includes('5')) return '양지5층';
   return '';
 }
 
-// 금고 시재 현황 집계
-function renderSummary() {
-  // 문화상품권(교환 내역) 데이터를 문상 집계에 사용
+
+// 시재변동 데이터 URL
+const GAS_시재_URL = GAS_URL + '?action=시재';
+
+// 금고 시재 현황 집계 (시재변동 시트 데이터 기반)
+async function renderSummary() {
   const 합계 = {
     '양지5층':  { 50000:0, 10000:0, 5000:0, 1000:0, 문상:0 },
     '양지10층': { 50000:0, 10000:0, 5000:0, 1000:0, 문상:0 },
     '라벨라':   { 50000:0, 10000:0, 5000:0, 1000:0, 문상:0 },
   };
 
-  // 문화상품권 교환 내역 → 문상 금액 합산 (원하면 나중에 규칙 조정 가능)
-  getRecords().forEach(r => {
-    const key = 소속키(r.소속);
-    if (합계[key]) 합계[key].문상 += Number(r.금액) || 0;
-  });
+  try {
+    const res  = await fetch(GAS_시재_URL);
+    const data = await res.json();   // [{관명, 날짜, 권종, 수량, 입출금}, ...]
+
+    data.forEach(r => {
+      const key = 소속키(r.관명);
+      const 권종 = Number(r.권종);
+      const 수량 = Number(r.수량) || 0;
+      if (!합계[key] || !합계[key].hasOwnProperty(권종)) return;
+      합계[key][권종] += (r['입/출금'] === '출금') ? -수량 : 수량;
+    });
+  } catch(err) {
+    console.error('시재 집계 불러오기 실패', err);
+  }
 
   const rows = document.querySelectorAll('#summary-body tr');
   const 순서 = ['양지5층','양지10층','라벨라'];
@@ -743,6 +755,7 @@ function renderSummary() {
     tr.querySelector('.s-문상').textContent   = d.문상.toLocaleString();
   });
 }
+
 
 // GAS에서 데이터 불러오기
 async function loadFromGAS() {
