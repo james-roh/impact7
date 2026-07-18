@@ -731,9 +731,11 @@ async function renderSummary() {
 
   try {
     const res  = await fetch(GAS_시재_URL);
-    const data = await res.json();   // [{관명, 날짜, 권종, 수량, 입출금}, ...]
+    const text = await res.json().catch(() => null);   // JSON 아니면 null
+    const data = Array.isArray(text) ? text : [];
 
     data.forEach(r => {
+
       const key = 소속키(r.관명);
       const 권종 = Number(r.권종);
       const 수량 = Number(r.수량) || 0;
