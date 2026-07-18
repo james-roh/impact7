@@ -870,9 +870,10 @@ document.getElementById('btn-금고-add').addEventListener('click', async () => 
   }
 
   if (권종 === '문상' && 입출금 === '출금') {
-    alert('문상 출금 처리는 아래의 문화 상품권 관리 에서 하세요');
+    showAlert('문상 출금 처리는 아래의 문화 상품권 관리 에서 하세요');
     return;
   }
+
 
 
   const payload = {
