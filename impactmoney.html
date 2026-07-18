@@ -726,10 +726,11 @@ function 소속키(소속) {
 function showAlert(msg) {
   document.getElementById('alert-msg').textContent = msg;
   document.getElementById('alert-overlay').style.display = 'flex';
+  document.getElementById('alert-ok').onclick = () => {
+    document.getElementById('alert-overlay').style.display = 'none';
+  };
 }
-document.getElementById('alert-ok').addEventListener('click', () => {
-  document.getElementById('alert-overlay').style.display = 'none';
-});
+
 
 async function renderSummary() {
 
