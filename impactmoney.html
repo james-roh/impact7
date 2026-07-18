@@ -127,10 +127,11 @@
     }
     .btn-reg:hover { background: #25633f; }
 
-     .reg-row .inp-금고 {
-      flex: 1;
-      min-width: 0;
-    }
+    .reg-row .inp-금고-소속   { flex: 1.2; min-width: 0; }
+    .reg-row .inp-금고-금액   { flex: 1;   min-width: 0; }
+    .reg-row .inp-금고-수량   { flex: 1;   min-width: 0; }
+    .reg-row .inp-금고-입출금 { flex: 1;   min-width: 0; }
+
 
 
 
@@ -392,10 +393,18 @@
 
     <div class="card">
       <div class="reg-row">
-        <input type="text" class="inp-금고" id="inp-금고" placeholder="내용을 입력하세요" />
+        <input  type="date"   id="inp-금고-일자" />
+        <input  type="text"   class="inp-금고-소속" id="inp-금고-소속" placeholder="소속" />
+        <input  type="number" class="inp-금고-금액" id="inp-금고-금액" placeholder="금액" />
+        <input  type="number" class="inp-금고-수량" id="inp-금고-수량" placeholder="수량" />
+        <select class="inp-금고-입출금" id="inp-금고-입출금">
+          <option value="입금">입금</option>
+          <option value="출금">출금</option>
+        </select>
         <button class="btn-reg" id="btn-금고-add">등록</button>
       </div>
     </div>
+
 
     <!-- 문화상품권 관리 -->
     <div class="section-title">문화상품권 관리</div>
