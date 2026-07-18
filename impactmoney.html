@@ -833,13 +833,61 @@ if (result.result === 'success') {
       alert('❌ 오류: ' + result.message);
     }
 
-  } catch(err) {
+  } catch (err) {
     alert('❌ 서버 연결 실패: ' + err.message);
   } finally {
-    document.getElementById('btn-add').disabled = false;
-    document.getElementById('btn-add').textContent = '등록';
+    btn.disabled = false;
+    btn.textContent = '등록';
   }
 });
+
+// ▼▼▼ 여기부터 새로 추가 ▼▼▼
+document.getElementById('btn-금고-add').addEventListener('click', async () => {
+  const 일자   = document.getElementById('inp-금고-일자').value || todayStr();
+  const 소속   = document.getElementById('inp-금고-소속').value;
+  const 권종   = document.getElementById('inp-금고-금액').value;
+  const 수량   = document.getElementById('inp-금고-수량').value;
+  const 입출금 = document.getElementById('inp-금고-입출금').value;
+
+  if (!소속 || !권종 || !수량) {
+    alert('소속, 금액, 수량은 필수 입력 항목입니다.');
+    return;
+  }
+
+  const payload = {
+    type: '시재',
+    관명: 소속,
+    날짜: 일자,
+    권종: Number(권종),
+    수량: Number(수량),
+    '입/출금': 입출금
+  };
+
+  const btn = document.getElementById('btn-금고-add');
+  try {
+    btn.disabled = true;
+    btn.textContent = '저장 중...';
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await res.json();
+    if (result.result === 'success') {
+      document.getElementById('inp-금고-소속').value = '';
+      document.getElementById('inp-금고-금액').value = '';
+      document.getElementById('inp-금고-수량').value = '';
+      document.getElementById('inp-금고-입출금').value = '입금';
+      renderSummary();
+      alert('등록 완료');
+    } else {
+      alert('❌ 오류: ' + result.message);
+    }
+  } catch (err) {
+    alert('❌ 서버 연결 실패: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '등록';
+  }
+});
+// ▲▲▲ 여기까지 새로 추가 ▲▲▲
+
 
 
 // 검색
