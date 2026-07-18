@@ -127,9 +127,11 @@
     }
     .btn-reg:hover { background: #25633f; }
 
-    .top-space {
-      min-height: 300px;   /* 값을 키울수록 더 아래로 내려갑니다 */
+     .reg-row .inp-금고 {
+      flex: 1;
+      min-width: 0;
     }
+
 
 
     .section-title {
@@ -385,11 +387,19 @@
 
   <div class="content">
 
-    <!-- 상단 공간 확보 (추후 다른 기능 배치용) -->
-    <div class="top-space"></div>
+    <!-- 금고 시재 관리 -->
+    <div class="section-title">금고 시재 관리</div>
+
+    <div class="card">
+      <div class="reg-row">
+        <input type="text" class="inp-금고" id="inp-금고" placeholder="내용을 입력하세요" />
+        <button class="btn-reg" id="btn-금고-add">등록</button>
+      </div>
+    </div>
 
     <!-- 문화상품권 관리 -->
     <div class="section-title">문화상품권 관리</div>
+
 
 
 
