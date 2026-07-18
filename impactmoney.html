@@ -387,21 +387,7 @@
       </div>
     </div>
 
-    <!-- 신규 교환 등록 -->
-    <div class="card">
-      <div class="card-label">신규 교환 등록</div>
 
-<div class="reg-row">
-  <input type="date"   id="inp-date" />
-<input type="text" class="inp-소속" id="inp-소속" placeholder="소속" />
-
-  <input type="text"   class="inp-반명" id="inp-반명" placeholder="반명" />
-  <input type="text"   class="inp-성명" id="inp-성명" placeholder="성명" />
-  <input type="number" class="inp-금액" id="inp-금액" placeholder="금액" />
-  <button class="btn-reg" id="btn-add">등록</button>
-</div>
-
-    </div>
 
     <!-- 문자 미리보기 -->
 <div class="msg-card" id="msg-card">
@@ -435,24 +421,27 @@
 
       <div class="tbl-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>연번</th>
-              <th>날짜</th>
-              <th>소속</th>
-              <th>반명</th>
-              <th>성명</th>
-              <th>금액</th>
-            </tr>
-          </thead>
-          <tbody id="tbl-body">
-            <tr><td colspan="6" class="empty-row">등록된 데이터가 없습니다.</td></tr>
-          </tbody>
+          ...
         </table>
+      </div>
+
+    </div>
+
+    <!-- 신규 교환 등록 -->
+    <div class="card">
+      <div class="card-label">신규 교환 등록</div>
+      <div class="reg-row">
+        <input type="date"   id="inp-date" />
+        <input type="text" class="inp-소속" id="inp-소속" placeholder="소속" />
+        <input type="text"   class="inp-반명" id="inp-반명" placeholder="반명" />
+        <input type="text"   class="inp-성명" id="inp-성명" placeholder="성명" />
+        <input type="number" class="inp-금액" id="inp-금액" placeholder="금액" />
+        <button class="btn-reg" id="btn-add">등록</button>
       </div>
     </div>
 
   </div>
+
 
   <!-- 삭제 모달 (내부 삭제용, UI 노출 없음) -->
   <div class="modal-overlay" id="modal-overlay" style="display:none;">
