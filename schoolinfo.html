@@ -47,10 +47,25 @@
 
 try {
         // 공시연도 파라미터 제외하여 최신/기본 데이터 검색 유연화
-        const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&pbanYr=2025&schulKndCode=04&searchSchulNm=${encodeURIComponent(schoolName)}`;
-const myProxy = "https://script.google.com/macros/s/AKfycbza6tqyZY9SsB4B_ZAwA-f3XWeOQ7RvOP3khSJGBuwKDhKUtcriVF6C6aNyyLDxZ3wKeg/exec";
-const response = await fetch(`${myProxy}?url=${encodeURIComponent(targetUrl)}`);
-const data = await response.json();
+let data = null;
+const years = ['2026', '2025', '2024', '2023'];
+
+for (const yr of years) {
+  const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&pbanYr=${yr}&schulKndCode=04&searchSchulNm=${encodeURIComponent(schoolName)}`;
+  const res = await fetch(`${myProxy}?url=${encodeURIComponent(targetUrl)}`);
+  const resultData = await res.json();
+
+  if (resultData && resultData.resultCode !== 'fail') {
+    data = resultData;
+    console.log(`${yr}년도 데이터 수신 성공`);
+    break;
+  }
+}
+
+if (!data) {
+  alert('조회 가능한 공시 데이터가 없습니다.');
+  return;
+}
         console.log('API 응답 전체 데이터:', data);
 
         // 다양한 응답 형태(배열, list, result)를 유연하게 수집
