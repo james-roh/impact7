@@ -20,7 +20,7 @@
   <h2>🏫 학교별 학년별 학생수 조회</h2>
   
   <div class="search-box">
-    <input type="text" id="schoolName" placeholder="학교명을 입력하세요 (예: 강서고등학교)">
+    <input type="text" id="schoolName" placeholder="학교명을 입력하세요 (예: 강서고등학교 또는 강서고)">
     <button onclick="fetchStudentData()">조회</button>
   </div>
 
@@ -29,7 +29,7 @@
   </div>
 
   <script>
-    // 본인의 API 키를 아래 작은따옴표 안에 넣어주세요.
+    // 본인의 API 키를 입력하세요.
     const API_KEY = '여기에_발급받은_API키를_붙여넣으세요';
     let myChart = null;
 
@@ -41,38 +41,43 @@
       }
 
       try {
-        // CORS 에러 방지를 위해 우회 프록시(api.allorigins.win) 적용
-        const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&searchSchulNm=${encodeURIComponent(schoolName)}`;
+        // 공시연도(pYear=2024) 파라미터 추가
+        const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&pYear=2024&searchSchulNm=${encodeURIComponent(schoolName)}`;
         const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
         
         const data = await response.json();
+        console.log('API 응답 데이터:', data); // F12 콘솔에서 실제 들어오는 데이터 확인용
 
-        if (!data || !data.list || data.list.length === 0) {
-          alert('해당 학교의 데이터를 찾을 수 없습니다.');
+        // API 응답 데이터 목록 확인
+        const list = data.list || data.result || [];
+
+        if (!list || list.length === 0) {
+          alert('해당 학교의 데이터를 찾을 수 없습니다. 학교명을 다시 확인해주세요.');
           return;
         }
 
-        const schoolInfo = data.list[0];
+        const schoolInfo = list[0];
 
+        // 필드명이 대/소문자 또는 변수명이 다를 수 있으므로 안전하게 처리
         const gradeData = {
           labels: ['1학년', '2학년', '3학년'],
           male: [
-            parseInt(schoolInfo.COL_M1 || 0), 
-            parseInt(schoolInfo.COL_M2 || 0), 
-            parseInt(schoolInfo.COL_M3 || 0)
+            parseInt(schoolInfo.COL_M1 || schoolInfo.col_m1 || 0), 
+            parseInt(schoolInfo.COL_M2 || schoolInfo.col_m2 || 0), 
+            parseInt(schoolInfo.COL_M3 || schoolInfo.col_m3 || 0)
           ],
           female: [
-            parseInt(schoolInfo.COL_W1 || 0), 
-            parseInt(schoolInfo.COL_W2 || 0), 
-            parseInt(schoolInfo.COL_W3 || 0)
+            parseInt(schoolInfo.COL_W1 || schoolInfo.col_w1 || 0), 
+            parseInt(schoolInfo.COL_W2 || schoolInfo.col_w2 || 0), 
+            parseInt(schoolInfo.COL_W3 || schoolInfo.col_w3 || 0)
           ]
         };
 
-        drawChart(gradeData, schoolInfo.SCHUL_NM || schoolName);
+        drawChart(gradeData, schoolInfo.SCHUL_NM || schoolInfo.schulNm || schoolName);
 
       } catch (error) {
         console.error(error);
-        alert('데이터를 불러오는 중 오류가 발생했습니다.');
+        alert('데이터 처리 중 오류가 발생했습니다. 브라우저 콘솔(F12)을 확인해 주세요.');
       }
     }
 
