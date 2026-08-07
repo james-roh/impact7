@@ -3,143 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학교별 학년별 학생수 조회</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>학교 인원 현황</title>
   <style>
-    body { font-family: 'Malgun Gothic', sans-serif; max-width: 650px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-    h2 { color: #333; text-align: center; }
-    .search-box { display: flex; gap: 10px; margin-bottom: 25px; }
-    input { flex: 1; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
-    button { padding: 12px 24px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
-    .chart-box { margin-top: 30px; }
+    body { font-family: sans-serif; padding: 20px; background-color: #f8f9fa; }
+    h2 { color: #333; }
+    table { width: 100%; max-width: 600px; border-collapse: collapse; background: #fff; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #0d6efd; color: white; }
+    #loading { font-weight: bold; color: #666; }
   </style>
 </head>
 <body>
 
-  <h2>🏫 학교별 학년별 학생수 조회</h2>
+  <h2>🏫 학교별 학생 수 현황</h2>
+  <div id="loading">데이터를 불러오는 중입니다...</div>
   
-  <div class="search-box">
-    <input type="text" id="schoolName" placeholder="학교명을 입력하세요 (예: 강서고등학교)">
-    <button onclick="fetchStudentData()">조회</button>
-  </div>
-
-  <div class="chart-box">
-    <canvas id="studentChart"></canvas>
-  </div>
+  <table id="schoolTable" style="display: none;">
+    <thead>
+      <tr>
+        <th>학교명</th>
+        <th>총 학생 수</th>
+        <th>기준년도</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 
   <script>
-    // ★★★ 아래 작은따옴표 사이에 실제 API 키를 꼭 붙여넣으세요! ★★★
-    const API_KEY = '337a6313ee714f67b6d7e33e086f6116';
-    let myChart = null;
+    // 1. 배포한 웹 앱 URL 지정
+    const API_URL = "YOUR_WEB_APP_URL";
 
-    async function fetchStudentData() {
-      const schoolName = document.getElementById('schoolName').value.trim();
-      if (!schoolName) {
-        alert('학교명을 입력해주세요.');
-        return;
-      }
+    // 2. API 데이터 호출 함수
+    async function fetchSchoolData() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
-      if (API_KEY.includes('여기에_발급받은')) {
-        alert('API 키가 입력되지 않았습니다. 코드 38번째 줄에 키를 넣어주세요.');
-        return;
-      }
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
 
-try {
-        // 공시연도 파라미터 제외하여 최신/기본 데이터 검색 유연화
-const myProxy = "https://script.google.com/macros/s/AKfycbza6tqyZY9SsB4B_ZAwA-f3XWeOQ7RvOP3khSJGBuwKDhKUtcriVF6C6aNyyLDxZ3wKeg/exec";
-let data = null;
-const years = ['2026', '2025', '2024', '2023'];
+        // 3. 받아온 JSON 데이터를 표 행(row)으로 추가
+        data.forEach(item => {
+          const row = `
+            <tr>
+              <td>${item.schoolName}</td>
+              <td>${item.totalStudents.toLocaleString()}명</td>
+              <td>${item.year}년</td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
 
-for (const yr of years) {
-  const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&pbanYr=${yr}&schulKndCode=04&searchSchulNm=${encodeURIComponent(schoolName)}`;
-  const res = await fetch(`${myProxy}?url=${encodeURIComponent(targetUrl)}`);
-  const resultData = await res.json();
-
-console.log(`${yr}년도 응답:`, resultData);
-  if (resultData && resultData.resultCode !== 'fail') {
-    data = resultData;
-    break;
-  }
-}
-
-if (!data) {
-  alert('조회 가능한 공시 데이터가 없습니다.');
-  return;
-}
-        console.log('API 응답 전체 데이터:', data);
-
-        // 다양한 응답 형태(배열, list, result)를 유연하게 수집
-        let list = [];
-        if (Array.isArray(data)) list = data;
-        else if (data.list) list = data.list;
-        else if (data.result) list = data.result;
-
-        if (!list || list.length === 0) {
-          alert('해당 학교의 데이터를 찾을 수 없습니다. "강서고"처럼 이름을 줄여서 입력해 보세요.');
-          return;
-        }
-
-        // 검색한 학교명과 가장 가까운 데이터 선택
-        const schoolInfo = list.find(item => {
-          const name = item.SCHUL_NM || item.schulNm || item.SCHUL_NM_KOR || '';
-          return name.includes(schoolName) || schoolName.includes(name);
-        }) || list[0];
-
-        // 대소문자 속성명 자동 탐색 함수
-        const getValue = (k1, k2) => {
-          return parseInt(schoolInfo[k1] || schoolInfo[k2] || schoolInfo[k1.toLowerCase()] || schoolInfo[k2.toLowerCase()] || 0);
-        };
-
-        const gradeData = {
-          labels: ['1학년', '2학년', '3학년'],
-          male: [
-            getValue('COL_M1', 'MALE_1'), 
-            getValue('COL_M2', 'MALE_2'), 
-            getValue('COL_M3', 'MALE_3')
-          ],
-          female: [
-            getValue('COL_W1', 'FEMALE_1'), 
-            getValue('COL_W2', 'FEMALE_2'), 
-            getValue('COL_W3', 'FEMALE_3')
-          ]
-        };
-
-        const schoolTitle = schoolInfo.SCHUL_NM || schoolInfo.schulNm || schoolName;
-        drawChart(gradeData, schoolTitle);
+        // 로딩 문구 숨기고 표 표시
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("schoolTable").style.display = "table";
 
       } catch (error) {
-        console.error(error);
-        alert('데이터를 불러오는 중 오류가 발생했습니다.');
+        document.getElementById("loading").innerText = "데이터를 불러오는 데 실패했습니다.";
+        console.error("Error:", error);
       }
     }
 
-    function drawChart(data, schoolTitle) {
-      const ctx = document.getElementById('studentChart').getContext('2d');
-      
-      if (myChart) myChart.destroy();
-
-      myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: data.labels,
-          datasets: [
-            { label: '남학생', data: data.male, backgroundColor: '#4bc0c0' },
-            { label: '여학생', data: data.female, backgroundColor: '#ff6384' }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: { display: true, text: `${schoolTitle} 학년별 학생수` }
-          },
-          scales: {
-            x: { stacked: true },
-            y: { stacked: true, beginAtZero: true }
-          }
-        }
-      });
-    }
+    // 페이지 로드 시 실행
+    fetchSchoolData();
   </script>
+
 </body>
 </html>
