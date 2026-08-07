@@ -56,9 +56,9 @@ for (const yr of years) {
   const res = await fetch(`${myProxy}?url=${encodeURIComponent(targetUrl)}`);
   const resultData = await res.json();
 
+console.log(`${yr}년도 응답:`, resultData);
   if (resultData && resultData.resultCode !== 'fail') {
     data = resultData;
-    console.log(`${yr}년도 데이터 수신 성공`);
     break;
   }
 }
