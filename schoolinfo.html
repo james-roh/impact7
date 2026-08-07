@@ -45,36 +45,52 @@
         return;
       }
 
-      try {
-        // 더 빠르고 안정적인 corsproxy.io 우회 서버 적용
-        const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&pYear=2024&searchSchulNm=${encodeURIComponent(schoolName)}`;
+try {
+        // 공시연도 파라미터 제외하여 최신/기본 데이터 검색 유연화
+        const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&searchSchulNm=${encodeURIComponent(schoolName)}`;
         const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
         
         const data = await response.json();
-        const list = data.list || data.result || [];
+        console.log('API 응답 전체 데이터:', data);
+
+        // 다양한 응답 형태(배열, list, result)를 유연하게 수집
+        let list = [];
+        if (Array.isArray(data)) list = data;
+        else if (data.list) list = data.list;
+        else if (data.result) list = data.result;
 
         if (!list || list.length === 0) {
-          alert('해당 학교의 데이터를 찾을 수 없습니다. 학교명을 확인해주세요.');
+          alert('해당 학교의 데이터를 찾을 수 없습니다. "강서고"처럼 이름을 줄여서 입력해 보세요.');
           return;
         }
 
-        const schoolInfo = list[0];
+        // 검색한 학교명과 가장 가까운 데이터 선택
+        const schoolInfo = list.find(item => {
+          const name = item.SCHUL_NM || item.schulNm || item.SCHUL_NM_KOR || '';
+          return name.includes(schoolName) || schoolName.includes(name);
+        }) || list[0];
+
+        // 대소문자 속성명 자동 탐색 함수
+        const getValue = (k1, k2) => {
+          return parseInt(schoolInfo[k1] || schoolInfo[k2] || schoolInfo[k1.toLowerCase()] || schoolInfo[k2.toLowerCase()] || 0);
+        };
 
         const gradeData = {
           labels: ['1학년', '2학년', '3학년'],
           male: [
-            parseInt(schoolInfo.COL_M1 || schoolInfo.col_m1 || 0), 
-            parseInt(schoolInfo.COL_M2 || schoolInfo.col_m2 || 0), 
-            parseInt(schoolInfo.COL_M3 || schoolInfo.col_m3 || 0)
+            getValue('COL_M1', 'MALE_1'), 
+            getValue('COL_M2', 'MALE_2'), 
+            getValue('COL_M3', 'MALE_3')
           ],
           female: [
-            parseInt(schoolInfo.COL_W1 || schoolInfo.col_w1 || 0), 
-            parseInt(schoolInfo.COL_W2 || schoolInfo.col_w2 || 0), 
-            parseInt(schoolInfo.COL_W3 || schoolInfo.col_w3 || 0)
+            getValue('COL_W1', 'FEMALE_1'), 
+            getValue('COL_W2', 'FEMALE_2'), 
+            getValue('COL_W3', 'FEMALE_3')
           ]
         };
 
-        drawChart(gradeData, schoolInfo.SCHUL_NM || schoolInfo.schulNm || schoolName);
+        const schoolTitle = schoolInfo.SCHUL_NM || schoolInfo.schulNm || schoolName;
+        drawChart(gradeData, schoolTitle);
 
       } catch (error) {
         console.error(error);
