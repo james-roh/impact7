@@ -48,9 +48,9 @@
 try {
         // 공시연도 파라미터 제외하여 최신/기본 데이터 검색 유연화
         const targetUrl = `https://www.schoolinfo.go.kr/openApi.do?apiKey=${API_KEY}&apiType=37&searchSchulNm=${encodeURIComponent(schoolName)}`;
-        const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
-        
-        const data = await response.json();
+const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+const resJson = await response.json();
+const data = JSON.parse(resJson.contents);
         console.log('API 응답 전체 데이터:', data);
 
         // 다양한 응답 형태(배열, list, result)를 유연하게 수집
