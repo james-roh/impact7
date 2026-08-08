@@ -3,60 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학교 인원 현황</title>
+  <title>학교별 학생 수 현황</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background-color: #f8f9fa; }
-    h2 { color: #333; }
-    table { width: 100%; max-width: 600px; border-collapse: collapse; background: #fff; margin-top: 15px; }
-    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-    th { background-color: #0d6efd; color: white; }
-    #loading { font-weight: bold; color: #666; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; background-color: #f4f6f8; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    h2 { border-bottom: 2px solid #333; padding-bottom: 10px; color: #2c3e50; }
+    .section-title { font-size: 1.2rem; font-weight: bold; margin-top: 25px; color: #16a085; }
+    ul { list-style: none; padding-left: 5px; }
+    li { padding: 6px 0; border-bottom: 1px dashed #eee; font-size: 0.98rem; }
+    .school-name { font-weight: bold; color: #333; }
+    .type-badge { font-size: 0.85rem; color: #7f8c8d; }
+    #loading { font-weight: bold; color: #2980b9; }
   </style>
 </head>
 <body>
 
-  <h2>🏫 학교별 학생 수 현황</h2>
-  <div id="loading">데이터를 불러오는 중입니다...</div>
-  
-  <table id="schoolTable" style="display: none;">
-    <thead>
-      <tr>
-        <th>학교명</th>
-        <th>총 학생 수</th>
-        <th>기준년도</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <div class="container">
+    <h2>🏫 학교별 인원 현황</h2>
+    <div id="loading">데이터를 불러오는 중입니다...</div>
+    <div id="displayArea"></div>
+  </div>
 
   <script>
-    // 1. 배포한 웹 앱 URL 지정
     const API_URL = "https://script.google.com/macros/s/AKfycbwmP1hhMxw1YWM7ShFLR0uhgf15ZyeXFwB64f4OBwqK9jyHdtkuH7cYxx44kcBjzIPw/exec";
 
-    // 2. API 데이터 호출 함수
-    async function fetchSchoolData() {
+    async function fetchAndRenderData() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        const tableBody = document.getElementById("tableBody");
-        tableBody.innerHTML = "";
+        const categorized = {
+          "고등학교": [],
+          "중학교": [],
+          "초등학교": []
+        };
 
-        // 3. 받아온 JSON 데이터를 표 행(row)으로 추가
         data.forEach(item => {
-          const row = `
-            <tr>
-              <td>${item.schoolName}</td>
-              <td>${item.totalStudents.toLocaleString()}명</td>
-              <td>${item.year}년</td>
-            </tr>
-          `;
-          tableBody.innerHTML += row;
+          if (categorized[item.category]) {
+            categorized[item.category].push(item);
+          }
         });
 
-        // 로딩 문구 숨기고 표 표시
+        let htmlContent = "";
+
+        // 1. 고등학교
+        if (categorized["고등학교"].length > 0) {
+          htmlContent += `<div class="section-title">1. 고등학교 (1, 2, 3학년)</div><ul>`;
+          categorized["고등학교"].forEach(item => {
+            htmlContent += `<li>${formatSchoolLine(item, ["1학년", "2학년", "3학년"])}</li>`;
+          });
+          htmlContent += `</ul>`;
+        }
+
+        // 2. 중학교
+        if (categorized["중학교"].length > 0) {
+          htmlContent += `<div class="section-title">2. 중학교 (1, 2, 3학년)</div><ul>`;
+          categorized["중학교"].forEach(item => {
+            htmlContent += `<li>${formatSchoolLine(item, ["1학년", "2학년", "3학년"])}</li>`;
+          });
+          htmlContent += `</ul>`;
+        }
+
+        // 3. 초등학교
+        if (categorized["초등학교"].length > 0) {
+          htmlContent += `<div class="section-title">3. 초등학교 (4, 5, 6학년)</div><ul>`;
+          categorized["초등학교"].forEach(item => {
+            htmlContent += `<li>${formatSchoolLine(item, ["4학년", "5학년", "6학년"])}</li>`;
+          });
+          htmlContent += `</ul>`;
+        }
+
         document.getElementById("loading").style.display = "none";
-        document.getElementById("schoolTable").style.display = "table";
+        document.getElementById("displayArea").innerHTML = htmlContent;
 
       } catch (error) {
         document.getElementById("loading").innerText = "데이터를 불러오는 데 실패했습니다.";
@@ -64,8 +82,37 @@
       }
     }
 
-    // 페이지 로드 시 실행
-    fetchSchoolData();
+    // 텍스트 포맷팅 함수 (공학 남+여 구분 / 단성 합계 구분)
+    function formatSchoolLine(item, gradeLabels) {
+      const isCoed = item.type.includes("공학") || item.category === "초등학교";
+      const typeStr = item.type ? ` (${item.type})` : "";
+
+      if (isCoed) {
+        // 남여공학: 남+여 형태
+        const totalM = item.g1_m + item.g2_m + item.g3_m;
+        const totalF = item.g1_f + item.g2_f + item.g3_f;
+
+        return `<span class="school-name">${item.schoolName}${typeStr}</span> : ` +
+               `총 ${totalM}+${totalF}명 ` +
+               `(${gradeLabels[0]}-${item.g1_m}+${item.g1_f}, ` +
+               `${gradeLabels[1]}-${item.g2_m}+${item.g2_f}, ` +
+               `${gradeLabels[2]}-${item.g3_m}+${item.g3_f})`;
+      } else {
+        // 단성학교: 합계 숫자로 표시
+        const g1Total = item.g1_m + item.g1_f;
+        const g2Total = item.g2_m + item.g2_f;
+        const g3Total = item.g3_m + item.g3_f;
+        const grandTotal = g1Total + g2Total + g3Total;
+
+        return `<span class="school-name">${item.schoolName}${typeStr}</span> : ` +
+               `총 ${grandTotal}명 ` +
+               `(${gradeLabels[0]}-${g1Total}, ` +
+               `${gradeLabels[1]}-${g2Total}, ` +
+               `${gradeLabels[2]}-${g3Total})`;
+      }
+    }
+
+    fetchAndRenderData();
   </script>
 
 </body>
