@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학교별 인원 현황 (자동 조회)</title>
+  <title>학교별 인원 현황</title>
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; background-color: #f4f6f8; line-height: 1.6; }
     .container { max-width: 850px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -25,9 +25,10 @@
   </div>
 
   <script>
-    // NEIS Open API 키 (open.neis.go.kr에서 발급받은 실제 인증키를 사용하시면 제한 없이 동작합니다)
-    const API_KEY = "81aa9145c7564cc99fa00c3741730557"; 
+    // 1단계에서 배포한 Apps Script 웹 앱 URL 입력
+    const PROXY_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; 
 
+    // 조회할 학교 리스트
     const schoolTargetList = [
       // 고등학교
       { name: "강서고등학교", displayName: "강서고", category: "고등학교", type: "단성" },
@@ -49,52 +50,18 @@
       { name: "서울경인초등학교", displayName: "경인초", category: "초등학교", type: "공학" }
     ];
 
-    async function getSchoolData(schoolObj) {
+    async function fetchSchoolData(schoolObj) {
       try {
-        // 1. 학교 기본정보 조회
-        const infoUrl = `https://open.neis.go.kr/hub/schoolInfo?KEY=${API_KEY}&Type=json&pIndex=1&pSize=5&SCHUL_NM=${encodeURIComponent(schoolObj.name)}`;
-        const infoRes = await fetch(infoUrl);
-        const infoData = await infoRes.json();
+        const url = `${PROXY_URL}?schoolName=${encodeURIComponent(schoolObj.name)}&category=${encodeURIComponent(schoolObj.category)}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-        if (!infoData.schoolInfo) {
-          return { ...schoolObj, error: "학교 정보 없음" };
+        if (data.error) {
+          return { ...schoolObj, error: data.error };
         }
-        
-        const schoolInfo = infoData.schoolInfo[1].row[0];
-        const moeCode = schoolInfo.ATPT_OFCDC_SC_CODE;
-        const schoolCode = schoolInfo.SD_SCHUL_CODE;
-
-        // 2. 학급/학생 수 정보 조회 (연도: 최근 공시연도 기준)
-        const countUrl = `https://open.neis.go.kr/hub/classInfo?KEY=${API_KEY}&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${moeCode}&SD_SCHUL_CODE=${schoolCode}`;
-        const countRes = await fetch(countUrl);
-        const countData = await countRes.json();
-
-        if (!countData.classInfo) {
-          return { ...schoolObj, error: "인원 데이터 없음 (인증키 필요)" };
-        }
-
-        const rows = countData.classInfo[1].row;
-        let gradeData = { g1_m: 0, g1_f: 0, g2_m: 0, g2_f: 0, g3_m: 0, g3_f: 0 };
-
-        rows.forEach(r => {
-          const grade = r.GRADE;
-          const m = Number(r.COL_SUM_M_CNT) || 0;
-          const f = Number(r.COL_SUM_F_CNT) || 0;
-
-          if (schoolObj.category === "초등학교") {
-            if (grade === "4") { gradeData.g1_m += m; gradeData.g1_f += f; }
-            if (grade === "5") { gradeData.g2_m += m; gradeData.g2_f += f; }
-            if (grade === "6") { gradeData.g3_m += m; gradeData.g3_f += f; }
-          } else {
-            if (grade === "1") { gradeData.g1_m += m; gradeData.g1_f += f; }
-            if (grade === "2") { gradeData.g2_m += m; gradeData.g2_f += f; }
-            if (grade === "3") { gradeData.g3_m += m; gradeData.g3_f += f; }
-          }
-        });
-
-        return { ...schoolObj, ...gradeData };
+        return { ...schoolObj, ...data };
       } catch (err) {
-        return { ...schoolObj, error: "조회 오류 발생" };
+        return { ...schoolObj, error: "통신 오류" };
       }
     }
 
@@ -126,7 +93,7 @@
     }
 
     async function init() {
-      const results = await Promise.all(schoolTargetList.map(s => getSchoolData(s)));
+      const results = await Promise.all(schoolTargetList.map(s => fetchSchoolData(s)));
 
       const categorized = { "고등학교": [], "중학교": [], "초등학교": [] };
       results.forEach(r => categorized[r.category]?.push(r));
