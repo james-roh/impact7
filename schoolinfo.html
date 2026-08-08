@@ -12,6 +12,7 @@
     ul { list-style: none; padding-left: 5px; }
     li { padding: 6px 0; border-bottom: 1px dashed #eee; font-size: 0.98rem; }
     .school-name { font-weight: bold; color: #333; }
+    .error-text { color: #e74c3c; font-style: italic; font-size: 0.9rem; }
     .status-loading { color: #e67e22; font-weight: bold; }
     .status-complete { color: #27ae60; font-weight: bold; }
   </style>
@@ -24,10 +25,9 @@
   </div>
 
   <script>
-    // NEIS Open API 기본 키 (테스트/공용 키)
-    const API_KEY = "sample"; 
+    // NEIS Open API 키 (open.neis.go.kr에서 발급받은 실제 인증키를 사용하시면 제한 없이 동작합니다)
+    const API_KEY = "81aa9145c7564cc99fa00c3741730557"; 
 
-    // 1. 조회할 학교 리스트 및 정보 정의
     const schoolTargetList = [
       // 고등학교
       { name: "강서고등학교", displayName: "강서고", category: "고등학교", type: "단성" },
@@ -49,39 +49,37 @@
       { name: "서울경인초등학교", displayName: "경인초", category: "초등학교", type: "공학" }
     ];
 
-    // 2. 학교 기본 정보(코드) 및 인원 정보 API 호출 함수
     async function getSchoolData(schoolObj) {
       try {
-        // [API 1] 학교 코드를 가져오기 위한 검색
+        // 1. 학교 기본정보 조회
         const infoUrl = `https://open.neis.go.kr/hub/schoolInfo?KEY=${API_KEY}&Type=json&pIndex=1&pSize=5&SCHUL_NM=${encodeURIComponent(schoolObj.name)}`;
         const infoRes = await fetch(infoUrl);
         const infoData = await infoRes.json();
 
-        if (!infoData.schoolInfo) return null;
+        if (!infoData.schoolInfo) {
+          return { ...schoolObj, error: "학교 정보 없음" };
+        }
         
         const schoolInfo = infoData.schoolInfo[1].row[0];
-        const moeCode = schoolInfo.ATPT_OFCDC_SC_CODE; // 교육청 코드
-        const schoolCode = schoolInfo.SD_SCHUL_CODE;   // 학교 코드
+        const moeCode = schoolInfo.ATPT_OFCDC_SC_CODE;
+        const schoolCode = schoolInfo.SD_SCHUL_CODE;
 
-        // [API 2] 해당 학교의 학년별/성별 학생 수 데이터 조회
-        const countUrl = `https://open.neis.go.kr/hub/classInfo?KEY=${API_KEY}&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${moeCode}&SD_SCHUL_CODE=${schoolCode}&AY=2024`;
+        // 2. 학급/학생 수 정보 조회 (연도: 최근 공시연도 기준)
+        const countUrl = `https://open.neis.go.kr/hub/classInfo?KEY=${API_KEY}&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${moeCode}&SD_SCHUL_CODE=${schoolCode}`;
         const countRes = await fetch(countUrl);
         const countData = await countRes.json();
 
-        if (!countData.classInfo) return null;
+        if (!countData.classInfo) {
+          return { ...schoolObj, error: "인원 데이터 없음 (인증키 필요)" };
+        }
 
-        // 학년별/성별 인원 집계
         const rows = countData.classInfo[1].row;
-        let gradeData = {
-          g1_m: 0, g1_f: 0,
-          g2_m: 0, g2_f: 0,
-          g3_m: 0, g3_f: 0
-        };
+        let gradeData = { g1_m: 0, g1_f: 0, g2_m: 0, g2_f: 0, g3_m: 0, g3_f: 0 };
 
         rows.forEach(r => {
-          const grade = r.GRADE; // 학년
-          const m = Number(r.COL_SUM_M_CNT) || 0; // 남학생 수
-          const f = Number(r.COL_SUM_F_CNT) || 0; // 여학생 수
+          const grade = r.GRADE;
+          const m = Number(r.COL_SUM_M_CNT) || 0;
+          const f = Number(r.COL_SUM_F_CNT) || 0;
 
           if (schoolObj.category === "초등학교") {
             if (grade === "4") { gradeData.g1_m += m; gradeData.g1_f += f; }
@@ -96,13 +94,15 @@
 
         return { ...schoolObj, ...gradeData };
       } catch (err) {
-        console.error(err);
-        return null;
+        return { ...schoolObj, error: "조회 오류 발생" };
       }
     }
 
-    // 3. 화면 출력 포맷팅 함수
     function formatLine(item) {
+      if (item.error) {
+        return `<span class="school-name">${item.displayName}</span> : <span class="error-text">(${item.error})</span>`;
+      }
+
       const isCoed = item.type === "공학" || item.category === "초등학교";
       const labels = item.category === "초등학교" ? ["4학년", "5학년", "6학년"] : ["1학년", "2학년", "3학년"];
       const typeBadge = item.type ? ` (${item.type})` : "";
@@ -125,33 +125,22 @@
       }
     }
 
-    // 4. 메인 실행 함수
     async function init() {
       const results = await Promise.all(schoolTargetList.map(s => getSchoolData(s)));
-      const validResults = results.filter(r => r !== null);
 
       const categorized = { "고등학교": [], "중학교": [], "초등학교": [] };
-      validResults.forEach(r => categorized[r.category]?.push(r));
+      results.forEach(r => categorized[r.category]?.push(r));
 
       let html = "";
       
-      if (categorized["고등학교"].length > 0) {
-        html += `<div class="section-title">1. 고등학교 (1, 2, 3학년)</div><ul>`;
-        categorized["고등학교"].forEach(r => html += `<li>${formatLine(r)}</li>`);
-        html += `</ul>`;
-      }
-
-      if (categorized["중학교"].length > 0) {
-        html += `<div class="section-title">2. 중학교 (1, 2, 3학년)</div><ul>`;
-        categorized["중학교"].forEach(r => html += `<li>${formatLine(r)}</li>`);
-        html += `</ul>`;
-      }
-
-      if (categorized["초등학교"].length > 0) {
-        html += `<div class="section-title">3. 초등학교 (4, 5, 6학년)</div><ul>`;
-        categorized["초등학교"].forEach(r => html += `<li>${formatLine(r)}</li>`);
-        html += `</ul>`;
-      }
+      ["고등학교", "중학교", "초등학교"].forEach((cat, index) => {
+        if (categorized[cat].length > 0) {
+          const subTitle = cat === "초등학교" ? "4, 5, 6학년" : "1, 2, 3학년";
+          html += `<div class="section-title">${index + 1}. ${cat} (${subTitle})</div><ul>`;
+          categorized[cat].forEach(r => html += `<li>${formatLine(r)}</li>`);
+          html += `</ul>`;
+        }
+      });
 
       document.getElementById("displayArea").innerHTML = html;
       document.getElementById("status").className = "status-complete";
