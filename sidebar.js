@@ -120,9 +120,14 @@
     <i class="fas fa-coins"></i> 금고 시재 관리
 </div>
 
+<div class="sidebar-menu-item" id="menu-school" onclick="window.location.href='schoolinfo.html'">
+    <i class="fas fa-user-graduate"></i> 학교별 인원 구성
+</div>
+
 
         </div>
     `;
+
 
 // 현재 페이지 메뉴 active 표시
 const path = window.location.pathname;
@@ -137,7 +142,10 @@ if (path.includes('text.html')) {
     sidebar.querySelector('#menu-coming2').classList.add('active');
 } else if (path.includes('impactmoney.html')) {
     sidebar.querySelector('#menu-coming3').classList.add('active');
+} else if (path.includes('schoolinfo.html')) {
+    sidebar.querySelector('#menu-school').classList.add('active');
 }
+
 
 
     // body 첫 번째 자식으로 사이드바 삽입
