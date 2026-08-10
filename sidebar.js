@@ -108,61 +108,43 @@
             <div class="sidebar-menu-item" id="menu-refund" onclick="window.location.href='refund.html'">
                 <i class="fas fa-calculator"></i> 수강료 환불 계산기
             </div>
-<div class="sidebar-menu-item" id="menu-inventory" onclick="window.location.href='stock.html'">
-
-    <i class="fas fa-boxes-stacked"></i> 교재 재고 관리
-</div>
-<div class="sidebar-menu-item" id="menu-coming2" onclick="window.location.href='impact7book.html'">
-    <i class="fas fa-book"></i> impact7 교재
-</div>
-
-          <div class="sidebar-menu-item" id="menu-coming3" onclick="window.location.href='impactmoney.html'">
-    <i class="fas fa-coins"></i> 금고 시재 관리
-</div>
-
-<div class="sidebar-menu-item" id="menu-school" onclick="window.location.href='schoolinfo.html'">
-    <i class="fas fa-user-graduate"></i> 학교별 인원 구성
-</div>
-
-
+            <div class="sidebar-menu-item" id="menu-inventory" onclick="window.location.href='stock.html'">
+                <i class="fas fa-boxes-stacked"></i> 교재 재고 관리
+            </div>
+            <div class="sidebar-menu-item" id="menu-coming3" onclick="window.location.href='impactmoney.html'">
+                <i class="fas fa-coins"></i> 금고 시재 관리
+            </div>
+            <div class="sidebar-menu-item" id="menu-school" onclick="window.location.href='schoolinfo.html'">
+                <i class="fas fa-user-graduate"></i> 학교별 인원 구성
+            </div>
         </div>
     `;
 
-
-// 현재 페이지 메뉴 active 표시
-const path = window.location.pathname;
-if (path.includes('text.html')) {
-    sidebar.querySelector('#menu-admission').classList.add('active');
-} else if (path.includes('refund.html')) {
-    sidebar.querySelector('#menu-refund').classList.add('active');
-} else if (path.includes('stock.html')) {
-
-    sidebar.querySelector('#menu-inventory').classList.add('active');
-} else if (path.includes('impact7book.html')) {
-    sidebar.querySelector('#menu-coming2').classList.add('active');
-} else if (path.includes('impactmoney.html')) {
-    sidebar.querySelector('#menu-coming3').classList.add('active');
-} else if (path.includes('schoolinfo.html')) {
-    sidebar.querySelector('#menu-school').classList.add('active');
-}
-
-
+    // 현재 페이지 메뉴 active 표시
+    const path = window.location.pathname;
+    if (path.includes('text.html')) {
+        sidebar.querySelector('#menu-admission').classList.add('active');
+    } else if (path.includes('refund.html')) {
+        sidebar.querySelector('#menu-refund').classList.add('active');
+    } else if (path.includes('stock.html')) {
+        sidebar.querySelector('#menu-inventory').classList.add('active');
+    } else if (path.includes('impactmoney.html')) {
+        sidebar.querySelector('#menu-coming3').classList.add('active');
+    } else if (path.includes('schoolinfo.html')) {
+        sidebar.querySelector('#menu-school').classList.add('active');
+    }
 
     // body 첫 번째 자식으로 사이드바 삽입
-       document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
         document.body.insertBefore(sidebar, document.body.firstChild);
 
         const contentArea = document.createElement('div');
-           contentArea.className = 'content-area';
-    contentArea.style.padding = '0';
-
-
-
+        contentArea.className = 'content-area';
+        contentArea.style.padding = '0';
 
         while (document.body.children.length > 1) {
             contentArea.appendChild(document.body.children[1]);
         }
         document.body.appendChild(contentArea);
     });
-
 })();
