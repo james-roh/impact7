@@ -43,6 +43,14 @@
   .si-grade-val { font-size: 13px; font-weight: 700; }
   .si-mf { font-size: 10px; color: #888; margin-top: 2px; }
   .si-loading { padding: 40px; text-align: center; color: #888; font-size: 14px; }
+  .si-sheet-foot { text-align: right; margin-top: 8px; }
+  .si-sheet-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #1B6B45; color: #fff; font-size: 13px; font-weight: 700;
+    padding: 9px 16px; border-radius: 8px; text-decoration: none;
+    transition: background .15s;
+  }
+  .si-sheet-btn:hover { background: #14512F; }
 </style>
 </head>
 <body>
@@ -50,6 +58,11 @@
   <h1 class="si-title">학교별 인원 구성</h1>
   <p class="si-sub">2026학년도 공시 기준 · 학교알리미 자료 · 공학은 남+여 표기</p>
   <div id="si-root"><div class="si-loading"><i class="fas fa-spinner fa-spin"></i> 구글 시트에서 불러오는 중…</div></div>
+  <div class="si-sheet-foot">
+    <a class="si-sheet-btn" href="https://docs.google.com/spreadsheets/d/19q8zKBQKYzpwfHFNdge048ohaH9_f7NaaBJ3HkRoKvQ/edit?usp=sharing" target="_blank" rel="noopener">
+      <i class="fas fa-table"></i> 시트 바로가기
+    </a>
+  </div>
 </div>
 
 <script>
