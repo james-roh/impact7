@@ -51,7 +51,29 @@
     transition: background .15s;
   }
   .si-sheet-btn:hover { background: #14512F; }
+  .si-assign { margin-top: 40px; }
+  .si-assign-head {
+    background: #1B6B45; color: #fff; font-size: 16px; font-weight: 700;
+    padding: 12px 18px; border-radius: 10px 10px 0 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .si-assign-body {
+    background: #fff; border: 1px solid #e3e0d8; border-top: none;
+    border-radius: 0 0 10px 10px; padding: 18px;
+  }
+  .si-assign-sub {
+    font-size: 14px; font-weight: 700; color: #1B6B45;
+    margin: 18px 0 8px; padding-left: 4px;
+  }
+  .si-assign-sub:first-child { margin-top: 0; }
+  .si-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .si-table th, .si-table td {
+    border: 1px solid #e7e4dc; padding: 9px 11px; text-align: left; vertical-align: top;
+  }
+  .si-table th { background: #f2f5f0; font-weight: 700; color: #333; }
+  .si-table td:first-child { font-weight: 700; white-space: nowrap; }
 </style>
+
 </head>
 <body>
 <div class="si-wrap">
@@ -63,7 +85,44 @@
       <i class="fas fa-table"></i> 시트 바로가기
     </a>
   </div>
+
+  <div class="si-assign">
+    <div class="si-assign-head"><i class="fas fa-route"></i> 초등학교 → 중학교 주요 배정 안내</div>
+    <div class="si-assign-body">
+
+      <div class="si-assign-sub">목동 앞단지 권역 (1~7단지 인근)</div>
+      <table class="si-table">
+        <thead>
+          <tr><th>초등학교</th><th>남학생 주요 배정 중학교</th><th>여학생 주요 배정 중학교</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>목동초</td><td>목동중(공학), 신목중(공학), (일부) 양정중(남)</td><td>목동중(공학), 신목중(공학)</td></tr>
+          <tr><td>월촌초</td><td>월촌중(공학), 신목중(공학), (일부) 양정중(남)</td><td>월촌중(공학), 신목중(공학)</td></tr>
+          <tr><td>영도초</td><td>신목중(공학), 월촌중(공학), (일부) 양정중(남)</td><td>신목중(공학), 월촌중(공학)</td></tr>
+          <tr><td>경인초</td><td>월촌중(공학), 목동중(공학), (일부) 양정중(남)</td><td>월촌중(공학), 목동중(공학)</td></tr>
+          <tr><td>목운초</td><td>목운중(공학) 비중 압도적, (일부) 양정중(남)</td><td>목운중(공학) 비중 압도적</td></tr>
+        </tbody>
+      </table>
+
+      <div class="si-assign-sub">목동 뒷단지 및 신정동 권역 (8~14단지 인근)</div>
+      <table class="si-table">
+        <thead>
+          <tr><th>초등학교</th><th>남학생 주요 배정 중학교</th><th>여학생 주요 배정 중학교</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>목일초</td><td>목일중(공학), 신서중(공학)</td><td>목일중(공학), 신서중(공학), (일부) 봉영여중(여)</td></tr>
+          <tr><td>신서초</td><td>신서중(공학), 목일중(공학)</td><td>신서중(공학), 목일중(공학), (일부) 봉영여중(여)</td></tr>
+          <tr><td>신목초</td><td>목일중(공학), 신서중(공학)</td><td>목일중(공학), 신서중(공학), (일부) 봉영여중(여)</td></tr>
+          <tr><td>계남초</td><td>목동중(공학), 신서중(공학)</td><td>(상당수) 봉영여중(여), 목동중(공학), 신서중(공학)</td></tr>
+          <tr><td>서정초</td><td>목동중(공학), 신서중(공학)</td><td>목동중(공학), 신서중(공학), (일부) 봉영여중(여)</td></tr>
+          <tr><td>신정초</td><td>목일중(공학), 신서중(공학)</td><td>목일중(공학), (일부) 봉영여중(여)</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
 </div>
+
 
 <script>
 // 구글 시트 데이터를 내보내는 웹앱 주소 (doGet)
