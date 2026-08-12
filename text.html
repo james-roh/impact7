@@ -1507,6 +1507,13 @@ if (ruleForBook?.bookText) {
     totalBookPrice = 0;
 }
 
+/* ▼▼▼ 추가: 최종 교재 목록에서 중복 줄 제거 후 금액 재계산 ▼▼▼ */
+if (!customBookListText.startsWith('[설정 지침')) {
+    customBookListText = dedupeBookLines(customBookListText);
+    totalBookPrice = calcBookPrice(customBookListText);
+}
+/* ▲▲▲ 추가 끝 ▲▲▲ */
+
 
 
 
@@ -1769,6 +1776,32 @@ ${finalCalculatedTuitionText}
     function executeSettingSaveAlert() {
         alert(`설정 사항이 [최종 수정자: ${currentLoggedId}] 명의로 저장 및 수정 완료되었습니다.`);
     }
+    function calcBookPrice(bookText) {
+    let total = 0;
+    const priceMatches = bookText.match(/[\d,]+원/g) || [];
+    priceMatches.forEach(p => {
+        total += parseInt(p.replace(/[,원]/g, '')) || 0;
+    });
+    return total;
+}
+
+/* ▼▼▼ 추가: 교재 목록 중복 라인 제거 ▼▼▼ */
+function dedupeBookLines(bookText) {
+    if (!bookText) return bookText;
+    const seen = new Set();
+    return bookText
+        .split('\n')
+        .filter(line => {
+            const key = line.replace(/\s/g, '');   // 공백/탭 제거 후 비교
+            if (key === '') return true;            // 빈 줄은 유지
+            if (seen.has(key)) return false;        // 이미 나온 줄이면 제거
+            seen.add(key);
+            return true;
+        })
+        .join('\n');
+}
+/* ▲▲▲ 추가 끝 ▲▲▲ */
+
 </script>
 <!-- 준비중 화면 -->
 <div class="coming-soon-wrap" id="comingSoonWrap">
