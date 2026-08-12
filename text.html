@@ -840,13 +840,15 @@ function loadHolidaysFromGuideline() {
 window.onload = function () {
     const now = new Date();
     const yyyy = now.getFullYear();
-    document.getElementById('targetMonth').value = `${yyyy}-07`;
+    const mm = String(now.getMonth() + 1).padStart(2, '0');   // 현재 월 (01~12)
+    document.getElementById('targetMonth').value = `${yyyy}-${mm}`;
     checkLoginState();
     loadHolidaysFromGuideline();
-    loadSchoolCodesFromGuideline();   // ← 추가
+    loadSchoolCodesFromGuideline();
     renderCalendarCoreSystem();
     loadGuidelinesData();
 };
+
 
 
 
@@ -1176,6 +1178,17 @@ function parseGuidelineRules() {
         }
     });
 
+    // 2단계-b: 교재가 따로 명시 안 된 중등 반도 공통교재를 기본으로 사용
+    // (SE, WA, WX, WS, HM, HP, HT 등)
+    if (commonBookText) {
+        schoolCodeMap.mid.forEach(c => {
+            if (!rules[c]) {
+                rules[c] = { bookText: commonBookText, bookPrice: calcBookPrice(commonBookText) };
+            }
+        });
+    }
+
+
     // 3단계: KS 규칙 파싱
     lines.forEach(line => {
         const trimmed = line.trim();
@@ -1340,12 +1353,15 @@ function handleClassNameInput() {
         updateTuitionDropdownOptions(tuitionKey);
         const vocaWrap = document.getElementById('vocaGroupWrap');
         vocaWrap.style.display = (classInfo.school === 'mid') ? 'block' : 'none';
-        // KS반은 제본 선택창 숨기기
+    // KS반은 제본 선택창 숨기기 (요소가 있을 때만)
         const printWrap = document.getElementById('printOptionWrap');
-        printWrap.style.display = (classInfo.school === 'ks') ? 'none' : 'block';
+        if (printWrap) {
+            printWrap.style.display = (classInfo.school === 'ks') ? 'none' : 'block';
+        }
     }
     calculateMainSystemLogic();
 }
+
 
 
 
