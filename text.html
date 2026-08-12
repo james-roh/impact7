@@ -988,22 +988,28 @@ function loadGuidelinesData() {
             if (text && text.trim() !== '') {
                 document.getElementById('guideline_class').value = text;
                 localStorage.setItem('guideline_class', text);
-                loadSchoolCodesFromGuideline();   // ← 추가
-                loadHolidaysFromGuideline();      // ← 추가
-                calculateMainSystemLogic();       // ← 추가
+                loadSchoolCodesFromGuideline();
+                loadHolidaysFromGuideline();
+                calculateMainSystemLogic();
             } else {
-
                 // 구글 독스가 비어있으면 localStorage 사용
                 const saved = localStorage.getItem('guideline_class');
                 if (saved) document.getElementById('guideline_class').value = saved;
+                loadSchoolCodesFromGuideline();   // ← 추가
+                loadHolidaysFromGuideline();      // ← 추가
+                calculateMainSystemLogic();       // ← 추가
             }
         })
         .catch(() => {
             // 네트워크 오류 시 localStorage 사용
             const saved = localStorage.getItem('guideline_class');
             if (saved) document.getElementById('guideline_class').value = saved;
+            loadSchoolCodesFromGuideline();   // ← 추가
+            loadHolidaysFromGuideline();      // ← 추가
+            calculateMainSystemLogic();       // ← 추가
         });
 }
+
 
 
     function showSettingsToast() {
