@@ -1109,22 +1109,20 @@ function loadSchoolCodesFromGuideline() {
     lines.forEach(line => {
         const t = line.trim();
 
-        // 줄 어디에든 초등/중등/고등 이 있으면 해당 학부 줄로 판별
-        // ("학부 초등 PI PA PX" 처럼 앞에 다른 글자가 붙어도 인식)
+        // 줄 어디에든 초등/중등(중둥 오타 포함)/고등 이 있으면 해당 학부 줄로 판별
         let key = null;
         if (t.includes('초등')) key = 'elem';
-        else if (t.includes('중등')) key = 'mid';
+        else if (t.includes('중등') || t.includes('중둥')) key = 'mid';   // ← '중둥' 오타도 인식
         else if (t.includes('고등')) key = 'high';
         if (!key) return;
 
-        // 한글(학부/초등/중등/고등 등)을 모두 제거한 뒤, 영문 코드만 추출
+        // 한글 제거 후 영문 코드만 추출 (탭/여러 공백 모두 구분자로 처리)
         const codes = t.replace(/[가-힣]/g, ' ')
                        .split(/[\s,]+/)
                        .map(s => s.trim().toUpperCase())
                        .filter(s => /^[A-Z]{1,3}\d*$/.test(s));
 
         if (codes.length > 0) {
-            // 중복 제거해서 저장
             schoolCodeMap[key] = [...new Set(codes)];
         }
     });
@@ -1133,6 +1131,7 @@ function loadSchoolCodesFromGuideline() {
     schoolCodeMap.mid  = schoolCodeMap.mid.filter(c => !schoolCodeMap.high.includes(c));
     schoolCodeMap.elem = schoolCodeMap.elem.filter(c => !schoolCodeMap.high.includes(c) && !schoolCodeMap.mid.includes(c));
 }
+
 /* ▲▲▲ 추가 끝 ▲▲▲ */
 
 
