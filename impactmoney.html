@@ -6,6 +6,7 @@
 <title>금고 시재 관리</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <script src="sidebar.js?v=2"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 
   <style>
@@ -393,7 +394,21 @@
 </head>
 <body>
 
+  <!-- ===== 로그인 게이트 ===== -->
+  <div id="auth-gate" style="display:none; position:fixed; inset:0; background:#f0ede8;
+       z-index:10000; align-items:center; justify-content:center; flex-direction:column;">
+    <div style="background:#fff; padding:40px 44px; border-radius:14px;
+         box-shadow:0 6px 28px rgba(0,0,0,0.12); text-align:center; max-width:360px;">
+      <h2 style="font-size:1.2rem; margin-bottom:8px; color:#111;">금고 시재 관리</h2>
+      <p style="font-size:0.85rem; color:#777; margin-bottom:24px;">행정팀 전용 시스템입니다.<br>회사 계정으로 로그인하세요.</p>
+      <div id="g_id_signin" style="display:flex; justify-content:center;"></div>
+      <div id="auth-error" style="display:none; margin-top:18px; font-size:0.9rem;
+           color:#c0392b; font-weight:600;"></div>
+    </div>
+  </div>
+
   <div class="top-bar">
+
     <h1>금고 시재 관리</h1>
   </div>
 
@@ -600,7 +615,91 @@
   </div>
 
 <script>
+  /* ================= 로그인 / 권한 ================= */
+  const GOOGLE_CLIENT_ID = '668166398803-17vtupbep64soduufppf7lhoe3sb0gsk.apps.googleusercontent.com';
+
+  const ALLOWED_EMAILS = [
+    'roh@impact7.kr',
+    'hank@impact7.kr',
+    'dorothy@impact7.kr',
+    'daisy@impact7.kr'
+  ];
+
+  const AUTH_KEY = 'impact_auth_email';
+
+  function parseJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(json);
+    } catch (e) { return null; }
+  }
+
+  function showApp() {
+    document.getElementById('auth-gate').style.display = 'none';
+    document.querySelector('.content').style.display = '';
+    document.querySelector('.top-bar').style.display = '';
+  }
+
+  function showGate(errorMsg) {
+    document.getElementById('auth-gate').style.display = 'flex';
+    document.querySelector('.content').style.display = 'none';
+    document.querySelector('.top-bar').style.display = 'none';
+    const errBox = document.getElementById('auth-error');
+    if (errorMsg) {
+      errBox.textContent = errorMsg;
+      errBox.style.display = 'block';
+    } else {
+      errBox.style.display = 'none';
+    }
+  }
+
+  function handleCredentialResponse(response) {
+    const payload = parseJwt(response.credential);
+    if (!payload || !payload.email) {
+      showGate('로그인 정보를 확인할 수 없습니다.');
+      return;
+    }
+    const email = payload.email.toLowerCase().trim();
+    if (ALLOWED_EMAILS.includes(email)) {
+      localStorage.setItem(AUTH_KEY, email);
+      showApp();
+      startApp();
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+      showGate('행정팀 전용 입니다.');
+    }
+  }
+
+  function initAuth() {
+    const saved = (localStorage.getItem(AUTH_KEY) || '').toLowerCase();
+    if (saved && ALLOWED_EMAILS.includes(saved)) {
+      showApp();
+      startApp();
+      return;
+    }
+    showGate();
+    const timer = setInterval(() => {
+      if (window.google && google.accounts && google.accounts.id) {
+        clearInterval(timer);
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+          auto_select: true
+        });
+        google.accounts.id.renderButton(
+          document.getElementById('g_id_signin'),
+          { theme: 'outline', size: 'large', text: 'signin_with', locale: 'ko' }
+        );
+        google.accounts.id.prompt();
+      }
+    }, 100);
+  }
+  /* ================= 로그인 / 권한 끝 ================= */
+
   const STORAGE_KEY = 'impactmoney_v2';
+
   const CUTOFF      = new Date('2026-03-01');
 
   const SAMPLE_DATA = [
@@ -1066,10 +1165,19 @@ async function loadFromGAS() {
 // 새로고침
 document.getElementById('btn-refresh').addEventListener('click', loadFromGAS);
 
-// 초기 실행
-document.getElementById('inp-date').value = todayStr();
-loadFromGAS();
-renderSummary();
+// 앱 초기화 (로그인 통과 후 실행)
+let _appStarted = false;
+function startApp() {
+  if (_appStarted) return;
+  _appStarted = true;
+  document.getElementById('inp-date').value = todayStr();
+  loadFromGAS();
+  renderSummary();
+}
+
+// 인증부터 시작
+initAuth();
+
 
 
 </script>
