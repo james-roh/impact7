@@ -18,30 +18,32 @@
   }
   .si-count { font-size: 12px; font-weight: 500; opacity: 0.85; margin-left: auto; }
   .si-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 14px; background: #fff; padding: 18px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 18px; background: #fff; padding: 20px;
     border: 1px solid #e3e0d8; border-top: none; border-radius: 0 0 10px 10px;
   }
+
   .si-card {
-    border: 1px solid #e7e4dc; border-radius: 10px; padding: 14px 16px;
+    border: 1px solid #e7e4dc; border-radius: 12px; padding: 20px 22px;
     background: #fbfaf7; transition: box-shadow .15s;
   }
   .si-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
-  .si-card-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
-  .si-name { font-size: 15px; font-weight: 700; }
-  .si-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; color: #fff; }
+  .si-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .si-name { font-size: 20px; font-weight: 800; }
+  .si-tag { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; color: #fff; }
   .tag-남 { background: #3B7BBF; }
   .tag-여 { background: #C2568C; }
   .tag-공학 { background: #6B9E5F; }
-  .si-total { margin-left: auto; font-size: 13px; font-weight: 700; color: #1B6B45; }
-  .si-grades { display: flex; gap: 6px; }
+  .si-total { margin-left: auto; font-size: 17px; font-weight: 800; color: #1B6B45; }
+  .si-grades { display: flex; gap: 10px; }
   .si-grade {
-    flex: 1; text-align: center; background: #fff; border: 1px solid #ececec;
-    border-radius: 8px; padding: 7px 4px;
+    flex: 1; text-align: center; background: #fff; border: 1px solid #dfe6df;
+    border-radius: 10px; padding: 12px 6px;
   }
-  .si-grade-label { font-size: 10px; color: #999; margin-bottom: 3px; }
-  .si-grade-val { font-size: 13px; font-weight: 700; }
-  .si-mf { font-size: 10px; color: #888; margin-top: 2px; }
+  .si-grade-label { font-size: 12px; color: #1B6B45; font-weight: 700; margin-bottom: 6px; }
+  .si-grade-val { font-size: 24px; font-weight: 800; color: #1B1B1B; }
+  .si-mf { font-size: 12px; color: #777; margin-top: 4px; }
+
   .si-loading { padding: 40px; text-align: center; color: #888; font-size: 14px; }
   .si-sheet-foot { text-align: right; margin-top: 8px; }
   .si-sheet-btn {
