@@ -1021,6 +1021,7 @@ const GAS_시재_URL = GAS_URL + '?action=시재';
 
 
 document.getElementById('btn-add').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-add');
   const 날짜 = document.getElementById('inp-date').value || todayStr();
   const 반명 = document.getElementById('inp-반명').value.trim();
   const 성명 = document.getElementById('inp-성명').value.trim();
@@ -1031,6 +1032,7 @@ document.getElementById('btn-add').addEventListener('click', async () => {
     alert('반명, 성명, 금액은 필수 입력 항목입니다.');
     return;
   }
+
 
   const payload = {
     날짜,
