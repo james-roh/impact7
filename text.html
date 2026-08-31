@@ -1560,9 +1560,10 @@ if (ruleForBook?.bookText) {
 
     // ── 무상 제본 처리 ──
     if (printOption === 'print') {
-        // 중등 지정 반(AX/EX/SP/WE): 무상 제본 시 독해/고수 줄을 자체교재에서 완전히 제거
-        const midRemoveCodes = ['AX', 'EX', 'SP', 'WE'];
+        // 중등 지정 반(A/AX/EX/SP/WE): 무상 제본 시 독해/고수 줄을 자체교재에서 완전히 제거
+        const midRemoveCodes = ['A', 'AX', 'EX', 'SP', 'WE'];
         const isMidRemoveClass = midRemoveCodes.includes(classCode);
+
 
         // 고등: 문법/실전/독해 줄 제거 (제본으로 처리하므로)
         if (school === 'high') {
