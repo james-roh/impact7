@@ -1560,6 +1560,10 @@ if (ruleForBook?.bookText) {
 
     // ── 무상 제본 처리 ──
     if (printOption === 'print') {
+        // 중등 지정 반(AX/EX/SP/WE): 무상 제본 시 독해/고수 줄을 자체교재에서 완전히 제거
+        const midRemoveCodes = ['AX', 'EX', 'SP', 'WE'];
+        const isMidRemoveClass = midRemoveCodes.includes(classCode);
+
         // 고등: 문법/실전/독해 줄 제거 (제본으로 처리하므로)
         if (school === 'high') {
             bookText = bookText
@@ -1571,12 +1575,23 @@ if (ruleForBook?.bookText) {
                 .join('\n')
                 .trim();
         }
-        // 무상 제본이면 제본 교재(문법/실전/독해)만 금액 제거, 나머지는 금액 유지
+        // 중등 AX/EX/SP/WE: 독해/고수 줄 제거 (제본으로 처리하므로)
+        else if (isMidRemoveClass) {
+            bookText = bookText
+                .split('\n')
+                .filter(line => {
+                    const t = line.replace(/\t/g, '').trim();
+                    return !t.includes('독해') && !t.includes('고수');
+                })
+                .join('\n')
+                .trim();
+        }
+        // 무상 제본이면 제본 교재(문법/실전/독해/고수)만 금액 제거, 나머지는 금액 유지
         customBookListText = bookText
             .split('\n')
             .map(line => {
                 const t = line.replace(/\t/g, '').trim();
-                if (t.includes('문법') || t.includes('실전') || t.includes('독해')) {
+                if (t.includes('문법') || t.includes('실전') || t.includes('독해') || t.includes('고수')) {
                     return line.replace(/[\s:：]*[\d,]+원/g, '').trimEnd();
                 }
                 return line;
@@ -1591,6 +1606,7 @@ if (ruleForBook?.bookText) {
         customBookListText = bookText;
         totalBookPrice = calcBookPrice(bookText); // 남은 텍스트 기준 재계산
     }
+
 
 } else {
     customBookListText = `[설정 지침에 "${classCode}" 교재 내용을 입력해주세요]`;
