@@ -996,25 +996,29 @@ function loadGuidelinesData() {
                 localStorage.setItem('guideline_class', text);
                 loadSchoolCodesFromGuideline();
                 loadHolidaysFromGuideline();
+                renderCalendarCoreSystem();   // ★ 지침 반영 후 달력 다시 그리기
                 calculateMainSystemLogic();
             } else {
                 // 구글 독스가 비어있으면 localStorage 사용
                 const saved = localStorage.getItem('guideline_class');
                 if (saved) document.getElementById('guideline_class').value = saved;
-                loadSchoolCodesFromGuideline();   // ← 추가
-                loadHolidaysFromGuideline();      // ← 추가
-                calculateMainSystemLogic();       // ← 추가
+                loadSchoolCodesFromGuideline();
+                loadHolidaysFromGuideline();
+                renderCalendarCoreSystem();   // ★ 추가
+                calculateMainSystemLogic();
             }
         })
         .catch(() => {
             // 네트워크 오류 시 localStorage 사용
             const saved = localStorage.getItem('guideline_class');
             if (saved) document.getElementById('guideline_class').value = saved;
-            loadSchoolCodesFromGuideline();   // ← 추가
-            loadHolidaysFromGuideline();      // ← 추가
-            calculateMainSystemLogic();       // ← 추가
+            loadSchoolCodesFromGuideline();
+            loadHolidaysFromGuideline();
+            renderCalendarCoreSystem();   // ★ 추가
+            calculateMainSystemLogic();
         });
 }
+
 
 
 
