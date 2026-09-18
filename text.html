@@ -1,3 +1,7 @@
+정시온  A10       40,000
+홍혜준  PA101  350,000
+류하준  A102    400,000
+박소민  AX106   400,000
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -763,8 +767,7 @@ SP = 중등, 화목, 양지5층" style="min-height: 260px;"></textarea>
 </div>
 
 <script>
-    let fixedHolidaysDB = {};
-
+    const fixedHolidaysDB = { "2026-05": [1, 2, 5, 25], "2026-06": [6] };
 const tuitionFeeDB = {
     elem: [{ text: "350,000 원", value: "350000" }, { text: "직접 입력", value: "custom" }],
     mid:  [{ text: "400,000 원", value: "400000" }, { text: "직접 입력", value: "custom" }],
@@ -826,10 +829,6 @@ function loadHolidaysFromGuideline() {
     const lines = raw.split('\n');
     const year = new Date().getFullYear();
 
-    // ★ 핵심 수정: 지침을 유일한 기준으로 삼기 위해 매번 완전히 초기화
-    //   (지침에 없는 달/일자가 잔류하지 않도록 함)
-    fixedHolidaysDB = {};
-
     lines.forEach(line => {
         const match = line.match(/(?:(\d{4})년\s*)?(\d{1,2})월\s*휴무일\s*[:：]\s*([\d,\s]+)/);
         if (match) {
@@ -841,7 +840,6 @@ function loadHolidaysFromGuideline() {
         }
     });
 }
-
 
 window.onload = function () {
     const now = new Date();
@@ -996,29 +994,25 @@ function loadGuidelinesData() {
                 localStorage.setItem('guideline_class', text);
                 loadSchoolCodesFromGuideline();
                 loadHolidaysFromGuideline();
-                renderCalendarCoreSystem();   // ★ 지침 반영 후 달력 다시 그리기
                 calculateMainSystemLogic();
             } else {
                 // 구글 독스가 비어있으면 localStorage 사용
                 const saved = localStorage.getItem('guideline_class');
                 if (saved) document.getElementById('guideline_class').value = saved;
-                loadSchoolCodesFromGuideline();
-                loadHolidaysFromGuideline();
-                renderCalendarCoreSystem();   // ★ 추가
-                calculateMainSystemLogic();
+                loadSchoolCodesFromGuideline();   // ← 추가
+                loadHolidaysFromGuideline();      // ← 추가
+                calculateMainSystemLogic();       // ← 추가
             }
         })
         .catch(() => {
             // 네트워크 오류 시 localStorage 사용
             const saved = localStorage.getItem('guideline_class');
             if (saved) document.getElementById('guideline_class').value = saved;
-            loadSchoolCodesFromGuideline();
-            loadHolidaysFromGuideline();
-            renderCalendarCoreSystem();   // ★ 추가
-            calculateMainSystemLogic();
+            loadSchoolCodesFromGuideline();   // ← 추가
+            loadHolidaysFromGuideline();      // ← 추가
+            calculateMainSystemLogic();       // ← 추가
         });
 }
-
 
 
 
