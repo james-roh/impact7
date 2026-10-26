@@ -442,11 +442,13 @@ function displayPeople() {
 }
 function sessionNums(people) {
   const set = new Set([
+    1, 2, 3, 4,
     ...Object.keys(currentSessions()).map(Number),
     ...people.map(p => Number(p.session) || 0)
   ]);
   return [...set].filter(n => n > 0).sort((a, b) => a - b);
 }
+
 function sessionKeys(people) {
   const keys = sessionNums(people);
   if (people.some(p => !Number(p.session))) keys.push(0);
