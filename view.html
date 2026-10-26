@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>신청서 확인 스튜디오</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; background: #f5f7fb; color: #1f2937; font-size: 14px; }
+  header { background: #111827; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; position: sticky; top: 0; z-index: 10; }
+  .header-title h1 { font-size: 17px; margin: 0; color: #fff; }
+  .header-title p { margin: 2px 0 0; font-size: 12px; color: #9ca3af; }
+  .user-box { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #d1d5db; }
+
+  .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 16px; align-items: start; padding: 16px; max-width: 1560px; margin: 0 auto; }
+  .sidebar { position: sticky; top: 72px; max-height: calc(100vh - 88px); overflow-y: auto; }
+  .sidebar .card { font-size: 13px; line-height: 1.6; }
+  .main { min-width: 0; }
+
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 10px; }
+  textarea { width: 100%; height: 140px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 12px; resize: vertical; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .hint { font-size: 12px; color: #6b7280; line-height: 1.6; }
+  .status { font-size: 12px; color: #4b5563; margin: 0 0 12px; }
+  .btn { border: 1px solid #d1d5db; background: #fff; border-radius: 6px; padding: 7px 14px; cursor: pointer; font-size: 13px; color: #374151; }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .btn.primary { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+  .btn.sheet { background: #0f766e; border-color: #0f766e; color: #fff; }
+  .btn.danger { color: #dc2626; border-color: #fca5a5; }
+  .btn.small { padding: 3px 8px; font-size: 12px; }
+  .action-row { display: flex; justify-content: flex-end; margin: 12px 0; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; }
+  .stat .label { font-size: 12px; color: #6b7280; }
+  .stat .num { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .filters input, .filters select { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+  .filters input { min-width: 200px; }
+  .sortnote { margin-left: auto; font-size: 12px; color: #6b7280; }
+  .group-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; padding: 12px 14px; background: #f3f4f6; border-top: 1px solid #e5e7eb; }
+  .group-head b { font-size: 13px; }
+  .group-head .warn { color: #b45309; font-size: 12px; }
+  .group-head span.cnt { font-size: 12px; color: #4b5563; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 8px; border-bottom: 1px solid #eef0f3; text-align: left; white-space: nowrap; }
+  th { background: #f9fafb; color: #4b5563; font-weight: 600; }
+  td.note { white-space: normal; min-width: 180px; color: #b45309; font-size: 12px; }
+  td.editor { font-size: 12px; color: #6b7280; }
+  tr.attended { background: #ecfdf5; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 11px; margin-right: 4px; }
+  .badge.res { background: #e0e7ff; color: #3730a3; }
+  .badge.non { background: #f3f4f6; color: #4b5563; }
+  .badge.man { background: #fef3c7; color: #92400e; }
+  select.sess-sel { padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; }
+  .empty { text-align: center; padding: 50px 0; color: #6b7280; }
+  .login-box { text-align: center; padding: 40px 16px; }
+  .pending { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
+  dialog { border: none; border-radius: 10px; padding: 20px; width: min(420px, 92vw); }
+  dialog::backdrop { background: rgba(0,0,0,0.35); }
+  dialog label { display: block; font-size: 12px; color: #4b5563; margin-bottom: 10px; }
+  dialog input, dialog select { width: 100%; padding: 7px 9px; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 4px; font-size: 13px; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 10px 18px; border-radius: 8px; opacity: 0; transition: opacity .25s; pointer-events: none; }
+  #toast.show { opacity: 1; }
+  .manual-title-input { width: 100%; font-size: 15px; font-weight: 700; color: #111827; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; margin: 0 0 8px; background: transparent; box-sizing: border-box; }
+  .manual-title-input:hover, .manual-title-input:focus { border-color: #d1d5db; background: #fff; outline: none; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; }
+  }
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .sortnote { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <h1>신청서 확인 스튜디오</h1>
+    <p>각종 신청서의 확인 및 관리를 합니다.</p>
+  </div>
+  <div class="user-box hidden" id="userBox">
+    <span id="userInfo"></span>
+    <button class="btn small" id="logoutBtn">로그아웃</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- 왼쪽: 설명서 영역 -->
+  <aside class="sidebar" id="manualArea">
+    <section class="card">
+      <input id="manualTitle" class="manual-title-input" type="text" value="설명서" maxlength="40">
+      <div class="hint">이 영역에 설명서 내용을 넣어 주세요.</div>
+    </section>
+  </aside>
+
+  <!-- 오른쪽: 작업 영역 -->
+  <main class="main">
+
+    <section class="card login-box" id="loginCard">
+      <h2>로그인이 필요합니다</h2>
+      <p class="hint">@impact7.kr 구글 계정으로 로그인해 주세요.</p>
+      <div style="margin-top:12px"><button class="btn primary" id="loginBtn">구글 계정으로 로그인</button></div>
+    </section>
+
+    <div id="appArea" class="hidden">
+
+      <section class="card" id="adminPanel">
+        <h2>원 신청 데이터 입력 및 분석 <span class="hint">(관리자 전용)</span></h2>
+        <textarea id="rawInput" placeholder="신청서 원본을 그대로 붙여넣으세요 (엑셀/구글 시트에서 복사한 탭 구분 데이터).&#10;신청일시(2026-10-25T08:30:07.525Z 형식)가 있는 줄을 신청 데이터로 인식합니다."></textarea>
+        <div class="row">
+          <span class="hint">※ 「데이터 분석하기」는 미리보기만 합니다. 「저장하기」를 눌러야 모든 사용자에게 공개됩니다. 테스트/세븐중 데이터는 제외하고, 같은 회차 중복은 최종 신청만 남기며, 여러 회차 중복은 비고에 표시합니다.</span>
+          <div>
+            <button class="btn" id="resetBtn">초기화</button>
+            <button class="btn primary" id="analyzeBtn">데이터 분석하기</button>
+            <button class="btn sheet" id="saveBtn" disabled>저장하기</button>
+          </div>
+        </div>
+        <div class="hint" id="syncMsg" style="margin-top:8px"></div>
+      </section>
+
+      <div class="pending hidden" id="pendingBanner">저장 전 미리보기입니다. 「저장하기」를 누르기 전까지 다른 사용자에게는 보이지 않으며, 이 상태에서는 출석 체크와 회차 변경이 잠깁니다.</div>
+      <div class="status" id="statusLine"></div>
+
+      <section class="stats">
+        <div class="stat"><div class="label">신청 건수 (회차별 기준)</div><div class="num" id="sTotal">0건</div></div>
+        <div class="stat"><div class="label">현재 참석자</div><div class="num" id="sAttended" style="color:#059669">0명</div></div>
+        <div class="stat"><div class="label">재원생</div><div class="num" id="sResident" style="color:#4f46e5">0명</div></div>
+        <div class="stat"><div class="label">신청 대비 참석률</div><div class="num" id="sRate" style="color:#d97706">0%</div></div>
+      </section>
+
+      <section class="card">
+        <div class="filters">
+          <input id="searchInput" type="text" placeholder="이름, 학교 검색">
+          <select id="sessionFilter"><option value="all">전체 회차</option></select>
+          <select id="residentFilter">
+            <option value="all">전체 구분 (재원/비재원)</option>
+            <option value="resident">재원생</option>
+            <option value="non">비재원</option>
+          </select>
+          <select id="attendFilter">
+            <option value="all">전체 참석여부</option>
+            <option value="yes">참석</option>
+            <option value="no">미참석</option>
+          </select>
+          <span class="sortnote">정렬 방식: <b>회차 순 / 회차 내 재원생 우선 / 신청 순</b></span>
+        </div>
+      </section>
+
+      <div class="action-row">
+        <button id="addBtn" class="btn primary">+ 현장 참석자 추가</button>
+      </div>
+
+      <section class="card" style="padding:0">
+        <div id="listArea"></div>
+      </section>
+    </div>
+
+  </main>
+</div>
+
+<dialog id="addDialog">
+  <form id="addForm">
+    <h2 style="font-size:15px;margin:0 0 12px">현장 참석자 추가</h2>
+    <label>이름 *<input name="name" required></label>
+    <label>학교<input name="school"></label>
+    <label>학년<input name="grade"></label>
+    <label>연락처<input name="phone"></label>
+    <label>참석 회차
+      <select name="session" id="addSession"><option value="0">미지정</option></select>
+    </label>
+    <label>구분
+      <select name="resident">
+        <option value="non">비재원</option>
+        <option value="resident">재원생</option>
+      </select>
+    </label>
+    <div class="row" style="justify-content:flex-end">
+      <button type="button" class="btn" id="addCancel">취소</button>
+      <button type="submit" class="btn primary">추가</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, onSnapshot, updateDoc, deleteDoc, addDoc, setDoc, writeBatch, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDWezL9F18lkiwDAVvm5_HOV01Ld2We9N8",
+  authDomain: "briefing-roster.firebaseapp.com",
+  projectId: "briefing-roster",
+  storageBucket: "briefing-roster.firebasestorage.app",
+  messagingSenderId: "899250585857",
+  appId: "1:899250585857:web:2d36394da21538aef81b00"
+};
+
+// 관리자 목록 (보안 규칙의 admin 목록과 반드시 같아야 합니다)
+const ADMINS = ['roh@impact7.kr', 'hank@impact7.kr'];
+const STAFF_DOMAIN = 'impact7.kr';
+const EXCLUDE_RE = /테스트|test|sample|샘플|세븐중/i;
+const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+const MANUAL_TITLE_KEY = 'briefing_manual_title_v1';
+const BATCH_LIMIT = 400;
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ hd: STAFF_DOMAIN });
+
+let user = null;
+let isAdmin = false;
+let unsubs = [];
+let rosterDocs = [];   // 신청 명단 (Firestore roster)
+let walkinDocs = [];   // 현장 참석자 (Firestore walkins)
+let meta = { sessions: {}, summary: {} };
+let pending = null;    // 관리자 분석 미리보기 { base, sessions, summary }
+
+const $ = id => document.getElementById(id);
+const me = () => (user ? user.email : '');
+
+/* ---------- 공통 유틸 ---------- */
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmtKST(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+}
+function nowStr() { return fmtKST(new Date(Date.now() + 9 * 3600 * 1000)); }
+function toKST(iso) {
+  const t = Date.parse(iso);
+  return isNaN(t) ? '' : fmtKST(new Date(t + 9 * 3600 * 1000));
+}
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+function personKey(r) {
+  const name = r.name.replace(/\s/g, '');
+  const digits = (r.phone || '').replace(/\D/g, '');
+  return digits ? `${name}|${digits}` : `${name}|${(r.school || '').replace(/\s/g, '')}`;
+}
+// 문서 ID: 원래 회차 + 사람 기준 (회차를 바꿔도 ID가 유지되어 출석 기록이 따라감)
+function docIdFor(r) {
+  return `${r.session}__${personKey(r).replace(/\//g, '_')}`;
+}
+
+/* ---------- 파싱 ---------- */
+function parseRaw(text) {
+  const records = [];
+  const info = {};
+  let lines = 0, unparsed = 0, excluded = 0;
+
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    lines++;
+    const c = line.split('\t').map(s => s.trim());
+
+    const tsIdx = c.findIndex(v => ISO_RE.test(v));
+    if (tsIdx < 0) { unparsed++; continue; }
+    const name = c[1] || '';
+    const school = c[2] || '';
+    if (!name) { unparsed++; continue; }
+    if (EXCLUDE_RE.test(name + ' ' + school)) { excluded++; continue; }
+
+    const sessCell = c.find(v => /\d+\s*회차/.test(v)) || '';
+    const m = sessCell.match(/(\d+)\s*회차\s*,?\s*(.*)$/);
+    const sessNum = m ? parseInt(m[1], 10) : 0;
+    const schedule = m ? m[2].replace(/\(신청서[^)]*\)/g, '').trim() : '';
+
+    const placeCell = c.find(v => /고교 선택 설명회/.test(v)) || '';
+    const pm = placeCell.match(/^(.*?)\s*고교 선택 설명회/);
+    const place = pm ? pm[1].trim() : '';
+
+    if (sessNum > 0) {
+      if (!info[sessNum]) info[sessNum] = { schedules: new Set(), places: new Set() };
+      if (schedule) info[sessNum].schedules.add(schedule);
+      if (place) info[sessNum].places.add(place);
+    }
+
+    records.push({
+      name,
+      school,
+      grade: (c[3] || '').replace(/^현\s*/, ''),
+      phone: (c[4] || '').replace(/\D/g, ''),
+      session: sessNum,
+      isResident: /재원/.test(c[0] || '') && !/비\s*재원/.test(c[0] || ''),
+      applyAt: toKST(c[tsIdx]),
+      applyTs: Date.parse(c[tsIdx]) || 0
+    });
+  }
+  return { records, info, lines, unparsed, excluded };
+}
+
+function finalizeInfo(info) {
+  const out = {};
+  for (const [n, v] of Object.entries(info)) {
+    out[n] = {
+      place: [...v.places].join(' / '),
+      schedule: [...v.schedules].join(' / '),
+      conflict: v.schedules.size > 1 || v.places.size > 1
+    };
+  }
+  return out;
+}
+
+/* ---------- 중복 처리 ---------- */
+function dedupe(records) {
+  const same = new Map();
+  let dropped = 0;
+  for (const r of records) {
+    const k = r.session + '|' + personKey(r);
+    const prev = same.get(k);
+    if (!prev) { same.set(k, { ...r, dupCount: 0 }); continue; }
+    dropped++;
+    const latest = r.applyTs > prev.applyTs ? r : prev;
+    same.set(k, { ...latest, dupCount: prev.dupCount + 1 });
+  }
+  const list = [...same.values()];
+
+  const byPerson = new Map();
+  for (const r of list) {
+    const k = personKey(r);
+    if (!byPerson.has(k)) byPerson.set(k, []);
+    byPerson.get(k).push(r);
+  }
+  for (const arr of byPerson.values()) {
+    if (arr.length < 2) continue;
+    const latest = arr.reduce((a, b) => (b.applyTs > a.applyTs ? b : a));
+    for (const r of arr) {
+      r.crossCount = arr.length;
+      r.isLatest = r === latest;
+      r.latestSession = latest.session;
+    }
+  }
+
+  for (const r of list) {
+    const notes = [];
+    if (r.dupCount) notes.push(`같은 회차 중복 ${r.dupCount}건 제외 (최종 신청 유지)`);
+    if (r.crossCount) {
+      notes.push(r.isLatest
+        ? `중복: ${r.crossCount}개 회차 신청, 최종 신청 기준`
+        : `중복: ${r.crossCount}개 회차 신청, 최종은 ${r.latestSession}회차`);
+    }
+    r.note = notes.join(' / ');
+  }
+  return { list, dropped };
+}
+
+/* ---------- 분석 (관리자 미리보기) ---------- */
+function analyze(raw) {
+  const { records, info, lines, unparsed, excluded } = parseRaw(raw);
+  const sessions = finalizeInfo(info);
+  const { list, dropped } = dedupe(records);
+  const applicants = list.map(r => ({
+    id: docIdFor(r),
+    session: r.session,
+    name: r.name,
+    school: r.school,
+    grade: r.grade,
+    phone: r.phone,
+    isResident: r.isResident,
+    applyAt: r.applyAt,
+    note: r.note || '',
+    attended: false,
+    attendedAt: null
+  }));
+  const summary = {
+    lines, unparsed, excluded, dropped,
+    records: records.length,
+    rows: applicants.length,
+    persons: new Set(list.map(personKey)).size
+  };
+  return { applicants, sessions, summary };
+}
+
+// 새로 분석한 명단에 기존 출석·회차 배정 값을 이어 붙입니다.
+function mergeWithExisting(base) {
+  const old = new Map(rosterDocs.map(d => [d.id, d]));
+  return base.map(a => {
+    const o = old.get(a.id);
+    if (!o) return a;
+    return {
+      ...a,
+      session: Number(o.session) || 0,
+      attended: !!o.attended,
+      attendedAt: o.attendedAt || null,
+      lastEditor: o.lastEditor || '',
+      lastEditedAt: o.lastEditedAt || null
+    };
+  });
+}
+
+function toStore(p) {
+  return {
+    session: Number(p.session) || 0,
+    name: p.name,
+    school: p.school || '',
+    grade: p.grade || '',
+    phone: p.phone || '',
+    isResident: !!p.isResident,
+    applyAt: p.applyAt || '',
+    note: p.note || '',
+    attended: !!p.attended,
+    attendedAt: p.attendedAt || null,
+    lastEditor: p.lastEditor || '',
+    lastEditedAt: p.lastEditedAt || null
+  };
+}
+
+/* ---------- 화면용 데이터 ---------- */
+function currentSessions() {
+  return pending ? pending.sessions : (meta.sessions || {});
+}
+function displayPeople() {
+  const apps = pending ? mergeWithExisting(pending.base) : rosterDocs;
+  return [
+    ...apps.map(p => ({ ...p, kind: 'applicant' })),
+    ...walkinDocs.map(w => ({ ...w, kind: 'walkin' }))
+  ];
+}
+function sessionNums(people) {
+  const set = new Set([
+    ...Object.keys(currentSessions()).map(Number),
+    ...people.map(p => Number(p.session) || 0)
+  ]);
+  return [...set].filter(n => n > 0).sort((a, b) => a - b);
+}
+function sessionKeys(people) {
+  const keys = sessionNums(people);
+  if (people.some(p => !Number(p.session))) keys.push(0);
+  return keys;
+}
+function sessOptions(cur, nums) {
+  const info = currentSessions();
+  const cn = Number(cur) || 0;
+  const opts = nums.map(n =>
+    `<option value="${n}" ${n === cn ? 'selected' : ''}>${n}회차${info[n]?.schedule ? ' (' + esc(info[n].schedule) + ')' : ''}</option>`);
+  return `<option value="0" ${cn === 0 ? 'selected' : ''}>미지정</option>` + opts.join('');
+}
+function groupTitle(n, info) {
+  if (!n) return '회차 미지정 (확인 필요)';
+  const i = info[n] || {};
+  return [`${n}회차`, i.schedule || '일시 정보 없음', i.place || '장소 정보 없음'].join(' · ');
+}
+function sortFn(a, b) {
+  if (a.isResident !== b.isResident) return a.isResident ? -1 : 1;
+  return (a.applyAt || '').localeCompare(b.applyAt || '');
+}
+function filterPeople(people) {
+  const q = $('searchInput').value.trim().toLowerCase();
+  const rt = $('residentFilter').value;
+  const at = $('attendFilter').value;
+  const ss = $('sessionFilter').value;
+  return people.filter(p => {
+    if (q && !((p.name || '') + (p.school || '')).toLowerCase().includes(q)) return false;
+    if (rt === 'resident' && !p.isResident) return false;
+    if (rt === 'non' && p.isResident) return false;
+    if (at === 'yes' && !p.attended) return false;
+    if (at === 'no' && p.attended) return false;
+    if (ss !== 'all' && String(Number(p.session) || 0) !== ss) return false;
+    return true;
+  });
+}
+
+/* ---------- 렌더링 ---------- */
+function refreshSessionFilter(people) {
+  const sel = $('sessionFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">전체 회차</option>' +
+    sessionKeys(people).map(n => `<option value="${n}">${n ? n + '회차' : '회차 미지정'}</option>`).join('');
+  sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'all';
+}
+function renderStats(people) {
+  const apps = people.filter(p => p.kind === 'applicant');
+  const attendedAll = people.filter(p => p.attended).length;
+  const attendedApp = apps.filter(p => p.attended).length;
+  $('sTotal').textContent = apps.length + '건';
+  $('sAttended').textContent = attendedAll + '명';
+  $('sResident').textContent = people.filter(p => p.isResident).length + '명';
+  $('sRate').textContent = (apps.length ? Math.round(attendedApp / apps.length * 100) : 0) + '%';
+}
+function rowHtml(p, nums, locked) {
+  const dis = locked ? 'disabled' : '';
+  const isWalk = p.kind === 'walkin';
+  return `
+    <tr class="${p.attended ? 'attended' : ''}">
+      <td><input type="checkbox" data-kind="${p.kind}" data-id="${esc(p.id)}" ${p.attended ? 'checked' : ''} ${dis}></td>
+      <td><span class="badge ${p.isResident ? 'res' : 'non'}">${p.isResident ? '재원' : '비재원'}</span>${isWalk ? '<span class="badge man">현장</span>' : ''}</td>
+      <td><b>${esc(p.name)}</b></td>
+      <td>${esc(p.school)}</td>
+      <td>${esc(p.grade)}</td>
+      <td>${esc(p.phone)}</td>
+      <td><select class="sess-sel" data-kind="${p.kind}" data-id="${esc(p.id)}" ${dis}>${sessOptions(p.session, nums)}</select></td>
+      <td>${esc(p.applyAt)}</td>
+      <td class="note">${esc(p.note)}</td>
+      <td class="editor">${esc(p.lastEditor)}</td>
+      <td>${isWalk && !locked ? `<button class="btn small danger" data-del="${esc(p.id)}">삭제</button>` : ''}</td>
+    </tr>`;
+}
+function renderList(people) {
+  const area = $('listArea');
+  if (!people.length) {
+    area.innerHTML = `<div class="empty"><div style="font-size:15px;font-weight:600;color:#374151">분석된 신청 데이터가 없습니다.</div><div style="margin-top:6px;font-size:12px">관리자가 신청서 원본을 분석해 저장하면 명단이 표시됩니다.</div></div>`;
+    return;
+  }
+  const list = filterPeople(people);
+  if (!list.length) {
+    area.innerHTML = `<div class="empty">조건에 맞는 신청자가 없습니다.</div>`;
+    return;
+  }
+  const nums = sessionNums(people);
+  const info = currentSessions();
+  const locked = !!pending;
+  let html = '';
+  for (const s of sessionKeys(people)) {
+    const rows = list.filter(p => (Number(p.session) || 0) === s).sort(sortFn);
+    if (!rows.length) continue;
+    const all = people.filter(p => (Number(p.session) || 0) === s);
+    const i = info[s] || {};
+    const warn = i.conflict ? `<span class="warn">⚠ 원본에 같은 회차의 일시·장소가 다르게 적힌 항목이 있습니다</span>` : '';
+    html += `
+      <div class="group-head">
+        <div><b>${esc(groupTitle(s, info))}</b> ${warn}</div>
+        <span class="cnt">재원 ${all.filter(p => p.isResident).length} / 비재원 ${all.filter(p => !p.isResident).length} / 참석 ${all.filter(p => p.attended).length}명</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>출석</th><th>구분</th><th>이름</th><th>학교</th><th>학년</th><th>연락처</th><th>회차 변경</th><th>신청일시(KST)</th><th>비고</th><th>최근 변경자</th><th></th>
+          </tr></thead>
+          <tbody>${rows.map(p => rowHtml(p, nums, locked)).join('')}</tbody>
+        </table>
+      </div>`;
+  }
+  area.innerHTML = html || `<div class="empty">조건에 맞는 신청자가 없습니다.</div>`;
+}
+function renderStatus() {
+  const s = meta.summary || {};
+  $('statusLine').textContent = meta.savedAt
+    ? `마지막 저장: ${meta.savedAt} (${meta.savedBy || '알 수 없음'}) · 신청 ${s.rows || 0}건 · 고유 인원 ${s.persons || 0}명`
+    : '저장된 신청 명단이 없습니다. 관리자가 데이터를 분석해 저장하면 여기에 표시됩니다.';
+}
+function render() {
+  $('adminPanel').classList.toggle('hidden', !isAdmin);
+  $('pendingBanner').classList.toggle('hidden', !pending);
+  $('saveBtn').disabled = !pending;
+  const people = displayPeople();
+  refreshSessionFilter(people);
+  renderStats(people);
+  renderList(people);
+  renderStatus();
+}
+
+/* ---------- Firestore 쓰기 ---------- */
+async function commitOps(ops) {
+  for (let i = 0; i < ops.length; i += BATCH_LIMIT) {
+    const batch = writeBatch(db);
+    for (const op of ops.slice(i, i + BATCH_LIMIT)) {
+      if (op.type === 'set') batch.set(op.ref, op.data);
+      else batch.delete(op.ref);
+    }
+    await batch.commit();
+  }
+}
+async function updateEntry(kind, id, fields) {
+  const ref = doc(db, kind === 'walkin' ? 'walkins' : 'roster', id);
+  await updateDoc(ref, { ...fields, lastEditor: me(), lastEditedAt: serverTimestamp() });
+}
+
+/* ---------- 관리자 기능 ---------- */
+function onAnalyze() {
+  if (!isAdmin) return;
+  const raw = $('rawInput').value;
+  if (!raw.trim()) { alert('분석할 데이터가 없습니다. 신청서 데이터를 붙여넣어 주세요.'); return; }
+  const result = analyze(raw);
+  if (!result.summary.records) {
+    alert('신청 데이터로 인식된 행이 없습니다.\n신청일시(예: 2026-10-25T08:30:07.525Z)가 포함된 탭 구분 원본인지 확인해 주세요.');
+    return;
+  }
+  pending = { base: result.applicants, sessions: result.sessions, summary: result.summary };
+  const s = result.summary;
+  $('syncMsg').textContent =
+    `입력 ${s.lines}행 · 인식 ${s.records}행 · 테스트 제외 ${s.excluded}건 · 형식 불일치 ${s.unparsed}행 · ` +
+    `같은 회차 중복 병합 ${s.dropped}건 → 신청 ${s.rows}건 (고유 인원 ${s.persons}명)`;
+  render();
+  toast('분석했습니다. 확인 후 「저장하기」를 누르세요.');
+}
+
+async function onSave() {
+  if (!isAdmin || !pending) return;
+  const people = mergeWithExisting(pending.base);
+  if (!confirm(`분석 결과 ${people.length}건을 저장할까요?\n저장하면 모든 사용자에게 공개되며, 이번 원본에 없는 기존 신청 항목은 삭제됩니다.`)) return;
+
+  const btn = $('saveBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  try {
+    const ids = new Set(people.map(p => p.id));
+    const ops = people.map(p => ({ type: 'set', ref: doc(db, 'roster', p.id), data: toStore(p) }));
+    rosterDocs.filter(d => !ids.has(d.id)).forEach(d => ops.push({ type: 'delete', ref: doc(db, 'roster', d.id) }));
+    ops.push({
+      type: 'set',
+      ref: doc(db, 'meta', 'current'),
+      data: { sessions: pending.sessions, summary: pending.summary, savedAt: nowStr(), savedBy: me() }
+    });
+    await commitOps(ops);
+    pending = null;
+    toast(`${people.length}건을 저장했습니다.`);
+  } catch (err) {
+    alert('저장에 실패했습니다.\n' + err.message);
+  } finally {
+    btn.textContent = '저장하기';
+    render();
+  }
+}
+
+async function onReset() {
+  if (!isAdmin) return;
+  if (!confirm('입력창과 분석 미리보기를 지울까요?')) return;
+  pending = null;
+  $('rawInput').value = '';
+  $('syncMsg').textContent = '';
+  if (confirm('저장된 신청 명단, 현장 참석자, 출석·회차 기록까지 모두 삭제할까요?\n(되돌릴 수 없습니다. 취소하면 저장 데이터는 그대로 둡니다.)')) {
+    try {
+      const ops = [
+        ...rosterDocs.map(d => ({ type: 'delete', ref: doc(db, 'roster', d.id) })),
+        ...walkinDocs.map(w => ({ type: 'delete', ref: doc(db, 'walkins', w.id) })),
+        { type: 'delete', ref: doc(db, 'meta', 'current') }
+      ];
+      await commitOps(ops);
+      toast('초기화했습니다.');
+    } catch (err) {
+      alert('초기화에 실패했습니다.\n' + err.message);
+    }
+  }
+  render();
+}
+
+/* ---------- 실시간 구독 ---------- */
+function stopListening() {
+  unsubs.forEach(f => f());
+  unsubs = [];
+  rosterDocs = [];
+  walkinDocs = [];
+  meta = { sessions: {}, summary: {} };
+  pending = null;
+}
+function startListening() {
+  const fail = err => { $('statusLine').textContent = '데이터를 불러오지 못했습니다: ' + err.message; };
+  unsubs.push(onSnapshot(collection(db, 'roster'), snap => {
+    rosterDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }, fail));
+  unsubs.push(onSnapshot(collection(db, 'walkins'), snap => {
+    walkinDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }, fail));
+  unsubs.push(onSnapshot(doc(db, 'meta', 'current'), snap => {
+    meta = snap.exists() ? snap.data() : { sessions: {}, summary: {} };
+    render();
+  }, fail));
+}
+
+/* ---------- 로그인 ---------- */
+onAuthStateChanged(auth, async u => {
+  stopListening();
+  if (!u) {
+    user = null;
+    isAdmin = false;
+    $('userBox').classList.add('hidden');
+    $('loginCard').classList.remove('hidden');
+    $('appArea').classList.add('hidden');
+    return;
+  }
+  const email = (u.email || '').toLowerCase();
+  if (!u.emailVerified || !email.endsWith('@' + STAFF_DOMAIN)) {
+    alert(`@${STAFF_DOMAIN} 계정만 사용할 수 있습니다.`);
+    await signOut(auth);
+    return;
+  }
+  user = u;
+  isAdmin = ADMINS.includes(email);
+  $('userInfo').textContent = `${email}${isAdmin ? ' (관리자)' : ''}`;
+  $('userBox').classList.remove('hidden');
+  $('loginCard').classList.add('hidden');
+  $('appArea').classList.remove('hidden');
+  startListening();
+  render();
+});
+
+/* ---------- 이벤트 ---------- */
+$('loginBtn').addEventListener('click', async () => {
+  try { await signInWithPopup(auth, provider); }
+  catch (err) { alert('로그인하지 못했습니다.\n' + err.message); }
+});
+$('logoutBtn').addEventListener('click', () => signOut(auth));
+
+$('analyzeBtn').addEventListener('click', onAnalyze);
+$('saveBtn').addEventListener('click', onSave);
+$('resetBtn').addEventListener('click', onReset);
+
+$('searchInput').addEventListener('input', render);
+['sessionFilter', 'residentFilter', 'attendFilter'].forEach(id => $(id).addEventListener('change', render));
+
+$('listArea').addEventListener('change', async e => {
+  const t = e.target;
+  if (!t.dataset.id || pending) return;
+  try {
+    if (t.matches('input[type=checkbox]')) {
+      const on = t.checked;
+      await updateEntry(t.dataset.kind, t.dataset.id, { attended: on, attendedAt: on ? nowStr() : null });
+    } else if (t.matches('select.sess-sel')) {
+      await updateEntry(t.dataset.kind, t.dataset.id, { session: Number(t.value) });
+    }
+  } catch (err) {
+    alert('변경을 저장하지 못했습니다.\n' + err.message);
+    render();
+  }
+});
+
+$('listArea').addEventListener('click', async e => {
+  const id = e.target.dataset.del;
+  if (!id) return;
+  if (!confirm('이 현장 참석자를 삭제할까요?')) return;
+  try {
+    await deleteDoc(doc(db, 'walkins', id));
+    toast('삭제했습니다.');
+  } catch (err) {
+    alert('삭제하지 못했습니다.\n' + err.message);
+  }
+});
+
+$('addBtn').addEventListener('click', () => {
+  $('addSession').innerHTML = sessOptions(0, sessionNums(displayPeople()));
+  $('addDialog').showModal();
+});
+$('addCancel').addEventListener('click', () => $('addDialog').close());
+$('addForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const name = String(f.get('name') || '').trim();
+  if (!name) { alert('이름을 입력하세요.'); return; }
+  try {
+    await addDoc(collection(db, 'walkins'), {
+      name,
+      school: String(f.get('school') || '').trim(),
+      grade: String(f.get('grade') || '').trim(),
+      phone: String(f.get('phone') || '').replace(/\D/g, ''),
+      session: Number(f.get('session')) || 0,
+      isResident: f.get('resident') === 'resident',
+      attended: true,
+      attendedAt: nowStr(),
+      applyAt: nowStr(),
+      note: '현장 추가',
+      addedBy: me(),
+      lastEditor: me(),
+      lastEditedAt: serverTimestamp()
+    });
+    e.target.reset();
+    $('addDialog').close();
+    toast('현장 참석자를 추가했습니다.');
+  } catch (err) {
+    alert('추가하지 못했습니다.\n' + err.message);
+  }
+});
+
+const manualTitleEl = $('manualTitle');
+manualTitleEl.value = localStorage.getItem(MANUAL_TITLE_KEY) || '설명서';
+manualTitleEl.addEventListener('input', () => {
+  localStorage.setItem(MANUAL_TITLE_KEY, manualTitleEl.value);
+});
+</script>
+</body>
+</html>
