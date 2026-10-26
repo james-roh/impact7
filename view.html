@@ -134,18 +134,23 @@
       <div class="pending hidden" id="pendingBanner">저장 전 미리보기입니다. 「저장하기」를 누르기 전까지 다른 사용자에게는 보이지 않으며, 이 상태에서는 출석 체크와 회차 변경이 잠깁니다.</div>
       <div class="status" id="statusLine"></div>
 
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="hint">회차 선택</span>
+        <select id="sessionFilter" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"><option value="all">전체 회차</option></select>
+      </div>
       <section class="stats">
+
         <div class="stat"><div class="label">신청 건수 (회차별 기준)</div><div class="num" id="sTotal">0건</div></div>
         <div class="stat"><div class="label">현재 참석자</div><div class="num" id="sAttended" style="color:#059669">0명</div></div>
         <div class="stat"><div class="label">재원생</div><div class="num" id="sResident" style="color:#4f46e5">0명</div></div>
         <div class="stat"><div class="label">신청 대비 참석률</div><div class="num" id="sRate" style="color:#d97706">0%</div></div>
       </section>
 
-      <section class="card">
-        <div class="filters">
-          <input id="searchInput" type="text" placeholder="이름, 학교 검색">
-          <select id="sessionFilter"><option value="all">전체 회차</option></select>
-          <select id="residentFilter">
+<section class="card">
+  <div class="filters">
+    <input id="searchInput" type="text" placeholder="이름, 학교 검색">
+    <select id="residentFilter">
+
             <option value="all">전체 구분 (재원/비재원)</option>
             <option value="resident">재원생</option>
             <option value="non">비재원</option>
@@ -506,24 +511,21 @@ function renderStats(people) {
     : people.filter(p => String(Number(p.session) || 0) === sel);
   const apps = scope.filter(p => p.kind === 'applicant');
   const appAttended = apps.filter(p => p.attended).length;
-  const rate = apps.length ? Math.round(appAttended / apps.length * 100) : 0;
 
   $('sTotal').textContent = apps.length + '건';
   $('sAttended').textContent = scope.filter(p => p.attended).length + '명';
   $('sResident').textContent = scope.filter(p => p.isResident).length + '명';
 
-  // 전체 회차를 보고 있을 때는 회차별 참석률을 작은 글씨로 함께 보여줍니다.
-  let sub = '';
+  // 참석률은 회차를 하나 고른 경우에만 계산합니다. 전체 회차에서는 여러 회차의 출석이 합쳐져 부정확하므로 계산하지 않습니다.
   if (sel === 'all') {
-    sub = sessionKeys(people).filter(n => n).map(n => {
-      const a = people.filter(p => p.kind === 'applicant' && (Number(p.session) || 0) === n);
-      const c = a.filter(p => p.attended).length;
-      return `${n}회차 ${a.length ? Math.round(c / a.length * 100) : 0}%`;
-    }).join(' · ');
+    $('sRate').innerHTML = '<span style="font-size:14px;font-weight:600;color:#6b7280">회차 선택</span>' +
+      '<div style="font-size:11px;color:#6b7280;font-weight:400;margin-top:4px">위에서 회차를 고르면 참석률이 표시됩니다</div>';
+  } else {
+    const rate = apps.length ? Math.round(appAttended / apps.length * 100) : 0;
+    $('sRate').textContent = rate + '%';
   }
-  $('sRate').innerHTML = rate + '%' +
-    (sub ? `<div style="font-size:11px;color:#6b7280;font-weight:400;margin-top:4px">${esc(sub)}</div>` : '');
 }
+
 
 function rowHtml(p, nums, locked) {
   const dis = locked ? 'disabled' : '';
