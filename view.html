@@ -437,20 +437,13 @@ function currentSessions() {
   return pending ? pending.sessions : (meta.sessions || {});
 }
 function displayPeople() {
-  if (!pending) {
-    return [
-      ...rosterDocs.map(p => ({ ...p, kind: 'applicant' })),
-      ...walkinDocs.map(w => ({ ...w, kind: 'walkin' }))
-    ];
-  }
-  const oldIds = new Set(rosterDocs.map(d => d.id));
-  const apps = mergeWithExisting(pending.base)
-    .map(p => ({ ...p, kind: 'applicant', isNew: !oldIds.has(p.id) }));
+  const apps = pending ? mergeWithExisting(pending.base) : rosterDocs;
   return [
-    ...apps,
+    ...apps.map(p => ({ ...p, kind: 'applicant' })),
     ...walkinDocs.map(w => ({ ...w, kind: 'walkin' }))
   ];
 }
+
 
 function sessionNums(people) {
   const set = new Set([
@@ -535,13 +528,10 @@ function renderStats(people) {
 function rowHtml(p, nums, locked) {
   const dis = locked ? 'disabled' : '';
   const isWalk = p.kind === 'walkin';
-  const pendBadge = (pending && p.kind === 'applicant')
-    ? (p.isNew ? '<span class="badge new">신규</span>' : '<span class="badge old">기존</span>')
-    : '';
   return `
     <tr class="${p.attended ? 'attended' : ''}">
       <td><input type="checkbox" data-kind="${p.kind}" data-id="${esc(p.id)}" ${p.attended ? 'checked' : ''} ${dis}></td>
-      <td><span class="badge ${p.isResident ? 'res' : 'non'}">${p.isResident ? '재원' : '비재원'}</span>${isWalk ? '<span class="badge man">현장</span>' : ''}${pendBadge}</td>
+      <td><span class="badge ${p.isResident ? 'res' : 'non'}">${p.isResident ? '재원' : '비재원'}</span>${isWalk ? '<span class="badge man">현장</span>' : ''}</td>
       <td><b>${esc(p.name)}</b></td>
       <td>${esc(p.school)}</td>
       <td>${esc(p.grade)}</td>
@@ -553,6 +543,7 @@ function rowHtml(p, nums, locked) {
       <td>${isWalk && !locked ? `<button class="btn small danger" data-del="${esc(p.id)}">삭제</button>` : ''}</td>
     </tr>`;
 }
+
 
 function renderList(people) {
   const area = $('listArea');
