@@ -47,7 +47,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { padding: 9px 8px; border-bottom: 1px solid #eef0f3; text-align: left; white-space: nowrap; }
   th { background: #f9fafb; color: #4b5563; font-weight: 600; }
-  td.note { white-space: normal; min-width: 180px; color: #b45309; font-size: 12px; }
+  td.note { white-space: normal; min-width: 200px; color: #b45309; font-size: 12px; }
   td.editor { font-size: 12px; color: #6b7280; }
   tr.attended { background: #ecfdf5; }
   .badge { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 11px; margin-right: 4px; }
@@ -66,12 +66,11 @@
   #toast.show { opacity: 1; }
   .manual-title-input { width: 100%; font-size: 15px; font-weight: 700; color: #111827; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; margin: 0 0 8px; background: transparent; box-sizing: border-box; }
   .manual-title-input:hover, .manual-title-input:focus { border-color: #d1d5db; background: #fff; outline: none; }
-   .manual-title-input[readonly]:hover { border-color: transparent; background: transparent; }
+  .manual-title-input[readonly]:hover { border-color: transparent; background: transparent; }
 
   .hidden { display: none !important; }
   body:not(.is-admin) .admin-only { display: none !important; }
-  input.memo-input { width: 160px; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; }
-
+  input.memo-input { width: 100%; min-width: 200px; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; }
 
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
@@ -81,9 +80,6 @@
     .stats { grid-template-columns: repeat(2, 1fr); }
     .sortnote { margin-left: 0; width: 100%; }
   }
-   .badge.new { background: #dcfce7; color: #166534; }
-  .badge.old { background: #e5e7eb; color: #374151; }
-
 </style>
 </head>
 <body>
@@ -107,7 +103,6 @@
       <input id="manualTitle" class="manual-title-input" type="text" value="고교선택설명회 2027" maxlength="40">
     </section>
   </aside>
-
 
   <!-- 오른쪽: 작업 영역 -->
   <main class="main">
@@ -142,18 +137,16 @@
         <select id="sessionFilter" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"><option value="all">전체 회차</option></select>
       </div>
       <section class="stats">
-
         <div class="stat"><div class="label">신청 건수 (회차별 기준)</div><div class="num" id="sTotal">0건</div></div>
         <div class="stat"><div class="label">현재 참석자</div><div class="num" id="sAttended" style="color:#059669">0명</div></div>
         <div class="stat"><div class="label">재원생</div><div class="num" id="sResident" style="color:#4f46e5">0명</div></div>
         <div class="stat"><div class="label">신청 대비 참석률</div><div class="num" id="sRate" style="color:#d97706">0%</div></div>
       </section>
 
-<section class="card">
-  <div class="filters">
-    <input id="searchInput" type="text" placeholder="이름, 학교 검색">
-    <select id="residentFilter">
-
+      <section class="card">
+        <div class="filters">
+          <input id="searchInput" type="text" placeholder="이름, 학교 검색">
+          <select id="residentFilter">
             <option value="all">전체 구분 (재원/비재원)</option>
             <option value="resident">재원생</option>
             <option value="non">비재원</option>
@@ -226,6 +219,7 @@ const STAFF_DOMAIN = 'impact7.kr';
 const EXCLUDE_RE = /테스트|test|sample|샘플|세븐중/i;
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 const MANUAL_TITLE_KEY = 'briefing_manual_title_v1';
+const MANUAL_TITLE_DEFAULT = '고교선택설명회 2027';
 const BATCH_LIMIT = 400;
 
 const app = initializeApp(firebaseConfig);
@@ -241,8 +235,6 @@ let rosterDocs = [];   // 신청 명단 (Firestore roster)
 let walkinDocs = [];   // 현장 참석자 (Firestore walkins)
 let meta = { sessions: {}, summary: {} };
 let pending = null;    // 관리자 분석 미리보기 { base, sessions, summary }
-const MANUAL_TITLE_DEFAULT = '고교선택설명회 2027';
-
 
 const $ = id => document.getElementById(id);
 const me = () => (user ? user.email : '');
@@ -275,6 +267,23 @@ function personKey(r) {
 // 문서 ID: 원래 회차 + 사람 기준 (회차를 바꿔도 ID가 유지되어 출석 기록이 따라감)
 function docIdFor(r) {
   return `${r.session}__${personKey(r).replace(/\//g, '_')}`;
+}
+// 연락처 표시: 010-2222-2222 형식
+function fmtPhone(s) {
+  const d = String(s || '').replace(/\D/g, '');
+  if (d.length === 11) return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  return d;
+}
+// 신청일시 표시: 날짜만 (년-월-일)
+function fmtDate(s) {
+  return String(s || '').slice(0, 10);
+}
+// 회차 선택 목록용 시작 시간: 「오전 11:00 ~」
+function startTime(schedule) {
+  const first = String(schedule || '').split('~')[0];
+  const m = first.match(/(오전|오후)\s*\d{1,2}:\d{2}/);
+  return m ? m[0] : first.trim();
 }
 
 /* ---------- 파싱 ---------- */
@@ -406,7 +415,7 @@ function analyze(raw) {
   return { applicants, sessions, summary };
 }
 
-// 새로 분석한 명단에 기존 출석·회차 배정 값을 이어 붙입니다.
+// 새로 분석한 명단에 기존 출석·회차 배정·비고 값을 이어 붙입니다.
 function mergeWithExisting(base) {
   const old = new Map(rosterDocs.map(d => [d.id, d]));
   return base.map(a => {
@@ -414,6 +423,7 @@ function mergeWithExisting(base) {
     if (!o) return a;
     return {
       ...a,
+      ...(o.memo !== undefined ? { memo: o.memo } : {}),
       session: Number(o.session) || 0,
       attended: !!o.attended,
       attendedAt: o.attendedAt || null,
@@ -451,8 +461,6 @@ function displayPeople() {
     ...walkinDocs.map(w => ({ ...w, kind: 'walkin' }))
   ];
 }
-
-
 function sessionNums(people) {
   const set = new Set([
     1, 2, 3, 4,
@@ -461,7 +469,6 @@ function sessionNums(people) {
   ]);
   return [...set].filter(n => n > 0).sort((a, b) => a - b);
 }
-
 function sessionKeys(people) {
   const keys = sessionNums(people);
   if (people.some(p => !Number(p.session))) keys.push(0);
@@ -470,8 +477,10 @@ function sessionKeys(people) {
 function sessOptions(cur, nums) {
   const info = currentSessions();
   const cn = Number(cur) || 0;
-  const opts = nums.map(n =>
-    `<option value="${n}" ${n === cn ? 'selected' : ''}>${n}회차${info[n]?.schedule ? ' (' + esc(info[n].schedule) + ')' : ''}</option>`);
+  const opts = nums.map(n => {
+    const st = info[n]?.schedule ? startTime(info[n].schedule) + ' ~' : '';
+    return `<option value="${n}" ${n === cn ? 'selected' : ''}>${n}회차${st ? ' (' + esc(st) + ')' : ''}</option>`;
+  });
   return `<option value="0" ${cn === 0 ? 'selected' : ''}>미지정</option>` + opts.join('');
 }
 function groupTitle(n, info) {
@@ -529,12 +538,12 @@ function renderStats(people) {
   }
 }
 
-
 function origSessionOf(p) {
   if (p.kind === 'walkin') return null;
   const n = parseInt(String(p.id).split('__')[0], 10);
   return isNaN(n) ? 0 : n;
 }
+// 출석 체크나 회차 변경이 있었던 행만 변경자를 표시합니다.
 function isChanged(p) {
   if (p.kind === 'walkin') return true;
   return !!p.attended || Number(p.session) !== origSessionOf(p);
@@ -542,10 +551,12 @@ function isChanged(p) {
 function rowHtml(p, nums, locked) {
   const dis = locked ? 'disabled' : '';
   const isWalk = p.kind === 'walkin';
+  // 비고: 자동 메모(중복 안내)와 관리자 입력을 한 칸에 보여줍니다.
+  // 관리자가 저장한 값이 있으면 그 값을, 없으면 자동 메모를 보여줍니다.
+  const noteVal = ('memo' in p) ? (p.memo || '') : (p.note || '');
   const noteCell = isAdmin
-    ? `<div style="color:#b45309;font-size:12px">${esc(p.note)}</div>
-       <input class="memo-input" data-kind="${p.kind}" data-id="${esc(p.id)}" value="${esc(p.memo || '')}" placeholder="비고 입력" ${dis}>`
-    : `${esc(p.note)}${p.memo ? `<div style="color:#1f2937;margin-top:2px">${esc(p.memo)}</div>` : ''}`;
+    ? `<input class="memo-input" data-kind="${p.kind}" data-id="${esc(p.id)}" value="${esc(noteVal)}" placeholder="비고 입력" ${dis}>`
+    : esc(noteVal);
   const editor = isChanged(p) && p.lastEditor ? esc(p.lastEditor) : '';
   return `
     <tr class="${p.attended ? 'attended' : ''}">
@@ -554,16 +565,14 @@ function rowHtml(p, nums, locked) {
       <td><b>${esc(p.name)}</b></td>
       <td>${esc(p.school)}</td>
       <td>${esc(p.grade)}</td>
-      <td>${esc(p.phone)}</td>
+      <td>${esc(fmtPhone(p.phone))}</td>
       <td><select class="sess-sel" data-kind="${p.kind}" data-id="${esc(p.id)}" ${dis}>${sessOptions(p.session, nums)}</select></td>
-      <td>${esc(p.applyAt)}</td>
+      <td>${esc(fmtDate(p.applyAt))}</td>
       <td class="note">${noteCell}</td>
       <td class="editor admin-only">${editor}</td>
       <td>${isWalk && !locked ? `<button class="btn small danger" data-del="${esc(p.id)}">삭제</button>` : ''}</td>
     </tr>`;
 }
-
-
 
 function renderList(people) {
   const area = $('listArea');
@@ -594,8 +603,7 @@ function renderList(people) {
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>출석</th><th>구분</th><th>이름</th><th>학교</th><th>학년</th><th>연락처</th><th>회차 변경</th><th>신청일시(KST)</th><th>비고</th><th class="admin-only">최근 변경자</th>
-<th></th>
+            <th>출석</th><th>구분</th><th>이름</th><th>학교</th><th>학년</th><th>연락처</th><th>회차 변경</th><th>신청일시</th><th>비고</th><th class="admin-only">최근 변경자</th><th></th>
           </tr></thead>
           <tbody>${rows.map(p => rowHtml(p, nums, locked)).join('')}</tbody>
         </table>
@@ -700,8 +708,6 @@ async function onSave() {
   }
 }
 
-
-
 async function onReset() {
   if (!isAdmin) return;
   if (!confirm('입력창과 분석 미리보기를 지울까요?')) return;
@@ -755,7 +761,6 @@ function startListening() {
   }, fail));
 }
 
-
 /* ---------- 로그인 ---------- */
 onAuthStateChanged(auth, async u => {
   stopListening();
@@ -777,9 +782,7 @@ onAuthStateChanged(auth, async u => {
   isAdmin = ADMINS.includes(email);
   $('manualTitle').readOnly = !isAdmin;
   document.body.classList.toggle('is-admin', isAdmin);
-
   $('userInfo').textContent = `${email}${isAdmin ? ' (관리자)' : ''}`;
-
   $('userBox').classList.remove('hidden');
   $('loginCard').classList.add('hidden');
   $('appArea').classList.remove('hidden');
@@ -826,7 +829,6 @@ $('listArea').addEventListener('change', async e => {
     render();
   }
 });
-
 
 $('listArea').addEventListener('click', async e => {
   const id = e.target.dataset.del;
@@ -887,7 +889,6 @@ manualTitleEl.addEventListener('change', async () => {
     alert('제목을 저장하지 못했습니다.\n' + err.message);
   }
 });
-
 </script>
 </body>
 </html>
