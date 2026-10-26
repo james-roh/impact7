@@ -612,16 +612,20 @@ function onAnalyze() {
 
 async function onSave() {
   if (!isAdmin || !pending) return;
-  const people = mergeWithExisting(pending.base);
-  if (!confirm(`분석 결과 ${people.length}건을 저장할까요?\n저장하면 모든 사용자에게 공개되며, 이번 원본에 없는 기존 신청 항목은 삭제됩니다.`)) return;
+  const existingIds = new Set(rosterDocs.map(d => d.id));
+  const fresh = pending.base.filter(p => !existingIds.has(p.id));
+  const skipped = pending.base.length - fresh.length;
+
+  const msg = fresh.length
+    ? `새로 추가할 신청자 ${fresh.length}건을 저장할까요?\n이미 저장된 ${skipped}건은 변경하지 않고 건너뜁니다.`
+    : `새로 추가된 신청자가 없습니다.\n(동일한 ${skipped}건은 이미 저장되어 있어 건너뜁니다.)\n요약 정보만 갱신할까요?`;
+  if (!confirm(msg)) return;
 
   const btn = $('saveBtn');
   btn.disabled = true;
   btn.textContent = '저장 중...';
   try {
-    const ids = new Set(people.map(p => p.id));
-    const ops = people.map(p => ({ type: 'set', ref: doc(db, 'roster', p.id), data: toStore(p) }));
-    rosterDocs.filter(d => !ids.has(d.id)).forEach(d => ops.push({ type: 'delete', ref: doc(db, 'roster', d.id) }));
+    const ops = fresh.map(p => ({ type: 'set', ref: doc(db, 'roster', p.id), data: toStore(p) }));
     ops.push({
       type: 'set',
       ref: doc(db, 'meta', 'current'),
@@ -629,7 +633,7 @@ async function onSave() {
     });
     await commitOps(ops);
     pending = null;
-    toast(`${people.length}건을 저장했습니다.`);
+    toast(fresh.length ? `신규 ${fresh.length}건을 추가했습니다.` : '변경된 신청자가 없습니다.');
   } catch (err) {
     alert('저장에 실패했습니다.\n' + err.message);
   } finally {
@@ -637,6 +641,7 @@ async function onSave() {
     render();
   }
 }
+
 
 async function onReset() {
   if (!isAdmin) return;
