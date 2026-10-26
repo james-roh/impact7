@@ -69,6 +69,9 @@
    .manual-title-input[readonly]:hover { border-color: transparent; background: transparent; }
 
   .hidden { display: none !important; }
+  body:not(.is-admin) .admin-only { display: none !important; }
+  input.memo-input { width: 160px; padding: 4px 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; }
+
 
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
@@ -527,9 +530,23 @@ function renderStats(people) {
 }
 
 
+function origSessionOf(p) {
+  if (p.kind === 'walkin') return null;
+  const n = parseInt(String(p.id).split('__')[0], 10);
+  return isNaN(n) ? 0 : n;
+}
+function isChanged(p) {
+  if (p.kind === 'walkin') return true;
+  return !!p.attended || Number(p.session) !== origSessionOf(p);
+}
 function rowHtml(p, nums, locked) {
   const dis = locked ? 'disabled' : '';
   const isWalk = p.kind === 'walkin';
+  const noteCell = isAdmin
+    ? `<div style="color:#b45309;font-size:12px">${esc(p.note)}</div>
+       <input class="memo-input" data-kind="${p.kind}" data-id="${esc(p.id)}" value="${esc(p.memo || '')}" placeholder="비고 입력" ${dis}>`
+    : `${esc(p.note)}${p.memo ? `<div style="color:#1f2937;margin-top:2px">${esc(p.memo)}</div>` : ''}`;
+  const editor = isChanged(p) && p.lastEditor ? esc(p.lastEditor) : '';
   return `
     <tr class="${p.attended ? 'attended' : ''}">
       <td><input type="checkbox" data-kind="${p.kind}" data-id="${esc(p.id)}" ${p.attended ? 'checked' : ''} ${dis}></td>
@@ -540,11 +557,12 @@ function rowHtml(p, nums, locked) {
       <td>${esc(p.phone)}</td>
       <td><select class="sess-sel" data-kind="${p.kind}" data-id="${esc(p.id)}" ${dis}>${sessOptions(p.session, nums)}</select></td>
       <td>${esc(p.applyAt)}</td>
-      <td class="note">${esc(p.note)}</td>
-      <td class="editor">${esc(p.lastEditor)}</td>
+      <td class="note">${noteCell}</td>
+      <td class="editor admin-only">${editor}</td>
       <td>${isWalk && !locked ? `<button class="btn small danger" data-del="${esc(p.id)}">삭제</button>` : ''}</td>
     </tr>`;
 }
+
 
 
 function renderList(people) {
@@ -576,7 +594,8 @@ function renderList(people) {
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>출석</th><th>구분</th><th>이름</th><th>학교</th><th>학년</th><th>연락처</th><th>회차 변경</th><th>신청일시(KST)</th><th>비고</th><th>최근 변경자</th><th></th>
+            <th>출석</th><th>구분</th><th>이름</th><th>학교</th><th>학년</th><th>연락처</th><th>회차 변경</th><th>신청일시(KST)</th><th>비고</th><th class="admin-only">최근 변경자</th>
+<th></th>
           </tr></thead>
           <tbody>${rows.map(p => rowHtml(p, nums, locked)).join('')}</tbody>
         </table>
@@ -757,6 +776,8 @@ onAuthStateChanged(auth, async u => {
   user = u;
   isAdmin = ADMINS.includes(email);
   $('manualTitle').readOnly = !isAdmin;
+  document.body.classList.toggle('is-admin', isAdmin);
+
   $('userInfo').textContent = `${email}${isAdmin ? ' (관리자)' : ''}`;
 
   $('userBox').classList.remove('hidden');
@@ -784,7 +805,17 @@ $('listArea').addEventListener('change', async e => {
   const t = e.target;
   if (!t.dataset.id || pending) return;
   try {
-    if (t.matches('input[type=checkbox]')) {
+    if (t.matches('input.memo-input')) {
+      if (!isAdmin) return;
+      const fields = { memo: t.value.trim() };
+      // 현장 참석자는 규칙상 마지막 변경자가 본인이어야 하므로 함께 기록합니다.
+      if (t.dataset.kind === 'walkin') {
+        fields.lastEditor = me();
+        fields.lastEditedAt = serverTimestamp();
+      }
+      await updateDoc(doc(db, t.dataset.kind === 'walkin' ? 'walkins' : 'roster', t.dataset.id), fields);
+      toast('비고를 저장했습니다.');
+    } else if (t.matches('input[type=checkbox]')) {
       const on = t.checked;
       await updateEntry(t.dataset.kind, t.dataset.id, { attended: on, attendedAt: on ? nowStr() : null });
     } else if (t.matches('select.sess-sel')) {
@@ -795,6 +826,7 @@ $('listArea').addEventListener('change', async e => {
     render();
   }
 });
+
 
 $('listArea').addEventListener('click', async e => {
   const id = e.target.dataset.del;
