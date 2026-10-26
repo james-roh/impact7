@@ -78,6 +78,9 @@
     .stats { grid-template-columns: repeat(2, 1fr); }
     .sortnote { margin-left: 0; width: 100%; }
   }
+   .badge.new { background: #dcfce7; color: #166534; }
+  .badge.old { background: #e5e7eb; color: #374151; }
+
 </style>
 </head>
 <body>
@@ -434,12 +437,21 @@ function currentSessions() {
   return pending ? pending.sessions : (meta.sessions || {});
 }
 function displayPeople() {
-  const apps = pending ? mergeWithExisting(pending.base) : rosterDocs;
+  if (!pending) {
+    return [
+      ...rosterDocs.map(p => ({ ...p, kind: 'applicant' })),
+      ...walkinDocs.map(w => ({ ...w, kind: 'walkin' }))
+    ];
+  }
+  const oldIds = new Set(rosterDocs.map(d => d.id));
+  const apps = mergeWithExisting(pending.base)
+    .map(p => ({ ...p, kind: 'applicant', isNew: !oldIds.has(p.id) }));
   return [
-    ...apps.map(p => ({ ...p, kind: 'applicant' })),
+    ...apps,
     ...walkinDocs.map(w => ({ ...w, kind: 'walkin' }))
   ];
 }
+
 function sessionNums(people) {
   const set = new Set([
     1, 2, 3, 4,
@@ -495,21 +507,41 @@ function refreshSessionFilter(people) {
   sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'all';
 }
 function renderStats(people) {
-  const apps = people.filter(p => p.kind === 'applicant');
-  const attendedAll = people.filter(p => p.attended).length;
-  const attendedApp = apps.filter(p => p.attended).length;
+  const sel = $('sessionFilter').value;
+  const scope = sel === 'all'
+    ? people
+    : people.filter(p => String(Number(p.session) || 0) === sel);
+  const apps = scope.filter(p => p.kind === 'applicant');
+  const appAttended = apps.filter(p => p.attended).length;
+  const rate = apps.length ? Math.round(appAttended / apps.length * 100) : 0;
+
   $('sTotal').textContent = apps.length + '건';
-  $('sAttended').textContent = attendedAll + '명';
-  $('sResident').textContent = people.filter(p => p.isResident).length + '명';
-  $('sRate').textContent = (apps.length ? Math.round(attendedApp / apps.length * 100) : 0) + '%';
+  $('sAttended').textContent = scope.filter(p => p.attended).length + '명';
+  $('sResident').textContent = scope.filter(p => p.isResident).length + '명';
+
+  // 전체 회차를 보고 있을 때는 회차별 참석률을 작은 글씨로 함께 보여줍니다.
+  let sub = '';
+  if (sel === 'all') {
+    sub = sessionKeys(people).filter(n => n).map(n => {
+      const a = people.filter(p => p.kind === 'applicant' && (Number(p.session) || 0) === n);
+      const c = a.filter(p => p.attended).length;
+      return `${n}회차 ${a.length ? Math.round(c / a.length * 100) : 0}%`;
+    }).join(' · ');
+  }
+  $('sRate').innerHTML = rate + '%' +
+    (sub ? `<div style="font-size:11px;color:#6b7280;font-weight:400;margin-top:4px">${esc(sub)}</div>` : '');
 }
+
 function rowHtml(p, nums, locked) {
   const dis = locked ? 'disabled' : '';
   const isWalk = p.kind === 'walkin';
+  const pendBadge = (pending && p.kind === 'applicant')
+    ? (p.isNew ? '<span class="badge new">신규</span>' : '<span class="badge old">기존</span>')
+    : '';
   return `
     <tr class="${p.attended ? 'attended' : ''}">
       <td><input type="checkbox" data-kind="${p.kind}" data-id="${esc(p.id)}" ${p.attended ? 'checked' : ''} ${dis}></td>
-      <td><span class="badge ${p.isResident ? 'res' : 'non'}">${p.isResident ? '재원' : '비재원'}</span>${isWalk ? '<span class="badge man">현장</span>' : ''}</td>
+      <td><span class="badge ${p.isResident ? 'res' : 'non'}">${p.isResident ? '재원' : '비재원'}</span>${isWalk ? '<span class="badge man">현장</span>' : ''}${pendBadge}</td>
       <td><b>${esc(p.name)}</b></td>
       <td>${esc(p.school)}</td>
       <td>${esc(p.grade)}</td>
@@ -521,6 +553,7 @@ function rowHtml(p, nums, locked) {
       <td>${isWalk && !locked ? `<button class="btn small danger" data-del="${esc(p.id)}">삭제</button>` : ''}</td>
     </tr>`;
 }
+
 function renderList(people) {
   const area = $('listArea');
   if (!people.length) {
