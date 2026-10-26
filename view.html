@@ -66,6 +66,8 @@
   #toast.show { opacity: 1; }
   .manual-title-input { width: 100%; font-size: 15px; font-weight: 700; color: #111827; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; margin: 0 0 8px; background: transparent; box-sizing: border-box; }
   .manual-title-input:hover, .manual-title-input:focus { border-color: #d1d5db; background: #fff; outline: none; }
+   .manual-title-input[readonly]:hover { border-color: transparent; background: transparent; }
+
   .hidden { display: none !important; }
 
   @media (max-width: 900px) {
@@ -228,6 +230,8 @@ let rosterDocs = [];   // 신청 명단 (Firestore roster)
 let walkinDocs = [];   // 현장 참석자 (Firestore walkins)
 let meta = { sessions: {}, summary: {} };
 let pending = null;    // 관리자 분석 미리보기 { base, sessions, summary }
+const MANUAL_TITLE_DEFAULT = '고교선택설명회 2027';
+
 
 const $ = id => document.getElementById(id);
 const me = () => (user ? user.email : '');
@@ -677,7 +681,14 @@ function startListening() {
     meta = snap.exists() ? snap.data() : { sessions: {}, summary: {} };
     render();
   }, fail));
+  unsubs.push(onSnapshot(doc(db, 'meta', 'manual'), snap => {
+    const t = snap.exists() ? (snap.data().title || MANUAL_TITLE_DEFAULT) : MANUAL_TITLE_DEFAULT;
+    const el = $('manualTitle');
+    // 관리자가 입력 중일 때는 덮어쓰지 않습니다.
+    if (document.activeElement !== el) el.value = t;
+  }, fail));
 }
+
 
 /* ---------- 로그인 ---------- */
 onAuthStateChanged(auth, async u => {
@@ -698,7 +709,9 @@ onAuthStateChanged(auth, async u => {
   }
   user = u;
   isAdmin = ADMINS.includes(email);
+  $('manualTitle').readOnly = !isAdmin;
   $('userInfo').textContent = `${email}${isAdmin ? ' (관리자)' : ''}`;
+
   $('userBox').classList.remove('hidden');
   $('loginCard').classList.add('hidden');
   $('appArea').classList.remove('hidden');
@@ -783,10 +796,19 @@ $('addForm').addEventListener('submit', async e => {
 });
 
 const manualTitleEl = $('manualTitle');
-manualTitleEl.value = localStorage.getItem(MANUAL_TITLE_KEY) || '설명서';
-manualTitleEl.addEventListener('input', () => {
-  localStorage.setItem(MANUAL_TITLE_KEY, manualTitleEl.value);
+// 관리자가 입력을 마치면(Enter 또는 칸 밖 클릭) 공유 제목으로 저장합니다.
+manualTitleEl.addEventListener('change', async () => {
+  if (!isAdmin) return;
+  const title = manualTitleEl.value.trim() || MANUAL_TITLE_DEFAULT;
+  try {
+    await setDoc(doc(db, 'meta', 'manual'), { title, updatedBy: me(), updatedAt: nowStr() });
+    manualTitleEl.value = title;
+    toast('제목을 저장했습니다.');
+  } catch (err) {
+    alert('제목을 저장하지 못했습니다.\n' + err.message);
+  }
 });
+
 </script>
 </body>
 </html>
