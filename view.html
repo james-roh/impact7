@@ -156,7 +156,8 @@
             <option value="yes">참석</option>
             <option value="no">미참석</option>
           </select>
-          <span class="sortnote">정렬 방식: <b>회차 순 / 회차 내 재원생 우선 / 신청 순</b></span>
+<span class="sortnote">정렬 방식: <b>회차 순 / 회차 내 이름 가나다순</b></span>
+
         </div>
       </section>
 
@@ -494,9 +495,12 @@ function groupTitle(n, info) {
   return [`${n}회차`, i.schedule || '일시 정보 없음', i.place || '장소 정보 없음'].join(' · ');
 }
 function sortFn(a, b) {
-  if (a.isResident !== b.isResident) return a.isResident ? -1 : 1;
+  const byName = (a.name || '').localeCompare(b.name || '', 'ko');
+  if (byName !== 0) return byName;
+  // 동명이인은 신청일시 순으로 정렬합니다.
   return (a.applyAt || '').localeCompare(b.applyAt || '');
 }
+
 function filterPeople(people) {
   const q = $('searchInput').value.trim().toLowerCase();
   const rt = $('residentFilter').value;
