@@ -475,15 +475,19 @@ function sessionKeys(people) {
   if (people.some(p => !Number(p.session))) keys.push(0);
   return keys;
 }
-function sessOptions(cur, nums) {
+function sessOptions(cur, nums, withDelete = false) {
   const info = currentSessions();
   const cn = Number(cur) || 0;
   const opts = nums.map(n => {
     const st = info[n]?.schedule ? startTime(info[n].schedule) + ' ~' : '';
     return `<option value="${n}" ${n === cn ? 'selected' : ''}>${n}회차${st ? ' (' + esc(st) + ')' : ''}</option>`;
   });
-  return `<option value="0" ${cn === 0 ? 'selected' : ''}>미지정</option>` + opts.join('');
+  let html = `<option value="0" ${cn === 0 ? 'selected' : ''}>미지정</option>` + opts.join('');
+  // 관리자에게만 맨 아래에 「삭제」 항목을 추가합니다.
+  if (withDelete && isAdmin) html += `<option value="delete">삭제</option>`;
+  return html;
 }
+
 function groupTitle(n, info) {
   if (!n) return '회차 미지정 (확인 필요)';
   const i = info[n] || {};
@@ -567,7 +571,8 @@ function rowHtml(p, nums, locked) {
       <td>${esc(p.school)}</td>
       <td>${esc(p.grade)}</td>
       <td>${esc(fmtPhone(p.phone))}</td>
-      <td><select class="sess-sel" data-kind="${p.kind}" data-id="${esc(p.id)}" ${dis}>${sessOptions(p.session, nums)}</select></td>
+      <td><select class="sess-sel" data-kind="${p.kind}" data-id="${esc(p.id)}" ${dis}>${sessOptions(p.session, nums, true)}</select></td>
+
       <td>${esc(fmtDate(p.applyAt))}</td>
       <td class="note">${noteCell}</td>
       <td class="editor admin-only">${editor}</td>
@@ -823,8 +828,20 @@ $('listArea').addEventListener('change', async e => {
       const on = t.checked;
       await updateEntry(t.dataset.kind, t.dataset.id, { attended: on, attendedAt: on ? nowStr() : null });
     } else if (t.matches('select.sess-sel')) {
+      if (t.value === 'delete') {
+        if (!isAdmin) return;
+        if (!confirm('이 신청자를 명단에서 삭제할까요?\n삭제 후에는 되돌릴 수 없습니다.')) {
+          render();   // 취소하면 드롭다운을 원래 회차로 되돌립니다.
+          return;
+        }
+        const col = t.dataset.kind === 'walkin' ? 'walkins' : 'roster';
+        await deleteDoc(doc(db, col, t.dataset.id));
+        toast('삭제했습니다.');
+        return;
+      }
       await updateEntry(t.dataset.kind, t.dataset.id, { session: Number(t.value) });
     }
+
   } catch (err) {
     alert('변경을 저장하지 못했습니다.\n' + err.message);
     render();
