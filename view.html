@@ -736,9 +736,23 @@ async function onSave() {
   }
 }
 
-async function onReset() {
+function onReset() {
+  if (!isAdmin) return;
+  if (!$('rawInput').value.trim() && !pending) {
+    toast('지울 입력 내용이 없습니다.');
+    return;
+  }
+  if (!confirm('입력창의 내용과 분석 미리보기를 지울까요?\n저장된 명단과 출석 기록은 지워지지 않습니다.')) return;
+  pending = null;
+  $('rawInput').value = '';
+  $('syncMsg').textContent = '';
+  render();
+  toast('입력 내용을 지웠습니다.');
+}
+
 /* ---------- 참석 현황 저장 (관리자) ---------- */
 function buildArchive() {
+
   const info = currentSessions();
   const nums = sessionKeys(displayPeople());
   const sessions = nums.map(n => {
