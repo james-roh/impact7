@@ -231,6 +231,9 @@ const firebaseConfig = {
 const ADMINS = ['roh@impact7.kr', 'hank@impact7.kr', 'dorothy@impact7.kr'];
 
 const STAFF_DOMAIN = 'impact7.kr';
+// 도메인 밖에서 직원으로 허용할 개별 계정 (보안 규칙의 staff 목록과 반드시 같아야 합니다)
+const EXTRA_STAFF = ['impact7eng@gmail.com'];
+
 const EXCLUDE_RE = /테스트|test|sample|샘플|세븐중/i;
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 const MANUAL_TITLE_KEY = 'briefing_manual_title_v1';
@@ -241,7 +244,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ hd: STAFF_DOMAIN });
+provider.setCustomParameters({ prompt: 'select_account' });
+
 
 let user = null;
 let isAdmin = false;
@@ -931,11 +935,13 @@ onAuthStateChanged(auth, async u => {
     return;
   }
   const email = (u.email || '').toLowerCase();
-  if (!u.emailVerified || !email.endsWith('@' + STAFF_DOMAIN)) {
-    alert(`@${STAFF_DOMAIN} 계정만 사용할 수 있습니다.`);
+  const allowed = email.endsWith('@' + STAFF_DOMAIN) || EXTRA_STAFF.includes(email);
+  if (!u.emailVerified || !allowed) {
+    alert(`@${STAFF_DOMAIN} 계정 또는 허용된 계정만 사용할 수 있습니다.`);
     await signOut(auth);
     return;
   }
+
   user = u;
   isAdmin = ADMINS.includes(email);
   $('manualTitle').readOnly = !isAdmin;
