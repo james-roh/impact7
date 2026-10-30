@@ -737,26 +737,6 @@ async function onSave() {
 }
 
 async function onReset() {
-  if (!isAdmin) return;
-  if (!confirm('입력창과 분석 미리보기를 지울까요?')) return;
-  pending = null;
-  $('rawInput').value = '';
-  $('syncMsg').textContent = '';
-  if (confirm('저장된 신청 명단, 현장 참석자, 출석·회차 기록까지 모두 삭제할까요?\n(되돌릴 수 없습니다. 취소하면 저장 데이터는 그대로 둡니다.)')) {
-    try {
-      const ops = [
-        ...rosterDocs.map(d => ({ type: 'delete', ref: doc(db, 'roster', d.id) })),
-        ...walkinDocs.map(w => ({ type: 'delete', ref: doc(db, 'walkins', w.id) })),
-        { type: 'delete', ref: doc(db, 'meta', 'current') }
-      ];
-      await commitOps(ops);
-      toast('초기화했습니다.');
-    } catch (err) {
-      alert('초기화에 실패했습니다.\n' + err.message);
-    }
-  }
-  render();
-}
 /* ---------- 참석 현황 저장 (관리자) ---------- */
 function buildArchive() {
   const info = currentSessions();
